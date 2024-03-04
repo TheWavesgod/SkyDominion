@@ -13,8 +13,6 @@ UAeroPhysicsComponent::UAeroPhysicsComponent()
 	if (Airplane)
 	{
 		Mesh = Airplane->GetMesh();
-		Mesh->SetSimulatePhysics(true);
-		Mesh->SetEnableGravity(true);
 	}
 }
 
@@ -24,14 +22,20 @@ void UAeroPhysicsComponent::BeginPlay()
 
 	InitializeAnimationInstance();
 
-	if (Mesh)
+	UWorld* World = GetWorld();
+	if (World && World->GetNetMode() == ENetMode::NM_ListenServer)
 	{
-		Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		Mesh->SetCollisionObjectType(ECC_Pawn);
-		Mesh->SetMassOverrideInKg(FName("cog_jnt"), EmptyWeight);
-		FVector WorldLocationOfMassCenter = Mesh->GetCenterOfMass();
-		FVector LocalLocationOfMassCenter = Mesh->GetComponentTransform().InverseTransformPosition(WorldLocationOfMassCenter);
-		Mesh->SetCenterOfMass(CenterOfMass - LocalLocationOfMassCenter, FName("cog_jnt"));
+		if (Mesh)
+		{
+			Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+			Mesh->SetCollisionObjectType(ECC_Pawn);
+			Mesh->SetSimulatePhysics(true);
+			Mesh->SetEnableGravity(true);
+			Mesh->SetMassOverrideInKg(FName("cog_jnt"), EmptyWeight);
+			FVector WorldLocationOfMassCenter = Mesh->GetCenterOfMass();
+			FVector LocalLocationOfMassCenter = Mesh->GetComponentTransform().InverseTransformPosition(WorldLocationOfMassCenter);
+			Mesh->SetCenterOfMass(CenterOfMass - LocalLocationOfMassCenter, FName("cog_jnt"));
+		}
 	}
 
 	InitializeArray();
@@ -52,10 +56,13 @@ void UAeroPhysicsComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 	DebugTick(DeltaTime);
 
 	InitializeAnimationInstance();
+	
+	if (GetWorld() && GetWorld()->GetNetMode() == ENetMode::NM_ListenServer)
+	{
+		AeroPhysicsTick(DeltaTime);
 
-	AeroPhysicsTick(DeltaTime);
-
-	AddForceToMesh();
+		AddForceToMesh();
+	}
 }
 
 void UAeroPhysicsComponent::InitializeArray()
@@ -438,6 +445,7 @@ void UAeroPhysicsComponent::AerodynamicFroceCalculation(float DeltaTime)
 			AeroSufaceTotalForceAndTorque.t += AerodynamicForces.t;
 			AeroSufaceForcesAndTorques[i] = AerodynamicForces;
 
+			
 			if (false)
 			{
 				DrawDebugLine(
@@ -458,6 +466,8 @@ void UAeroPhysicsComponent::AerodynamicFroceCalculation(float DeltaTime)
 				);
 			}
 	}
+	
+
 }
 
 float UAeroPhysicsComponent::CalculateRotDegree(float ControlAxis, float X, float Y)
@@ -487,15 +497,18 @@ void UAeroPhysicsComponent::CalculateFlyControl(float DeltaTime)
 			InterpSpeed = FMath::Clamp(InterpSpeed, 0.0f, 5.0f);
 			AddDebugMessageOnScreen(DeltaTime, FColor::Red, FString::Printf(TEXT("InterpSpeed: %f"), InterpSpeed));
 
-			if (AirplanePitchSpeed > 0)
-			{
-				PitchControl -= InterpSpeed * DeltaTime;
+
+			if (MeshVelocity.Z < 0.0f) {
+				TargetPitchControl -= 0.03f * DeltaTime;
 			}
-			else
-			{
-				PitchControl += InterpSpeed * DeltaTime;
+			else if (MeshVelocity.Z > 0.0f) {
+				TargetPitchControl += 0.03f * DeltaTime;
 			}
-			PitchControl = TargetPitchControlLimitRatio * FMath::Clamp(PitchControl, -1.0f, 1.0f);
+
+			TargetPitchControl = TargetPitchControlLimitRatio * FMath::Clamp(TargetPitchControl, -1.0f, 1.0f);
+
+			PitchControl = FMath::Lerp(PitchControl, TargetPitchControl, 0.1);
+			//PitchControl = TargetPitchControlLimitRatio * FMath::Clamp(PitchControl, -1.0f, 1.0f);
 		}
 	}
 	else

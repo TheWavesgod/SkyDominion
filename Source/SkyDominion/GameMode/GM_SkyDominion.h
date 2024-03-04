@@ -15,5 +15,7 @@ class SKYDOMINION_API AGM_SkyDominion : public AGameMode
 	GENERATED_BODY()
 
 public:
+	virtual void StartPlay() override;
+
 	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
 };

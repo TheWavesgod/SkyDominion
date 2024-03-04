@@ -5,7 +5,26 @@
 #include "Kismet/GameplayStatics.h"
 #include "SkyDominion/SkyFrameWork/SkyPlayerState.h"
 #include "GameFramework/PlayerStart.h"
+#include "GameFramework/GameState.h"
 
+
+void AGM_SkyDominion::StartPlay()
+{
+	for (int i = 0; i < GameState->PlayerArray.Num(); ++i)
+	{
+		ASkyPlayerState* PlayerState = GameState->PlayerArray[i]->GetPlayerController()->GetPlayerState<ASkyPlayerState>();
+		if (i % 2 == 1)
+		{
+			PlayerState->bInRedTeam = false;
+		}
+		if (i > 1)
+		{
+			PlayerState->TeamIndex = 1;
+		}
+	}
+
+    Super::StartPlay();
+}
 
 AActor* AGM_SkyDominion::ChoosePlayerStart_Implementation(AController* Player)
 {
