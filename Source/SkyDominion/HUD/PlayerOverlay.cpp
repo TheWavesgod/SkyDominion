@@ -17,9 +17,14 @@ bool UPlayerOverlay::Initialize()
 
 void UPlayerOverlay::NativeConstruct()
 {
-	FTimerHandle ParameterUpdateHandle;
-	float Interval = 0.1;
-	GetWorld()->GetTimerManager().SetTimer(ParameterUpdateHandle, this, &ThisClass::UpdateParameter, Interval, true);
+	Super::NativeConstruct();
+}
+
+void UPlayerOverlay::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	UpdateParameter();
 }
 
 void UPlayerOverlay::UpdateParameter()
