@@ -75,9 +75,9 @@ void UAeroPhysicsComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	DOREPLIFETIME(UAeroPhysicsComponent, WheelRetreatedRatio); 
 	DOREPLIFETIME(UAeroPhysicsComponent, bIsWheelsRetreated);
 	DOREPLIFETIME(UAeroPhysicsComponent, CurrentThrusterRatio);
+	DOREPLIFETIME(UAeroPhysicsComponent, RealThrusterRatio);
 	DOREPLIFETIME(UAeroPhysicsComponent, GroundSpeed);
 	DOREPLIFETIME(UAeroPhysicsComponent, GForce);
-	DOREPLIFETIME(UAeroPhysicsComponent, AngleOfAttack);
 }
 
 void UAeroPhysicsComponent::InitializeArray()
@@ -387,14 +387,16 @@ void UAeroPhysicsComponent::WheelsRaycastAndVariablesCache()
 
 void UAeroPhysicsComponent::ThrusterForceCalculation(float DeltaTime)
 {
+	RealThrusterRatio = FMath::FInterpTo(RealThrusterRatio, CurrentThrusterRatio, DeltaTime, 1.0f);
+
 	for (int i = 0; i < ThrusterSettings.Num(); ++i)
 	{
-		float TargetThruster = CurrentThrusterRatio * ThrusterSettings[i].MaxExtraThrust * 9.8f;
+		float TargetThruster = RealThrusterRatio * ThrusterSettings[i].MaxExtraThrust * 9.8f;
 
 		// Consider the effect of air density
 		TargetThruster *= 1.0f;
 
-		CurrentThrusters[i] = FMath::FInterpTo(CurrentThrusters[i], TargetThruster, DeltaTime, 3.0f);
+		CurrentThrusters[i] = TargetThruster;
 
 		FVector ThrusterForcesAtLocal = ThrusterSettings[i].ThrustAixs.GetSafeNormal() * CurrentThrusters[i];
 

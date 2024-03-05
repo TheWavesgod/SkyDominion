@@ -5,16 +5,21 @@
 #include "SkyDominion/Pawn/Fighter.h"
 #include "AerodynamicPhysics/public/AeroPhysicsComponent.h"
 
+bool UPlayerOverlay::Initialize()
+{
+	if (!Super::Initialize())
+	{
+		return false;
+	}
+
+	return true;
+}
+
 void UPlayerOverlay::NativeConstruct()
 {
 	FTimerHandle ParameterUpdateHandle;
-	float Interval = 1.0f / 60.0f;
+	float Interval = 0.1;
 	GetWorld()->GetTimerManager().SetTimer(ParameterUpdateHandle, this, &ThisClass::UpdateParameter, Interval, true);
-}
-
-void UPlayerOverlay::Tick(FGeometry MyGeometry, float InDeltaTime)
-{
-	Super::Tick(MyGeometry, InDeltaTime);
 }
 
 void UPlayerOverlay::UpdateParameter()

@@ -288,6 +288,9 @@ private:
 	UPROPERTY(Replicated)
 	float CurrentThrusterRatio;
 
+	UPROPERTY(Replicated)
+	float RealThrusterRatio;
+
 	UPROPERTY(EditAnywhere, Category = "Debug Parameters")
 	float ThrusterRatioAddPerSecond = 0.2f; 
 
@@ -351,6 +354,9 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetCurrentThrusterRatio() const { return CurrentThrusterRatio; }
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE float GetRealThrusterRatio() const { return RealThrusterRatio; }
 
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetCurrentGroundSpeed() const { return GroundSpeed; }
