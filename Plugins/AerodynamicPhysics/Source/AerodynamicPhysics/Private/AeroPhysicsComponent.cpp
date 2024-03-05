@@ -4,6 +4,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "AirplaneAnimInstance.h"
+#include "Net/UnrealNetwork.h"
 
 UAeroPhysicsComponent::UAeroPhysicsComponent()
 {
@@ -65,6 +66,20 @@ void UAeroPhysicsComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 	}
 }
 
+void UAeroPhysicsComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UAeroPhysicsComponent, WheelAnimVaribles);
+	DOREPLIFETIME(UAeroPhysicsComponent, AerosufaceAnimVaribles);
+	DOREPLIFETIME(UAeroPhysicsComponent, WheelRetreatedRatio); 
+	DOREPLIFETIME(UAeroPhysicsComponent, bIsWheelsRetreated);
+	DOREPLIFETIME(UAeroPhysicsComponent, CurrentThrusterRatio);
+	DOREPLIFETIME(UAeroPhysicsComponent, GroundSpeed);
+	DOREPLIFETIME(UAeroPhysicsComponent, GForce);
+	DOREPLIFETIME(UAeroPhysicsComponent, AngleOfAttack);
+}
+
 void UAeroPhysicsComponent::InitializeArray()
 {
 	// Wheel Array Init
@@ -121,7 +136,7 @@ void UAeroPhysicsComponent::AddForceToMesh()
 	}*/
 	Mesh->AddForce(Airplane->GetTransform().TransformVector(AeroSufaceTotalForceAndTorque.f) * 100.0f);
 	Mesh->AddTorqueInRadians(Airplane->GetTransform().TransformVector(AeroSufaceTotalForceAndTorque.t) * 10000.0f);
-	DrawDebugLine(GetWorld(), Airplane->GetTransform().GetLocation(), Airplane->GetTransform().GetLocation() + Airplane->GetTransform().TransformVector(AeroSufaceTotalForceAndTorque.t), FColor::Red, false, 0.0f);
+	//DrawDebugLine(GetWorld(), Airplane->GetTransform().GetLocation(), Airplane->GetTransform().GetLocation() + Airplane->GetTransform().TransformVector(AeroSufaceTotalForceAndTorque.t), FColor::Red, false, 0.0f);
 }
 
 void UAeroPhysicsComponent::AeroPhysicsTick(float DeltaTime)
@@ -145,6 +160,8 @@ void UAeroPhysicsComponent::AeroPhysicsFun()
 
 void UAeroPhysicsComponent::AeroParametersCalculation(float DeltaTime)
 {
+	//if (!Mesh) return;
+
 	LastFrameMeshVelocity = MeshVelocity;
 	MeshVelocity = Mesh->GetPhysicsLinearVelocity();
 	MeshAcceleration = (MeshVelocity - LastFrameMeshVelocity) / DeltaTime;
@@ -270,7 +287,7 @@ void UAeroPhysicsComponent::WheelsForceCalculation(float DeltaTime)
 
 		if (WheelPlaneVelocity.Size() > WheelStaticThreshold)
 		{
-			float MaxStaticFriction = NormalSuspensionForce.Size() * StaticFrictionRatio;
+			float MaxStaticFriction = NormalSuspensionForce.Size() * StaticFrictionRatio * 100.0f;
 
 			float TargetRightFriction = WheelRightVelocity.Size() * NormalSuspensionForce.Size() / (9.8f * WheelTurnFrictionRatio);
 			FVector TargetRightFrictionForce = -WheelRightVelocity / WheelRightVelocity.Size() * TargetRightFriction;
@@ -416,7 +433,7 @@ void UAeroPhysicsComponent::AerodynamicFroceCalculation(float DeltaTime)
 		if (AerodynamicSurfaceSettings[i].ControlConfig.bYawControl)
 		{
 			RotDegree += CalculateRotDegree(YawControl, AerodynamicSurfaceSettings[i].ControlConfig.ControlAngleMapDegree.X, AerodynamicSurfaceSettings[i].ControlConfig.ControlAngleMapDegree.Y);
-			AddDebugMessageOnScreen(DeltaTime, FColor::Cyan, FString::Printf(TEXT("RotDegree: %f"), RotDegree));
+			//AddDebugMessageOnScreen(DeltaTime, FColor::Cyan, FString::Printf(TEXT("RotDegree: %f"), RotDegree));
 		}
 		if (AerodynamicSurfaceSettings[i].ControlConfig.bFlapControl)
 		{
@@ -490,26 +507,12 @@ void UAeroPhysicsComponent::CalculateFlyControl(float DeltaTime)
 	float TargetPitchControlLimitRatio = FMath::Clamp(PitchControlLimitRatio / GSpeedIndex, 0.0f, 1.0f);
 	if (FMath::Abs(GroundSpeed) > 50.0f && FMath::Abs(PitchInput) < 0.005)
 	{
-		float AirplanePitchSpeed = FMath::RadiansToDegrees(MeshAngularVelocityInRadians.Dot(Mesh->GetRightVector()));
-		if (FMath::Abs(AirplanePitchSpeed) > 0.05)
+		TargetPitchControl = PitchInput * TargetPitchControlLimitRatio;
+		if (PitchInput > 0.0f)
 		{
-			float InterpSpeed = FMath::Abs(AirplanePitchSpeed) * PitchControlInterpSpeed /*/ FMath::Abs(GroundSpeed / 100.0f)*/;
-			InterpSpeed = FMath::Clamp(InterpSpeed, 0.0f, 5.0f);
-			AddDebugMessageOnScreen(DeltaTime, FColor::Red, FString::Printf(TEXT("InterpSpeed: %f"), InterpSpeed));
-
-
-			if (MeshVelocity.Z < 0.0f) {
-				TargetPitchControl -= 0.03f * DeltaTime;
-			}
-			else if (MeshVelocity.Z > 0.0f) {
-				TargetPitchControl += 0.03f * DeltaTime;
-			}
-
-			TargetPitchControl = TargetPitchControlLimitRatio * FMath::Clamp(TargetPitchControl, -1.0f, 1.0f);
-
-			PitchControl = FMath::Lerp(PitchControl, TargetPitchControl, 0.1);
-			//PitchControl = TargetPitchControlLimitRatio * FMath::Clamp(PitchControl, -1.0f, 1.0f);
+			TargetPitchControl *= 0.25f;
 		}
+		PitchControl = FMath::FInterpTo(PitchControl, TargetPitchControl, DeltaTime, 5.0f);
 	}
 	else
 	{
@@ -616,6 +619,7 @@ void UAeroPhysicsComponent::DebugTick(float DeltaTime)
 	{
 		AddDebugMessageOnScreen(0.0f, FColor::Red, FString::Printf(TEXT("Thruster %d: %d"), i, FMath::RoundToInt32(CurrentThrusters[i])));
 	}*/
+	//AddDebugMessageOnScreen(0.0f, FColor::Red, FString::Printf(TEXT("GroundSpeed: %d, GForce: %f"), FMath::CeilToInt(GroundSpeed), GForce));
 }
 
 void UAeroPhysicsComponent::AddDebugMessageOnScreen(const float DisplayTime, const FColor Color, const FString DiplayString)

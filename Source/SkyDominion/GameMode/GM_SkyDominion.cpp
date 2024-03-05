@@ -7,40 +7,32 @@
 #include "GameFramework/PlayerStart.h"
 #include "GameFramework/GameState.h"
 
-
-void AGM_SkyDominion::StartPlay()
-{
-	for (int i = 0; i < GameState->PlayerArray.Num(); ++i)
-	{
-		ASkyPlayerState* PlayerState = GameState->PlayerArray[i]->GetPlayerController()->GetPlayerState<ASkyPlayerState>();
-		if (i % 2 == 1)
-		{
-			PlayerState->bInRedTeam = false;
-		}
-		if (i > 1)
-		{
-			PlayerState->TeamIndex = 1;
-		}
-	}
-
-    Super::StartPlay();
-}
-
 AActor* AGM_SkyDominion::ChoosePlayerStart_Implementation(AController* Player)
 {
     TArray<AActor*> PlayerStarts;
     UGameplayStatics::GetAllActorsOfClass(this, APlayerStart::StaticClass(), PlayerStarts);
    
+    
     int index = 0;
     ASkyPlayerState* PlayerState = Player->GetPlayerState<ASkyPlayerState>();
-    if (PlayerState)
+    APlayerState* originPlayerState = Player->GetPlayerState<APlayerState>();
+
+    for (int i = 0; i < GameState->PlayerArray.Num(); ++i)
     {
-        if (!PlayerState->bInRedTeam)
+        if (originPlayerState == GameState->PlayerArray[i].Get())
         {
-            index += 2;
+            index = i;
         }
-        index += PlayerState->TeamIndex;
     }
+
+	/*if (PlayerState)
+	{
+		if (!PlayerState->bInRedTeam)
+		{
+			index += 2;
+		}
+		index += PlayerState->TeamIndex;
+	}*/
 
     FName StartTag;
     switch (index)
@@ -60,6 +52,11 @@ AActor* AGM_SkyDominion::ChoosePlayerStart_Implementation(AController* Player)
     case 3:
         StartTag = TEXT("Blue_2");
         break;
+    }
+
+    if (GEngine)
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, FString::Printf(TEXT("Play %d choose"), index) + StartTag.ToString());
     }
 
     for (auto PlayerStart : PlayerStarts)

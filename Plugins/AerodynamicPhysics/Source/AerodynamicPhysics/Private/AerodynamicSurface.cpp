@@ -56,7 +56,7 @@ FBiVector FAeroSurface::CalculateAerodynamicForces(FVector LocalAirVelocity, flo
 
 	FVector aerodynamicCoefficients = CalculateCoefficients(angleOfAttack, CorrectedLiftSlope, zeroLiftAoA, stallAngleHigh, stallAngleLow);
 
-	if (GEngine) { GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Blue, SurfaceName.ToString() + FString::Printf(TEXT(" AoA: %f, Cl: %f"), FMath::RadiansToDegrees(angleOfAttack), aerodynamicCoefficients.X)); }
+	//if (GEngine) { GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Blue, SurfaceName.ToString() + FString::Printf(TEXT(" AoA: %f, Cl: %f"), FMath::RadiansToDegrees(angleOfAttack), aerodynamicCoefficients.X)); }
 
 	FVector lift = liftDirection * aerodynamicCoefficients.X * dynamicPressure * area;
 	FVector drag = dragDirection * aerodynamicCoefficients.Y * dynamicPressure * area;

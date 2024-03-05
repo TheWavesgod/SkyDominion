@@ -28,6 +28,8 @@ void AFighter::BeginPlay()
 void AFighter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	HandleRudderInput(DeltaTime);
 }
 
 void AFighter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -96,10 +98,12 @@ void AFighter::ServerRollInput_Implementation(float Value)
 
 void AFighter::ServerRightRudderInput_Implementation(float Value)
 {
+	RightRudderInputVal = Value;
 }
 
 void AFighter::ServerLeftRudderInput_Implementation(float Value)
 {
+	LeftRudderInputVal = Value;
 }
 
 void AFighter::ServerFlapBttnPressed_Implementation()
@@ -110,4 +114,32 @@ void AFighter::ServerFlapBttnPressed_Implementation()
 void AFighter::ServerWheelRetreatBttnPressed_Implementation()
 {
 	AeroPhysicsComponent->SetWheelsRetreated(!AeroPhysicsComponent->GetIsWheelsRetreated());
+}
+
+void AFighter::HandleRudderInput(float DeltaTime)
+{
+	if (GetWorld() && GetWorld()->GetNetMode() == ENetMode::NM_ListenServer)
+	{
+		if (RightRudderInputVal > 0.005f && LeftRudderInputVal > 0.05f)
+		{
+			float input = (LeftRudderInputVal + RightRudderInputVal) * 0.5f;
+			AeroPhysicsComponent->SetWheelsBrake(input);
+			AeroPhysicsComponent->SetAeroYawControl(0.0f);
+			AeroPhysicsComponent->SetSteeringWheels(0.0f);
+		}
+		else
+		{
+			AeroPhysicsComponent->SetWheelsBrake(0.0f);
+			if (RightRudderInputVal > LeftRudderInputVal)
+			{
+				AeroPhysicsComponent->SetSteeringWheels(RightRudderInputVal);
+				AeroPhysicsComponent->SetAeroYawControl(RightRudderInputVal);
+			}
+			else
+			{
+				AeroPhysicsComponent->SetSteeringWheels(-LeftRudderInputVal);
+				AeroPhysicsComponent->SetAeroYawControl(-LeftRudderInputVal);
+			}
+		}
+	}
 }

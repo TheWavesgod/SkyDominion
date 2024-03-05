@@ -60,5 +60,8 @@ protected:
 	void ServerWheelRetreatBttnPressed();
 
 private:
-	
+	void HandleRudderInput(float DeltaTime);
+
+	float RightRudderInputVal = 0.0f;
+	float LeftRudderInputVal = 0.0f;
 };

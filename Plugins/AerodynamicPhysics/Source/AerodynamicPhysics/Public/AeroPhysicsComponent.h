@@ -148,6 +148,8 @@ public:
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 	/**
 	 *  Airplane's configurations
 	 */
@@ -238,10 +240,13 @@ private:
 
 	FVector MeshAngularVelocityInRadians;
 
+	UPROPERTY(Replicated)
 	float GroundSpeed;
 
+	UPROPERTY(Replicated)
 	float GForce = 0.0f;
 
+	UPROPERTY(Replicated)
 	float AngleOfAttack = 0.0f;
 
 	/**
@@ -269,7 +274,10 @@ private:
 
 	float BrakeForceRatio = 0.0f;
 
+	UPROPERTY(Replicated)
 	bool bIsWheelsRetreated = false;
+
+	UPROPERTY(Replicated)
 	float WheelRetreatedRatio = 0.0f;
 
 	/**
@@ -277,6 +285,7 @@ private:
 	 */
 	void ThrusterForceCalculation(float DeltaTime);
 
+	UPROPERTY(Replicated)
 	float CurrentThrusterRatio;
 
 	UPROPERTY(EditAnywhere, Category = "Debug Parameters")
@@ -331,10 +340,10 @@ private:
 	void InterpAeroControl(float DeltaTime);
 
 public:	
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(Replicated, BlueprintReadOnly)
 	TArray<FWheelAnimVaribles> WheelAnimVaribles;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(Replicated, BlueprintReadOnly)
 	TArray<FAerosufaceAnimVaribles> AerosufaceAnimVaribles;
 
 	UFUNCTION(BlueprintPure)
@@ -351,4 +360,7 @@ public:
 		
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetCurrentWheelRetreatedRatio() const { return WheelRetreatedRatio; }
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE float GetCurrentAngleofAttack() const { return AngleOfAttack; }
 };

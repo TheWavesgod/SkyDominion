@@ -29,4 +29,5 @@ private:
 
 public:	
 	FORCEINLINE USkeletalMeshComponent* GetMesh() const { return Mesh; }
+	FORCEINLINE UAeroPhysicsComponent* GetAeroPhysicsComponent() const { return AeroPhysicsComponent; }
 };
