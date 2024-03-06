@@ -86,7 +86,9 @@ void UAeroPhysicsComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	DOREPLIFETIME(UAeroPhysicsComponent, CurrentThrusterRatio);
 	DOREPLIFETIME(UAeroPhysicsComponent, RealThrusterRatio);
 	DOREPLIFETIME(UAeroPhysicsComponent, GroundSpeed);
+	DOREPLIFETIME(UAeroPhysicsComponent, MeshAcceleration);
 	DOREPLIFETIME(UAeroPhysicsComponent, GForce);
+	DOREPLIFETIME(UAeroPhysicsComponent, AngleOfAttack);
 }
 
 void UAeroPhysicsComponent::InitializeArray()

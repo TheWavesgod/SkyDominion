@@ -77,6 +77,8 @@ private:
 
 	/** Fighter Vision Update */
 	void VisionUpdate(float DeltaTime);
+
 	FVector2D VisionInput;
 	FQuat SpringArmQuat;
+	float OriginalSpringArmLength;
 };

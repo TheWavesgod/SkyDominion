@@ -236,9 +236,14 @@ private:
 	FVector MeshVelocity;
 	FVector LastFrameMeshVelocity;
 	
+	UPROPERTY(Replicated)
 	FVector MeshAcceleration;
 
 	FVector MeshAngularVelocityInRadians;
+
+	// Value use for client calculation
+	FVector PlaneLastFrameLocation;
+	FVector PlaneLocation;
 
 	UPROPERTY(Replicated)
 	float GroundSpeed;
@@ -362,6 +367,9 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetCurrentGroundSpeed() const { return GroundSpeed; }
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE FVector GetCurrentAcceleration() const { return MeshAcceleration; }
 
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetCurrentGForce() const { return GForce; }

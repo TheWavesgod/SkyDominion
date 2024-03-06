@@ -29,6 +29,8 @@ AFighter::AFighter()
 void AFighter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	OriginalSpringArmLength = MainCameraSpringArm->TargetArmLength;
 }
 
 void AFighter::Tick(float DeltaTime)
@@ -211,7 +213,19 @@ void AFighter::UpdateThrusterFX(float DeltaTime)
 void AFighter::VisionUpdate(float DeltaTime)
 {
 	FQuat UpDown = FQuat(FVector(0, 1, 0), FMath::DegreesToRadians(VisionInput.Y * 70.0f));
-	FQuat RightLeft = FQuat(FVector(0, 0, 1), FMath::DegreesToRadians(VisionInput.X * 89.0f)); 
+	FQuat RightLeft = FQuat(FVector(0, 0, 1), FMath::DegreesToRadians(VisionInput.X * 150.0f)); 
+
 	SpringArmQuat = FMath::QInterpTo(SpringArmQuat, RightLeft * UpDown, DeltaTime, 6.5f);
+
+	FVector Acceleration = AeroPhysicsComponent->GetCurrentAcceleration();
+
+	// Change TargetArmLength depend on Acceleration
+	float ForwardAcceleration = Acceleration.Dot(GetActorForwardVector());
+	float ForwardRatio = FMath::GetMappedRangeValueClamped(FVector2D(-1200.0f, 1200.0f), FVector2D(-1.0f, 1.0f), ForwardAcceleration);
+	//GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Blue, FString::Printf(TEXT("Forward A: %f"), ForwardAcceleration));
+
+	float GForce = AeroPhysicsComponent->GetCurrentGForce();
+
 	MainCameraSpringArm->SetRelativeRotation(SpringArmQuat);
+	MainCameraSpringArm->TargetArmLength = FMath::FInterpTo(MainCameraSpringArm->TargetArmLength, OriginalSpringArmLength + ForwardRatio * 400.0f, DeltaTime, 1.0f);
 }
