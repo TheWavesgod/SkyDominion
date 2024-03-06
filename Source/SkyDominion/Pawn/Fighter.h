@@ -35,6 +35,8 @@ protected:
 	class UNiagaraComponent* ThrusterFXRight;
 
 	/** PlayerInput Bind Function */
+	void LookUpDown(float Value);
+	void LookRightLeft(float Value);
 	void ThrusterInput(float Value);
 	void PitchInput(float Value);
 	void RollInput(float Value);
@@ -72,4 +74,9 @@ private:
 
 	float ThrusterFXTrasition = 0.0f;
 	void UpdateThrusterFX(float DeltaTime);
+
+	/** Fighter Vision Update */
+	void VisionUpdate(float DeltaTime);
+	FVector2D VisionInput;
+	FQuat SpringArmQuat;
 };

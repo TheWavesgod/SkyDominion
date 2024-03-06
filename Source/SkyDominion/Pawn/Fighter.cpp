@@ -38,11 +38,16 @@ void AFighter::Tick(float DeltaTime)
 	HandleRudderInput(DeltaTime);
 
 	UpdateThrusterFX(DeltaTime);
+
+	VisionUpdate(DeltaTime);
 }
 
 void AFighter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &ThisClass::LookUpDown);
+	PlayerInputComponent->BindAxis(TEXT("TurnRight"), this, &ThisClass::LookRightLeft);
 
 	PlayerInputComponent->BindAxis(TEXT("Thruster"), this, &ThisClass::ThrusterInput);
 	PlayerInputComponent->BindAxis(TEXT("Pitch"), this, &ThisClass::PitchInput);
@@ -52,6 +57,17 @@ void AFighter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindAction(TEXT("Flap"), EInputEvent::IE_Pressed, this, &ThisClass::FlapBttnPressed);
 	PlayerInputComponent->BindAction(TEXT("WheelRetreat"), EInputEvent::IE_Pressed, this, &ThisClass::WheelRetreatBttnPressed);
+}
+
+void AFighter::LookUpDown(float Value)
+{
+	//GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Red, FString::Printf(TEXT("LookUp: %f"), Value));
+	VisionInput.Y = Value;
+}
+
+void AFighter::LookRightLeft(float Value)
+{
+	VisionInput.X = Value;
 }
 
 void AFighter::ThrusterInput(float Value)
@@ -190,4 +206,12 @@ void AFighter::UpdateThrusterFX(float DeltaTime)
 		ThrusterFXRight->SetVectorParameter(FName("JetRingsScale"), JetRingsScale);
 		ThrusterFXRight->SetFloatParameter(FName("RingOpacity"), RingOpacity);
 	}
+}
+
+void AFighter::VisionUpdate(float DeltaTime)
+{
+	FQuat UpDown = FQuat(FVector(0, 1, 0), FMath::DegreesToRadians(VisionInput.Y * 70.0f));
+	FQuat RightLeft = FQuat(FVector(0, 0, 1), FMath::DegreesToRadians(VisionInput.X * 89.0f)); 
+	SpringArmQuat = FMath::QInterpTo(SpringArmQuat, RightLeft * UpDown, DeltaTime, 6.5f);
+	MainCameraSpringArm->SetRelativeRotation(SpringArmQuat);
 }
