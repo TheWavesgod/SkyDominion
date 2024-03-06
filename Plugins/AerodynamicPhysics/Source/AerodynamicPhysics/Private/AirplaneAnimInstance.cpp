@@ -31,6 +31,8 @@ void UAirplaneAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	}
 
 	WheelRetreatedRatio = AeroPhysicsComponent->GetCurrentWheelRetreatedRatio();
+
+	ThrusterRatio = AeroPhysicsComponent->GetRealThrusterRatio();
 }
 
 void UAirplaneAnimInstance::InitializeArray()

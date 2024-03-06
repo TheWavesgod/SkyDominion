@@ -35,6 +35,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	float WheelRetreatedRatio = 0.0f;
 
+	UPROPERTY(BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	float ThrusterRatio = 0.0f;
+
 	void InitializeArray();
 
 public:

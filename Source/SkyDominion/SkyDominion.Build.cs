@@ -8,7 +8,7 @@ public class SkyDominion : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "MultiplayerSessions", "OnlineSubsystem", "OnlineSubsystemSteam", "AerodynamicPhysics" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "MultiplayerSessions", "OnlineSubsystem", "OnlineSubsystemSteam", "AerodynamicPhysics", "Niagara" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

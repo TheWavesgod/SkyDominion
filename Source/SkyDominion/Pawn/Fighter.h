@@ -28,6 +28,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	class UCameraComponent* MainCamera;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	class UNiagaraComponent* ThrusterFXLeft;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	class UNiagaraComponent* ThrusterFXRight;
 
 	/** PlayerInput Bind Function */
 	void ThrusterInput(float Value);
@@ -64,4 +69,7 @@ private:
 
 	float RightRudderInputVal = 0.0f;
 	float LeftRudderInputVal = 0.0f;
+
+	float ThrusterFXTrasition = 0.0f;
+	void UpdateThrusterFX(float DeltaTime);
 };

@@ -5,6 +5,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "AerodynamicPhysics/public/AeroPhysicsComponent.h"
+#include "NiagaraComponent.h"
 
 AFighter::AFighter()
 {
@@ -18,6 +19,11 @@ AFighter::AFighter()
 
 	MainCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("MainCamera"));
 	MainCamera->SetupAttachment(MainCameraSpringArm);
+
+	ThrusterFXLeft = CreateDefaultSubobject<UNiagaraComponent>(TEXT("ThrusterLeftFX"));
+	ThrusterFXRight = CreateDefaultSubobject<UNiagaraComponent>(TEXT("ThrusterRightFX"));
+	ThrusterFXLeft->SetupAttachment(RootComponent);
+	ThrusterFXRight->SetupAttachment(RootComponent);
 }
 
 void AFighter::BeginPlay()
@@ -30,6 +36,8 @@ void AFighter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	HandleRudderInput(DeltaTime);
+
+	UpdateThrusterFX(DeltaTime);
 }
 
 void AFighter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -141,5 +149,45 @@ void AFighter::HandleRudderInput(float DeltaTime)
 				AeroPhysicsComponent->SetAeroYawControl(-LeftRudderInputVal);
 			}
 		}
+	}
+}
+
+void AFighter::UpdateThrusterFX(float DeltaTime)
+{
+	float ThrusterRatio = AeroPhysicsComponent->GetRealThrusterRatio();
+
+	float AfterBurnerThreshold = AeroPhysicsComponent->GetAfterBurnerThresholdRatio();
+
+	// DistortionSize Value Calculate
+	float DistortionSize = FMath::GetMappedRangeValueClamped(FVector2D(0.0f, 1.0f), FVector2D(30.0f, 65.0f), ThrusterRatio);
+
+	float ThrusterRatioScale = 0.0f;
+	float TargetTrasitionVal = 0.0f;
+	if (ThrusterRatio > AfterBurnerThreshold)
+	{
+		ThrusterRatioScale = FMath::GetMappedRangeValueClamped(FVector2D(AfterBurnerThreshold, 1.0f), FVector2D(0.6, 1.0f), ThrusterRatio);
+		TargetTrasitionVal = 1.0f;
+	}
+
+	ThrusterFXTrasition = FMath::FInterpTo(ThrusterFXTrasition, TargetTrasitionVal, DeltaTime, 2.0f);
+
+	FVector JetScale = FVector(0.9f, 0.15f, 0.15f) * ThrusterRatioScale * ThrusterFXTrasition;
+	FVector JetRingsScale = FVector(10.5f, 10.5f, 12.0f) * ThrusterRatioScale * ThrusterFXTrasition;
+	float RingOpacity = 0.8f * ThrusterRatioScale * ThrusterFXTrasition;
+
+
+	if (ThrusterFXLeft && ThrusterFXLeft->IsActive())
+	{
+		ThrusterFXLeft->SetFloatParameter(FName("DistortionSize"), DistortionSize);
+		ThrusterFXLeft->SetVectorParameter(FName("JetScale"), JetScale);
+		ThrusterFXLeft->SetVectorParameter(FName("JetRingsScale"), JetRingsScale);
+		ThrusterFXLeft->SetFloatParameter(FName("RingOpacity"), RingOpacity);
+	}
+	if (ThrusterFXRight && ThrusterFXRight->IsActive())
+	{
+		ThrusterFXRight->SetFloatParameter(FName("DistortionSize"), DistortionSize);
+		ThrusterFXRight->SetVectorParameter(FName("JetScale"), JetScale);
+		ThrusterFXRight->SetVectorParameter(FName("JetRingsScale"), JetRingsScale);
+		ThrusterFXRight->SetFloatParameter(FName("RingOpacity"), RingOpacity);
 	}
 }

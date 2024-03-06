@@ -45,6 +45,15 @@ void UAeroPhysicsComponent::BeginPlay()
 	{
 		i.Config.OnValidate();
 	}
+
+	if (ThrusterSettings.Num() > 0)
+	{
+		AfterBurnerThresholdRatio = ThrusterSettings[0].MaxNormalThrust / ThrusterSettings[0].MaxExtraThrust;
+	}
+	else
+	{
+		AfterBurnerThresholdRatio = 0.0f;
+	}
 	/*FTimerHandle TimerHandle;
 	float Interval = 1.0f / PhysicsDT;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ThisClass::AeroPhysicsFun, Interval, true);*/

@@ -291,6 +291,8 @@ private:
 	UPROPERTY(Replicated)
 	float RealThrusterRatio;
 
+	float AfterBurnerThresholdRatio;
+
 	UPROPERTY(EditAnywhere, Category = "Debug Parameters")
 	float ThrusterRatioAddPerSecond = 0.2f; 
 
@@ -369,4 +371,7 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetCurrentAngleofAttack() const { return AngleOfAttack; }
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE float GetAfterBurnerThresholdRatio() const { return AfterBurnerThresholdRatio; }
 };
