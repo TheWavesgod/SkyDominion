@@ -171,8 +171,8 @@ void AFighter::UpdateThrusterFX(float DeltaTime)
 
 	ThrusterFXTrasition = FMath::FInterpTo(ThrusterFXTrasition, TargetTrasitionVal, DeltaTime, 2.0f);
 
-	FVector JetScale = FVector(0.9f, 0.15f, 0.15f) * ThrusterRatioScale * ThrusterFXTrasition;
-	FVector JetRingsScale = FVector(10.5f, 10.5f, 12.0f) * ThrusterRatioScale * ThrusterFXTrasition;
+	FVector JetScale = FVector(1.1f, 0.15f, 0.15f) * ThrusterRatioScale * ThrusterFXTrasition;
+	FVector JetRingsScale = FVector(10.5f, 10.5f, 13.5f) * ThrusterRatioScale * ThrusterFXTrasition;
 	float RingOpacity = 0.8f * ThrusterRatioScale * ThrusterFXTrasition;
 
 

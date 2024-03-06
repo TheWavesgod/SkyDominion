@@ -22,6 +22,9 @@ public:
 	float ThrusterRatio = 0.0f;
 
 	UPROPERTY(BlueprintReadOnly)
+	bool bAfterBurnerActivated = false;
+
+	UPROPERTY(BlueprintReadOnly)
 	float Altitude = 0.0f;
 
 	UPROPERTY(BlueprintReadOnly)

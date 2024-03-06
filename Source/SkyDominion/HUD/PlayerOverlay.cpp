@@ -33,6 +33,8 @@ void UPlayerOverlay::UpdateParameter()
 
 	ThrusterRatio = fighter->GetAeroPhysicsComponent()->GetCurrentThrusterRatio();
 
+	bAfterBurnerActivated = ThrusterRatio > fighter->GetAeroPhysicsComponent()->GetAfterBurnerThresholdRatio();
+
 	Altitude = fighter->GetActorLocation().Z / 100.0f;
 
 	AngleOfAttack = fighter->GetAeroPhysicsComponent()->GetCurrentAngleofAttack();
