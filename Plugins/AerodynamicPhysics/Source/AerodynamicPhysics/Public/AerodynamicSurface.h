@@ -43,10 +43,19 @@ struct FAeroSurfaceControlConfig
 	bool bPitchControl = false;
 
 	UPROPERTY(EditAnywhere, Category = "Aerodynamic Surface Config")
+	float PitchControlRatio = 1.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Aerodynamic Surface Config")
 	bool bRollControl = false;
 
 	UPROPERTY(EditAnywhere, Category = "Aerodynamic Surface Config")
+	float RollControlRatio = 1.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Aerodynamic Surface Config")
 	bool bYawControl = false;
+
+	UPROPERTY(EditAnywhere, Category = "Aerodynamic Surface Config")
+	float YawControlRatio = 1.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Aerodynamic Surface Config")
 	bool bFlapControl = false;
@@ -131,7 +140,7 @@ struct FAeroSurface
 	void SetFullMoveAngle(float Angle);
 	FQuat GetCurrentRelativeRotation() const;
 
-	FBiVector CalculateAerodynamicForces(FVector LocalAirVelocity, float AirDensity);
+	FBiVector CalculateAerodynamicForces(FVector LocalAirVelocity, float AirDensity, FVector CenterOfMass, bool bDebug = false);
 
 private:
 	FVector CalculateCoefficients(float angleOfAttack, float correctedLiftSlope, float zeroLiftAoA, float stallAngleHigh, float stallAngleLow);

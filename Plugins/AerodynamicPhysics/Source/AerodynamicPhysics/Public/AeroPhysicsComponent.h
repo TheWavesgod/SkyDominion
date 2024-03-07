@@ -204,6 +204,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetAeroFlapControl(float AxisValue);
 
+	UFUNCTION(BlueprintCallable)
+	void SetAeroFlapActivated(bool bActivate);
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -342,12 +345,17 @@ private:
 	UPROPERTY(EditAnywhere, Category = "AeroControl Parameters")
 	float RollControlLimitRatio = 20.0f;
 
+	UPROPERTY(EditAnywhere, Category = "AeroControl Parameters")
+	FVector2D FlapControlSpeedThreshold = FVector2D(150.0f, 300.0f);
+
 	/**
 	 * Flying Control System
 	 */
 	void CalculateFlyControl(float DeltaTime);
 
 	void InterpAeroControl(float DeltaTime);
+
+	bool bIsFlapActivated = true;
 
 public:	
 	UPROPERTY(Replicated, BlueprintReadOnly)
@@ -382,4 +390,7 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetAfterBurnerThresholdRatio() const { return AfterBurnerThresholdRatio; }
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE bool GetFlapControlActivated() const { return bIsFlapActivated; }
 };

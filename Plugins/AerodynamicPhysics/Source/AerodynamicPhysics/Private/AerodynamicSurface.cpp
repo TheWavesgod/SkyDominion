@@ -19,7 +19,7 @@ FQuat FAeroSurface::GetCurrentRelativeRotation() const
 	return RelativeRotation.Quaternion() * FullControlRotate;
 }
 
-FBiVector FAeroSurface::CalculateAerodynamicForces(FVector LocalAirVelocity, float AirDensity)
+FBiVector FAeroSurface::CalculateAerodynamicForces(FVector LocalAirVelocity, float AirDensity, FVector CenterOfMass, bool bDebug)
 {
 	// Accounting for aspect ratio effect on lift coefficient.
 	float AspectRatioEffectivness = Config.AspectRatio / (Config.AspectRatio + 2 * (Config.AspectRatio + 4) / (Config.AspectRatio + 2));
@@ -56,14 +56,17 @@ FBiVector FAeroSurface::CalculateAerodynamicForces(FVector LocalAirVelocity, flo
 
 	FVector aerodynamicCoefficients = CalculateCoefficients(angleOfAttack, CorrectedLiftSlope, zeroLiftAoA, stallAngleHigh, stallAngleLow);
 
-	//if (GEngine) { GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Blue, SurfaceName.ToString() + FString::Printf(TEXT(" AoA: %f, Cl: %f"), FMath::RadiansToDegrees(angleOfAttack), aerodynamicCoefficients.X)); }
+	if (bDebug)
+	{
+		if (GEngine) { GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Blue, SurfaceName.ToString() + FString::Printf(TEXT(" AoA: %f, Cl: %f"), FMath::RadiansToDegrees(angleOfAttack), aerodynamicCoefficients.X)); }
+	}
 
 	FVector lift = liftDirection * aerodynamicCoefficients.X * dynamicPressure * area;
 	FVector drag = dragDirection * aerodynamicCoefficients.Y * dynamicPressure * area;
 	FVector torque = CurrentRelativeRotation.GetRightVector() * aerodynamicCoefficients.Z * dynamicPressure * area * Config.Chord;
-	FVector LiftAndDragTorque = RelativePosition.Cross(lift + drag) * 0.01f;
+	FVector LiftAndDragTorque = (RelativePosition - CenterOfMass).Cross(lift + drag) * 0.01f;
 
-	return FBiVector(lift + drag, torque + LiftAndDragTorque);
+	return FBiVector(lift + drag, LiftAndDragTorque);
 	//return FBiVector(CurrentRelativeRotation.GetForwardVector(), CurrentRelativeRotation.GetUpVector());
 	//return FBiVector(lift, drag);
 }

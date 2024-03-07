@@ -4,6 +4,23 @@
 #include "AerodynamicPhysics/Public/Airplane.h"
 #include "Fighter.generated.h"
 
+USTRUCT(BlueprintType)
+struct FCustomThrusterParameter
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, Category = "ThrusterFX")
+	float DistortionSize = 1.0f;
+
+	// X for flame length, y z for flame radius
+	UPROPERTY(EditAnywhere, Category = "ThrusterFX")
+	FVector FlameBodyScale = FVector(1.0f, 1.0f, 1.0f);
+
+	// Z for rings length, x y for rings radius
+	UPROPERTY(EditAnywhere, Category = "ThrusterFX")
+	FVector RingScale = FVector(1.0f, 1.0f, 1.0f);
+};
+
 /**
  * 
  */
@@ -18,6 +35,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	UPROPERTY(EditAnywhere, Category = "ThrusterFX")
+	FCustomThrusterParameter ThrusterFXConfig;
 
 protected:
 	virtual void BeginPlay() override;
@@ -80,5 +100,6 @@ private:
 
 	FVector2D VisionInput;
 	FQuat SpringArmQuat;
+	float MainCameraPitchRatio = 0.0f;
 	float OriginalSpringArmLength;
 };

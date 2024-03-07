@@ -134,7 +134,7 @@ void AFighter::ServerLeftRudderInput_Implementation(float Value)
 
 void AFighter::ServerFlapBttnPressed_Implementation()
 {
-	
+	AeroPhysicsComponent->SetAeroFlapActivated(!AeroPhysicsComponent->GetFlapControlActivated());
 }
 
 void AFighter::ServerWheelRetreatBttnPressed_Implementation()
@@ -177,7 +177,7 @@ void AFighter::UpdateThrusterFX(float DeltaTime)
 	float AfterBurnerThreshold = AeroPhysicsComponent->GetAfterBurnerThresholdRatio();
 
 	// DistortionSize Value Calculate
-	float DistortionSize = FMath::GetMappedRangeValueClamped(FVector2D(0.0f, 1.0f), FVector2D(30.0f, 65.0f), ThrusterRatio);
+	float DistortionSize = FMath::GetMappedRangeValueClamped(FVector2D(0.0f, 1.0f), FVector2D(30.0f, 65.0f), ThrusterRatio) * ThrusterFXConfig.DistortionSize;
 
 	float ThrusterRatioScale = 0.0f;
 	float TargetTrasitionVal = 0.0f;
@@ -187,10 +187,10 @@ void AFighter::UpdateThrusterFX(float DeltaTime)
 		TargetTrasitionVal = 1.0f;
 	}
 
-	ThrusterFXTrasition = FMath::FInterpTo(ThrusterFXTrasition, TargetTrasitionVal, DeltaTime, 2.0f);
+	ThrusterFXTrasition = FMath::FInterpTo(ThrusterFXTrasition, TargetTrasitionVal, DeltaTime, 2.67f);
 
-	FVector JetScale = FVector(1.1f, 0.15f, 0.15f) * ThrusterRatioScale * ThrusterFXTrasition;
-	FVector JetRingsScale = FVector(10.5f, 10.5f, 13.5f) * ThrusterRatioScale * ThrusterFXTrasition;
+	FVector JetScale = FVector(1.1f, 0.15f, 0.15f) * ThrusterFXConfig.FlameBodyScale * ThrusterRatioScale * ThrusterFXTrasition;
+	FVector JetRingsScale = FVector(10.5f, 10.5f, 13.5f) * ThrusterFXConfig.RingScale * ThrusterRatioScale * ThrusterFXTrasition;
 	float RingOpacity = 0.8f * ThrusterRatioScale * ThrusterFXTrasition;
 
 
@@ -217,15 +217,20 @@ void AFighter::VisionUpdate(float DeltaTime)
 
 	SpringArmQuat = FMath::QInterpTo(SpringArmQuat, RightLeft * UpDown, DeltaTime, 6.5f);
 
-	FVector Acceleration = AeroPhysicsComponent->GetCurrentAcceleration();
-
 	// Change TargetArmLength depend on Acceleration
+	FVector Acceleration = AeroPhysicsComponent->GetCurrentAcceleration();
 	float ForwardAcceleration = Acceleration.Dot(GetActorForwardVector());
 	float ForwardRatio = FMath::GetMappedRangeValueClamped(FVector2D(-1200.0f, 1200.0f), FVector2D(-1.0f, 1.0f), ForwardAcceleration);
-	//GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Blue, FString::Printf(TEXT("Forward A: %f"), ForwardAcceleration));
 
-	float GForce = AeroPhysicsComponent->GetCurrentGForce();
+	// Change MainCamera Pitch Rotation depend on GFroce
+	float TargetPitchRatio = FMath::GetMappedRangeValueClamped(FVector2D(-3.0f, 3.0f), FVector2D(-1.0f, 1.0f), AeroPhysicsComponent->GetCurrentGForce());
+	MainCameraPitchRatio = FMath::FInterpTo(MainCameraPitchRatio, TargetPitchRatio, DeltaTime, 0.7f);
+	FQuat MainCameraPitchQuat = FQuat(FVector(0, 1, 0), FMath::DegreesToRadians(-MainCameraPitchRatio * 13.0f));
 
 	MainCameraSpringArm->SetRelativeRotation(SpringArmQuat);
 	MainCameraSpringArm->TargetArmLength = FMath::FInterpTo(MainCameraSpringArm->TargetArmLength, OriginalSpringArmLength + ForwardRatio * 400.0f, DeltaTime, 1.0f);
+	//MainCameraSpringArm->SocketOffset
+
+	MainCamera->SetRelativeRotation(MainCameraPitchQuat);
+	//GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Blue, FString::Printf(TEXT("Forward A: %f"), ForwardAcceleration));
 }
