@@ -262,7 +262,7 @@ void AFighter::SoundComponentUpdate(float DeltaTime)
 {
 	SoundComponent->SetRPM(AeroPhysicsComponent->GetRealThrusterRatio());
 	SoundComponent->SetSpeed(AeroPhysicsComponent->GetCurrentGroundSpeed() / 0.036f);
-	SoundComponent->SetPitchRate(AeroPhysicsComponent->GetCurrentGForce() * 4.0f);
+	SoundComponent->SetPitchRate(AeroPhysicsComponent->GetCurrentGForce());
 	SoundComponent->SetIsEngineRunning(true);
 	SoundComponent->SetIsPlaneOnLand(GetActorLocation().Z < 500.0f);
 

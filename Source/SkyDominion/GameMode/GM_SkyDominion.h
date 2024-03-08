@@ -21,5 +21,5 @@ public:
 
 	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
 
-	virtual APawn* SpawnDefaultPawnFor_Implementation(AController* NewPlayer, AActor* StartSpot) override;
+	virtual UClass* GetDefaultPawnClassForController_Implementation(AController* InController) override;
 };

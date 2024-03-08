@@ -6,6 +6,7 @@
 #include "SkyDominion/SkyFrameWork/SkyPlayerState.h"
 #include "GameFramework/PlayerStart.h"
 #include "GameFramework/GameState.h"
+#include "GameFramework/DefaultPawn.h"
 
 AActor* AGM_SkyDominion::ChoosePlayerStart_Implementation(AController* Player)
 {
@@ -69,9 +70,28 @@ AActor* AGM_SkyDominion::ChoosePlayerStart_Implementation(AController* Player)
     return nullptr;
 }
 
-APawn* AGM_SkyDominion::SpawnDefaultPawnFor_Implementation(AController* NewPlayer, AActor* StartSpot)
+UClass* AGM_SkyDominion::GetDefaultPawnClassForController_Implementation(AController* InController)
 {
-    return nullptr;
+#if WITH_EDITOR && DO_CHECK
+    UClass* DefaultClass = DefaultPawnClass.DebugAccessRawClassPtr();
+    if (DefaultClass)
+    {
+        if (FBlueprintSupport::IsClassPlaceholder(DefaultClass))
+        {
+            ensureMsgf(false, TEXT("Trying to spawn class that is, directly or indirectly, a placeholder"));
+            return ADefaultPawn::StaticClass();
+        }
+    }
+#endif
+
+    ASkyPlayerState* playerState = InController->GetPlayerState<ASkyPlayerState>();
+    if (playerState)
+    {
+
+    }
+    return DefaultPawnClass;
 }
+
+
 
 
