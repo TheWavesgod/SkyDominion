@@ -19,6 +19,14 @@ struct FCustomThrusterParameter
 	// Z for rings length, x y for rings radius
 	UPROPERTY(EditAnywhere, Category = "ThrusterFX")
 	FVector RingScale = FVector(1.0f, 1.0f, 1.0f);
+
+	// RGB for the emissive outer Color, A for the Maximum emissive strength
+	UPROPERTY(EditAnywhere, Category = "ThrusterFX")
+	FLinearColor EmissiveOuter;
+
+	// RGB for the emissive iner Color, A for the Maximum emissive strength
+	UPROPERTY(EditAnywhere, Category = "ThrusterFX")
+	FLinearColor EmissiveIner;
 };
 
 /**
@@ -53,6 +61,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	class UNiagaraComponent* ThrusterFXRight;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	class USounds_F35* SoundComponent;
 
 	/** PlayerInput Bind Function */
 	void LookUpDown(float Value);
@@ -102,4 +113,7 @@ private:
 	FQuat SpringArmQuat;
 	float MainCameraPitchRatio = 0.0f;
 	float OriginalSpringArmLength;
+
+	/** Fighter Sound Update */
+	void SoundComponentUpdate(float DeltaTime);
 };

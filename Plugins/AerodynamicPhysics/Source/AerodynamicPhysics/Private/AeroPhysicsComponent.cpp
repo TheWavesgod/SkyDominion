@@ -500,7 +500,7 @@ void UAeroPhysicsComponent::AerodynamicFroceCalculation(float DeltaTime)
 		} 
 	}
 	
-	FVector DrawLocation = AerodynamicSurfaceSettings[2].RelativePosition;
+	/*FVector DrawLocation = AerodynamicSurfaceSettings[2].RelativePosition;
 	DrawLocation.Y = 0.0f;
 	DrawDebugLine(
 		GetWorld(),	
@@ -509,7 +509,7 @@ void UAeroPhysicsComponent::AerodynamicFroceCalculation(float DeltaTime)
 		FColor::Red,
 		false,
 		DeltaTime
-	);
+	);*/
 }
 
 float UAeroPhysicsComponent::CalculateRotDegree(float ControlAxis, float X, float Y)
@@ -670,7 +670,7 @@ void UAeroPhysicsComponent::DebugTick(float DeltaTime)
 	{
 		AddDebugMessageOnScreen(0.0f, FColor::Red, FString::Printf(TEXT("Thruster %d: %d"), i, FMath::RoundToInt32(CurrentThrusters[i])));
 	}*/
-	AddDebugMessageOnScreen(0.0f, FColor::Red, FString::Printf(TEXT("AOA: % f"), AngleOfAttack));
+	//AddDebugMessageOnScreen(0.0f, FColor::Red, FString::Printf(TEXT("AOA: % f"), AngleOfAttack));
 }
 
 void UAeroPhysicsComponent::AddDebugMessageOnScreen(const float DisplayTime, const FColor Color, const FString DiplayString)

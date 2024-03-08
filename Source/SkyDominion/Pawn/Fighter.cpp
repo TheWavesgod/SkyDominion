@@ -5,6 +5,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "AerodynamicPhysics/public/AeroPhysicsComponent.h"
+#include "F35SoundSystem/Sounds_F35.h"
 #include "NiagaraComponent.h"
 
 AFighter::AFighter()
@@ -24,6 +25,8 @@ AFighter::AFighter()
 	ThrusterFXRight = CreateDefaultSubobject<UNiagaraComponent>(TEXT("ThrusterRightFX"));
 	ThrusterFXLeft->SetupAttachment(RootComponent);
 	ThrusterFXRight->SetupAttachment(RootComponent);
+
+	SoundComponent = CreateDefaultSubobject<USounds_F35>(TEXT("SoundComponent"));
 }
 
 void AFighter::BeginPlay()
@@ -31,6 +34,9 @@ void AFighter::BeginPlay()
 	Super::BeginPlay();
 
 	OriginalSpringArmLength = MainCameraSpringArm->TargetArmLength;
+
+	SoundComponent->SetStartupOptions(true, true, 68600.f);
+	SoundComponent->InitialiseAllSounds();
 }
 
 void AFighter::Tick(float DeltaTime)
@@ -42,6 +48,8 @@ void AFighter::Tick(float DeltaTime)
 	UpdateThrusterFX(DeltaTime);
 
 	VisionUpdate(DeltaTime);
+
+	SoundComponentUpdate(DeltaTime);
 }
 
 void AFighter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -179,6 +187,11 @@ void AFighter::UpdateThrusterFX(float DeltaTime)
 	// DistortionSize Value Calculate
 	float DistortionSize = FMath::GetMappedRangeValueClamped(FVector2D(0.0f, 1.0f), FVector2D(30.0f, 65.0f), ThrusterRatio) * ThrusterFXConfig.DistortionSize;
 
+	FLinearColor OutEmissive = ThrusterFXConfig.EmissiveOuter;
+	FLinearColor InerEmissive = ThrusterFXConfig.EmissiveIner;
+
+	float EmissiveOutStrength = 0.0f;
+	float EmissiveInerStrength = 0.0f;
 	float ThrusterRatioScale = 0.0f;
 	float TargetTrasitionVal = 0.0f;
 	if (ThrusterRatio > AfterBurnerThreshold)
@@ -187,12 +200,17 @@ void AFighter::UpdateThrusterFX(float DeltaTime)
 		TargetTrasitionVal = 1.0f;
 	}
 
-	ThrusterFXTrasition = FMath::FInterpTo(ThrusterFXTrasition, TargetTrasitionVal, DeltaTime, 2.67f);
+	ThrusterFXTrasition = FMath::FInterpTo(ThrusterFXTrasition, TargetTrasitionVal, DeltaTime, 0.2f);
 
 	FVector JetScale = FVector(1.1f, 0.15f, 0.15f) * ThrusterFXConfig.FlameBodyScale * ThrusterRatioScale * ThrusterFXTrasition;
 	FVector JetRingsScale = FVector(10.5f, 10.5f, 13.5f) * ThrusterFXConfig.RingScale * ThrusterRatioScale * ThrusterFXTrasition;
 	float RingOpacity = 0.8f * ThrusterRatioScale * ThrusterFXTrasition;
 
+	EmissiveOutStrength = ThrusterFXConfig.EmissiveOuter.A * ThrusterRatioScale * ThrusterFXTrasition;
+	EmissiveInerStrength = ThrusterFXConfig.EmissiveIner.A * ThrusterRatioScale * ThrusterFXTrasition;
+
+	OutEmissive.A = EmissiveOutStrength;
+	InerEmissive.A = EmissiveInerStrength;
 
 	if (ThrusterFXLeft && ThrusterFXLeft->IsActive())
 	{
@@ -200,6 +218,8 @@ void AFighter::UpdateThrusterFX(float DeltaTime)
 		ThrusterFXLeft->SetVectorParameter(FName("JetScale"), JetScale);
 		ThrusterFXLeft->SetVectorParameter(FName("JetRingsScale"), JetRingsScale);
 		ThrusterFXLeft->SetFloatParameter(FName("RingOpacity"), RingOpacity);
+		ThrusterFXLeft->SetColorParameter(FName("EmissiveOuter"), OutEmissive);
+		ThrusterFXLeft->SetColorParameter(FName("EmissiveIner"), InerEmissive);
 	}
 	if (ThrusterFXRight && ThrusterFXRight->IsActive())
 	{
@@ -207,6 +227,8 @@ void AFighter::UpdateThrusterFX(float DeltaTime)
 		ThrusterFXRight->SetVectorParameter(FName("JetScale"), JetScale);
 		ThrusterFXRight->SetVectorParameter(FName("JetRingsScale"), JetRingsScale);
 		ThrusterFXRight->SetFloatParameter(FName("RingOpacity"), RingOpacity);
+		ThrusterFXRight->SetColorParameter(FName("EmissiveOuter"), OutEmissive);
+		ThrusterFXRight->SetColorParameter(FName("EmissiveIner"), InerEmissive);
 	}
 }
 
@@ -233,4 +255,17 @@ void AFighter::VisionUpdate(float DeltaTime)
 
 	MainCamera->SetRelativeRotation(MainCameraPitchQuat);
 	//GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Blue, FString::Printf(TEXT("Forward A: %f"), ForwardAcceleration));
+}
+
+void AFighter::SoundComponentUpdate(float DeltaTime)
+{
+	SoundComponent->SetRPM(AeroPhysicsComponent->GetRealThrusterRatio());
+	SoundComponent->SetSpeed(AeroPhysicsComponent->GetCurrentGroundSpeed() / 0.036f);
+	SoundComponent->SetPitchRate(AeroPhysicsComponent->GetCurrentGForce() * 4.0f);
+	SoundComponent->SetIsEngineRunning(true);
+	SoundComponent->SetIsPlaneOnLand(GetActorLocation().Z < 500.0f);
+
+	FSoundParams_F35 SoundPara = SoundComponent->SoundParams;
+
+	SoundComponent->UpdatePlaneSounds(SoundPara);
 }
