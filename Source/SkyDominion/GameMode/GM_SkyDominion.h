@@ -20,4 +20,6 @@ public:
 	//virtual void StartPlay() override;
 
 	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
+
+	virtual APawn* SpawnDefaultPawnFor_Implementation(AController* NewPlayer, AActor* StartSpot) override;
 };

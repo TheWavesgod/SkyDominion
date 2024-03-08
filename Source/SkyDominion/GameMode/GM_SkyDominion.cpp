@@ -68,3 +68,10 @@ AActor* AGM_SkyDominion::ChoosePlayerStart_Implementation(AController* Player)
     }
     return nullptr;
 }
+
+APawn* AGM_SkyDominion::SpawnDefaultPawnFor_Implementation(AController* NewPlayer, AActor* StartSpot)
+{
+    return nullptr;
+}
+
+

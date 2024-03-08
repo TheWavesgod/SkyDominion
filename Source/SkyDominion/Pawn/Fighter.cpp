@@ -37,6 +37,7 @@ void AFighter::BeginPlay()
 
 	SoundComponent->SetStartupOptions(true, true, 68600.f);
 	SoundComponent->InitialiseAllSounds();
+	SoundComponent->SwitchCockpitSnd();
 }
 
 void AFighter::Tick(float DeltaTime)
