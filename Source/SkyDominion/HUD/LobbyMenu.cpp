@@ -4,10 +4,13 @@
 #include "LobbyMenu.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
-#include "GameFramework/PlayerState.h"
+#include "Components/ComboBoxString.h"
+#include "SkyDominion/SkyFrameWork/SkyPlayerState.h"
 #include "GameFramework/GameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "MultiplayerSessions/Public/MultiplayerSessionsSubsystem.h"
+#include "SkyDominion/Actor/DisplayAirplane.h"
+#include "SkyDominion/SkyFrameWork/SkyGameInstance.h"
 
 bool ULobbyMenu::Initialize()
 {
@@ -24,6 +27,26 @@ bool ULobbyMenu::Initialize()
 	if (Bttn_StartGame)
 	{
 		Bttn_StartGame->OnClicked.AddDynamic(this, &ThisClass::StartGameBttnClicked);
+	}
+
+	if (ComboBox_FighterJet)
+	{
+		ComboBox_FighterJet->OnSelectionChanged.AddDynamic(this, &ThisClass::FighterJetSelected);
+
+		UEnum* EnumRef = StaticEnum<EFighterJetType>();
+		if (EnumRef)
+		{
+			for (int i = 0; i < static_cast<int>(EFighterJetType::E_Max); ++i)
+			{
+				FString EnumName = EnumRef->GetDisplayNameTextByValue(i).ToString();
+				ComboBox_FighterJet->AddOption(EnumName);
+				if (i == 0)
+				{
+					ComboBox_FighterJet->SetSelectedOption(EnumName);
+				}
+			}
+			
+		}
 	}
 
 	UGameInstance* GameInstance = GetGameInstance();
@@ -71,10 +94,32 @@ void ULobbyMenu::MainMenuBttnClicked()
 
 void ULobbyMenu::StartGameBttnClicked()
 {
+	USkyGameInstance* GameInstance = GetGameInstance<USkyGameInstance>();
+	if (GameInstance)
+	{
+		GameInstance->UpdatePlayersChooseJetList();
+	}
+
 	UWorld* World = GetWorld();
 	if (World)
 	{
 		World->ServerTravel(TEXT("/Game/Maps/AirCombatTestMap?listen")); 
+	}
+}
+
+void ULobbyMenu::FighterJetSelected(FString SelectedItem, ESelectInfo::Type SelectionType)
+{
+	ASkyPlayerState* OwningPlayerState = UGameplayStatics::GetPlayerController(this, 0)->GetPlayerState<ASkyPlayerState>();
+	if (OwningPlayerState)
+	{
+		OwningPlayerState->ServerChangeChoosedFighterType(ComboBox_FighterJet->GetSelectedIndex());
+	}
+
+	AActor* DisplayActor = UGameplayStatics::GetActorOfClass(this, ADisplayAirplane::StaticClass());
+	ADisplayAirplane* DisplayAirplane = Cast<ADisplayAirplane>(DisplayActor);
+	if (DisplayAirplane)
+	{
+		DisplayAirplane->SetDisplayPlaneByIndex(ComboBox_FighterJet->GetSelectedIndex());
 	}
 }
 
@@ -131,6 +176,60 @@ void ULobbyMenu::UpdatePlayerListLocal()
 				else
 				{
 					TargetTextBlock->SetText(FText::FromString(World->GetGameState()->PlayerArray[i]->GetPlayerName()));
+				}
+			}
+		}
+	}
+}
+
+void ULobbyMenu::UpdatePlayersFighterType_Implementation()
+{
+	UpdatePlayersFighterTypeLocal();
+}
+
+void ULobbyMenu::UpdatePlayersFighterTypeLocal()
+{
+	UEnum* EnumRef = StaticEnum<EFighterJetType>();
+	UWorld* World = GetWorld();
+	if (World && World->GetGameState())
+	{
+		for (int i = 0; i < 4; ++i)
+		{
+			UTextBlock* TargetTextBlock = nullptr;
+			switch (i)
+			{
+			case 0:
+				TargetTextBlock = Text_Red_1_Fighter;
+				break;
+
+			case 1:
+				TargetTextBlock = Text_Blue_1_Fighter;
+				break;
+
+			case 2:
+				TargetTextBlock = Text_Red_2_Fighter;
+				break;
+
+			case 3:
+				TargetTextBlock = Text_Blue_2_Fighter;
+				break;
+			}
+			if (TargetTextBlock)
+			{
+				if (i >= World->GetGameState()->PlayerArray.Num())
+				{
+					TargetTextBlock->SetText(FText::FromString(""));
+				}
+				else
+				{
+					ASkyPlayerState* targetPlayerState = World->GetGameState()->PlayerArray[i]->GetOwningController()->GetPlayerState<ASkyPlayerState>();
+					if (targetPlayerState)
+					{
+						if (EnumRef)
+						{
+							TargetTextBlock->SetText(EnumRef->GetDisplayNameTextByValue(int64(targetPlayerState->ChoosedFighterType)));
+						}
+					}
 				}
 			}
 		}

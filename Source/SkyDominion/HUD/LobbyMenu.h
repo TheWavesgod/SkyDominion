@@ -3,11 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Types/SlateEnums.h"
 #include "Blueprint/UserWidget.h"
+
 #include "LobbyMenu.generated.h"
 
 class UButton;
 class UTextBlock;
+class UComboBoxString;
 class UMultiplayerSessionsSubsystem;
 
 /**
@@ -25,6 +28,9 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void UpdatePlayersList();
 
+	UFUNCTION(NetMulticast, Reliable)
+	void UpdatePlayersFighterType();
+
 protected:
 	virtual bool Initialize() override;
 
@@ -33,6 +39,8 @@ protected:
     //virtual void NativeDestruct() override;
 
 	void UpdatePlayerListLocal();
+
+	void UpdatePlayersFighterTypeLocal();
 
 private:
 	UPROPERTY(meta = (BindWidget))
@@ -47,6 +55,7 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	UButton* Bttn_MainMenu;
 
+	/** Text for player and choose fighter jet list message */
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* Text_Red_1;
 
@@ -59,11 +68,30 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* Text_Blue_2;
 
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* Text_Red_1_Fighter;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* Text_Red_2_Fighter;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* Text_Blue_1_Fighter;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* Text_Blue_2_Fighter;
+
+
+	UPROPERTY(meta = (BindWidget))
+	UComboBoxString* ComboBox_FighterJet;
+
 	UFUNCTION()
 	void MainMenuBttnClicked();
 
 	UFUNCTION()
 	void StartGameBttnClicked();
+
+	UFUNCTION()
+	void FighterJetSelected(FString SelectedItem, ESelectInfo::Type SelectionType);
 
 	UFUNCTION()
 	void OnDestroySession(bool bWasSuccessful);

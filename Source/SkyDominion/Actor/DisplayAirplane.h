@@ -22,5 +22,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	class USkeletalMeshComponent* Mesh;
 
-
+public:
+	void SetDisplayPlaneByIndex(const int Index);
 };

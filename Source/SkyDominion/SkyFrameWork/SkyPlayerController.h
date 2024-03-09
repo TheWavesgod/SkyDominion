@@ -14,4 +14,10 @@ class SKYDOMINION_API ASkyPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 	
+public:
+
+protected:
+	virtual void BeginPlay() override;
+
+	virtual void OnPossess(APawn* aPawn) override;
 };

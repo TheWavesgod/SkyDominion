@@ -20,4 +20,11 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Widgets")
 	class ULobbyMenu* LobbyMenu;
+
+	UPROPERTY(EditAnywhere, Category = "Game Config")
+	TArray<UClass*> FighterJetClass;
+
+	TArray<int32> PlayersChooseJetList;
+
+	void UpdatePlayersChooseJetList();
 };

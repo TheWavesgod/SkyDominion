@@ -26,6 +26,11 @@
 		{
 			"Name": "Landmass",
 			"Enabled": true
+		},
+		{
+			"Name": "F35SoundSystem",
+			"Enabled": true,
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/474981100d3d41db9a9631f9b15f3f61"
 		}
 	]
 }

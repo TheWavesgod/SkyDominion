@@ -116,4 +116,8 @@ private:
 
 	/** Fighter Sound Update */
 	void SoundComponentUpdate(float DeltaTime);
+
+public:
+	FORCEINLINE USounds_F35* GetSoundComponent() const { return SoundComponent; }
+	FORCEINLINE UCameraComponent* GetMainCamera() const { return MainCamera; }
 };

@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerStart.h"
 #include "GameFramework/GameState.h"
 #include "GameFramework/DefaultPawn.h"
+#include "SkyDominion/SkyFrameWork/SkyGameInstance.h"
 
 AActor* AGM_SkyDominion::ChoosePlayerStart_Implementation(AController* Player)
 {
@@ -43,11 +44,11 @@ AActor* AGM_SkyDominion::ChoosePlayerStart_Implementation(AController* Player)
         break;
 
     case 1:
-        StartTag = TEXT("Red_2");
+        StartTag = TEXT("Blue_1");
         break;
 
     case 2:
-        StartTag = TEXT("Blue_1");
+        StartTag = TEXT("Red_2");
         break;
 
     case 3:
@@ -55,10 +56,10 @@ AActor* AGM_SkyDominion::ChoosePlayerStart_Implementation(AController* Player)
         break;
     }
 
-    if (GEngine)
-    {
-        GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, FString::Printf(TEXT("Play %d choose"), index) + StartTag.ToString());
-    }
+	/* if (GEngine)
+	 {
+		 GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, FString::Printf(TEXT("Play %d choose"), index) + StartTag.ToString());
+	 }*/
 
     for (auto PlayerStart : PlayerStarts)
     {
@@ -83,11 +84,35 @@ UClass* AGM_SkyDominion::GetDefaultPawnClassForController_Implementation(AContro
         }
     }
 #endif
+    int index = 0;
+    APlayerState* originPlayerState = InController->GetPlayerState<APlayerState>();
 
-    ASkyPlayerState* playerState = InController->GetPlayerState<ASkyPlayerState>();
-    if (playerState)
+    for (int i = 0; i < GameState->PlayerArray.Num(); ++i)
     {
+        if (originPlayerState == GameState->PlayerArray[i].Get())
+        {
+            index = i;
+        }
+    }
 
+    USkyGameInstance* GameInstance = GetGameInstance<USkyGameInstance>();
+    if (GameInstance->PlayersChooseJetList.IsEmpty())
+    {
+        return DefaultPawnClass;
+    }
+    if (GameInstance)
+    {
+        int JetIndex = GameInstance->PlayersChooseJetList[index];
+
+        UClass* PawnClass = GameInstance->FighterJetClass[JetIndex];
+        if (PawnClass)
+        {
+            return PawnClass;
+        }
+        else
+        {
+            return DefaultPawnClass;
+        }
     }
     return DefaultPawnClass;
 }
