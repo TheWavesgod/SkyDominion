@@ -9,6 +9,19 @@
 #include "GameFramework/DefaultPawn.h"
 #include "SkyDominion/SkyFrameWork/SkyGameInstance.h"
 
+void AGM_SkyDominion::PostLogin(APlayerController* NewPlayer)
+{
+    Super::PostLogin(NewPlayer);
+
+    ASkyPlayerState* NewPlayerState = NewPlayer->GetPlayerState<ASkyPlayerState>();
+    if (NewPlayerState)
+    {
+        int PlayerId = NewPlayerState->GetPlayerId();
+        FString TeamType = NewPlayerState->bInRedTeam ? FString("Red") : FString("Blue");
+        //GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString::Printf(TEXT("NewLogin Id: %d Choose Team: "), PlayerId) + TeamType);
+    }
+}
+
 AActor* AGM_SkyDominion::ChoosePlayerStart_Implementation(AController* Player)
 {
     TArray<AActor*> PlayerStarts;

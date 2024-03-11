@@ -7,6 +7,10 @@
 #include "AerodynamicPhysics/public/AeroPhysicsComponent.h"
 #include "F35SoundSystem/Sounds_F35.h"
 #include "NiagaraComponent.h"
+#include "Components/SphereComponent.h"
+#include "SkyDominion/Actor/RadarComponent.h"
+#include "Components/WidgetComponent.h"
+#include "Net/UnrealNetwork.h"
 
 AFighter::AFighter()
 {
@@ -26,7 +30,16 @@ AFighter::AFighter()
 	ThrusterFXLeft->SetupAttachment(RootComponent);
 	ThrusterFXRight->SetupAttachment(RootComponent);
 
+	MarkWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("MarkWidget"));
+	MarkWidget->SetupAttachment(RootComponent);
+	MarkWidget->SetVisibility(false);
+
 	SoundComponent = CreateDefaultSubobject<USounds_F35>(TEXT("SoundComponent"));
+
+	RadarDetectCollsion = CreateDefaultSubobject<USphereComponent>(TEXT("RadarDetectCollsion"));
+	RadarDetectCollsion->SetupAttachment(RootComponent);
+
+	RadarComponent = CreateDefaultSubobject<URadarComponent>(TEXT("RadarComponent"));
 }
 
 void AFighter::BeginPlay()
@@ -37,6 +50,14 @@ void AFighter::BeginPlay()
 
 	SoundComponent->SetStartupOptions(true, true, 68600.f);
 	SoundComponent->InitialiseAllSounds();
+	if (IsLocallyControlled())
+	{
+		SoundComponent->SwitchCockpitSnd();
+	}
+	else
+	{
+
+	}
 }
 
 void AFighter::Tick(float DeltaTime)
@@ -50,6 +71,13 @@ void AFighter::Tick(float DeltaTime)
 	VisionUpdate(DeltaTime);
 
 	SoundComponentUpdate(DeltaTime);
+}
+
+void AFighter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AFighter, bInRedTeam);
 }
 
 void AFighter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -200,7 +228,7 @@ void AFighter::UpdateThrusterFX(float DeltaTime)
 		TargetTrasitionVal = 1.0f;
 	}
 
-	ThrusterFXTrasition = FMath::FInterpTo(ThrusterFXTrasition, TargetTrasitionVal, DeltaTime, 0.2f);
+	ThrusterFXTrasition = FMath::FInterpTo(ThrusterFXTrasition, TargetTrasitionVal, DeltaTime, 0.8f);
 
 	FVector JetScale = FVector(1.1f, 0.15f, 0.15f) * ThrusterFXConfig.FlameBodyScale * ThrusterRatioScale * ThrusterFXTrasition;
 	FVector JetRingsScale = FVector(10.5f, 10.5f, 13.5f) * ThrusterFXConfig.RingScale * ThrusterRatioScale * ThrusterFXTrasition;
@@ -269,3 +297,11 @@ void AFighter::SoundComponentUpdate(float DeltaTime)
 
 	SoundComponent->UpdatePlaneSounds(SoundPara);
 }
+
+void AFighter::SetMarkWidgetVisble(bool bIsVisible)
+{
+	MarkWidget->SetVisibility(bIsVisible);
+}
+
+
+

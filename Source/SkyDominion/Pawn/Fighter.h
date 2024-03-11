@@ -44,8 +44,15 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 	UPROPERTY(EditAnywhere, Category = "ThrusterFX")
 	FCustomThrusterParameter ThrusterFXConfig;
+
+	UPROPERTY(Replicated)
+	bool bInRedTeam;
+
+	void SetMarkWidgetVisble(bool bIsVisible);
 
 protected:
 	virtual void BeginPlay() override;
@@ -64,6 +71,16 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	class USounds_F35* SoundComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Components")
+	class UWidgetComponent* MarkWidget;
+
+	/** Component For Simulate Radar */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	class USphereComponent* RadarDetectCollsion;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	class URadarComponent* RadarComponent;
 
 	/** PlayerInput Bind Function */
 	void LookUpDown(float Value);
@@ -120,4 +137,6 @@ private:
 public:
 	FORCEINLINE USounds_F35* GetSoundComponent() const { return SoundComponent; }
 	FORCEINLINE UCameraComponent* GetMainCamera() const { return MainCamera; }
+	FORCEINLINE USphereComponent* GetRadarDetectCollision() const { return RadarDetectCollsion; }
+	FORCEINLINE UWidgetComponent* GetMarkWidget() const { return MarkWidget; }
 };

@@ -29,7 +29,9 @@ void UAeroPhysicsComponent::BeginPlay()
 		if (Mesh)
 		{
 			Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-			Mesh->SetCollisionObjectType(ECC_Pawn);
+			Mesh->SetCollisionObjectType(ECollisionChannel::ECC_Vehicle);
+			Mesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
+			Mesh->SetGenerateOverlapEvents(true);
 			Mesh->SetSimulatePhysics(true);
 			Mesh->SetEnableGravity(true);
 			Mesh->SetMassOverrideInKg(FName("cog_jnt"), EmptyWeight);

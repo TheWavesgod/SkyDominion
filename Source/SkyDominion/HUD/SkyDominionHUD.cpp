@@ -32,4 +32,6 @@ void ASkyDominionHUD::AddPlayerOverlay()
 void ASkyDominionHUD::DrawHUD()
 {
 	Super::DrawHUD();
+
+
 }
