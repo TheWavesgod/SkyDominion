@@ -55,5 +55,8 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* Text_Distance;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* Text_Ally;
 	
 };

@@ -22,8 +22,16 @@ public:
 
 	class UPlayerOverlay* PlayerOverlay;
 
+	UPROPERTY(EditAnywhere, Category = "Mark Pointer")
+	UTexture2D* MarkPointer;
+
 protected:
 	virtual void BeginPlay() override;
+
 	void AddPlayerOverlay();
+
+	void DrawTargetMarkPointer();
+
+	class AFighter* OwnerFighter;
 	
 };

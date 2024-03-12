@@ -130,17 +130,17 @@ void URadarComponent::LocalNewTargetDetected(AActor* Target)
 	{
 		NewFighterTarget->SetMarkWidgetVisble(true);
 		UMarkWidget* MarkWidget = Cast<UMarkWidget>(NewFighterTarget->GetMarkWidget()->GetWidget());
-		if (MarkWidget)
+		if (OwnerFighter->bInRedTeam == NewFighterTarget->bInRedTeam)
 		{
-			if (OwnerFighter->bInRedTeam == NewFighterTarget->bInRedTeam)
-			{
-				MarkWidget->SetMarkState(ETargetMarkState::TeamMate);
-			}
-			else
-			{
-				MarkWidget->SetMarkState(ETargetMarkState::Enemy);
-			}
+			if (MarkWidget) { MarkWidget->SetMarkState(ETargetMarkState::TeamMate); }
+			NewFighterTarget->Tags.AddUnique("TeamMate");
 		}
+		else
+		{
+			if (MarkWidget) { MarkWidget->SetMarkState(ETargetMarkState::Enemy); }
+			NewFighterTarget->Tags.AddUnique("Enemy");
+		}
+		NewFighterTarget->Tags.AddUnique("FighterJet");
 	}
 }
 

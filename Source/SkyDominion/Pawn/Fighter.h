@@ -139,4 +139,5 @@ public:
 	FORCEINLINE UCameraComponent* GetMainCamera() const { return MainCamera; }
 	FORCEINLINE USphereComponent* GetRadarDetectCollision() const { return RadarDetectCollsion; }
 	FORCEINLINE UWidgetComponent* GetMarkWidget() const { return MarkWidget; }
+	FORCEINLINE URadarComponent* GetRadarComponent() const { return RadarComponent; }
 };

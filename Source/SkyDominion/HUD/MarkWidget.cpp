@@ -11,14 +11,17 @@ void UMarkWidget::SetMarkState(ETargetMarkState MarkState)
 	{
 	case ETargetMarkState::TeamMate:
 		SetDisplayColor(TeamateColor);
+		Text_Ally->SetVisibility(ESlateVisibility::Visible);
 		break;
 
 	case ETargetMarkState::Enemy:
 		SetDisplayColor(EnemyColor);
+		Text_Ally->SetVisibility(ESlateVisibility::Collapsed);
 		break;
 
 	case ETargetMarkState::Locked:
 		SetDisplayColor(LockColor);
+		Text_Ally->SetVisibility(ESlateVisibility::Collapsed);
 		break;
 	}
 }
@@ -27,6 +30,7 @@ void UMarkWidget::SetDisplayColor(FLinearColor color)
 {
 	Img_Mark->SetColorAndOpacity(color);
 	Text_Distance->SetColorAndOpacity(color);
+	Text_Ally->SetColorAndOpacity(color);
 }
 
 void UMarkWidget::UpdateDistanceText()
