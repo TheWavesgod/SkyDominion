@@ -107,6 +107,12 @@ UClass* AGM_SkyDominion::GetDefaultPawnClassForController_Implementation(AContro
             index = i;
         }
     }
+    /** Change Team Set */
+    ASkyPlayerState* PlayerState = InController->GetPlayerState<ASkyPlayerState>();
+    if (index % 2 == 1)
+    {
+        PlayerState->bInRedTeam = false;
+    }
 
     USkyGameInstance* GameInstance = GetGameInstance<USkyGameInstance>();
     if (GameInstance->PlayersChooseJetList.IsEmpty())
