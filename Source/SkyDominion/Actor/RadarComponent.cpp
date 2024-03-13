@@ -115,7 +115,7 @@ void URadarComponent::LocalUpdateTargetsList()
 		}
 	}
 
-	DetectedTargetsInMemory = TSet<AActor*>(DetectedTargets);
+	DetectedTargetsInMemory = DetectedTargets;
 
 	for (AActor* Target : DetectedTargetsInMemory)
 	{

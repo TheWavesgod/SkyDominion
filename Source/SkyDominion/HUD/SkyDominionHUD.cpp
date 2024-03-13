@@ -51,10 +51,12 @@ void ASkyDominionHUD::DrawTargetMarkPointer()
 	if (OwnerFighter)
 	{
 		FVector2D ScreenCenter = FVector2D(Canvas->SizeX / 2, Canvas->SizeY / 2);
-		DrawTexture(MarkPointer, ScreenCenter.X, ScreenCenter.Y, MarkPointer->GetSizeX(), MarkPointer->GetSizeY(), 0.0f, 0.0f, 1.0f, 1.0f, FLinearColor::Blue, BLEND_Translucent, 1.3f, false, 0.0f, FVector2D(0.5, 0.5));
+		FVector2D TextureSize = FVector2D(MarkPointer->GetSizeX(), MarkPointer->GetSizeY()) * 1.2f * Canvas->SizeX / 2560;
 
-		for (const AActor* target : OwnerFighter->GetRadarComponent()->DetectedTargetsInMemory)
+		TArray<AActor*> TargetList = OwnerFighter->GetRadarComponent()->DetectedTargetsInMemory;
+		for (const AActor* target : TargetList)
 		{
+			if (!target) { continue; }
 			if (target->ActorHasTag("FighterJet"))
 			{
 				FVector TargetLocation = target->GetActorLocation();	
@@ -63,25 +65,62 @@ void ASkyDominionHUD::DrawTargetMarkPointer()
 
 				if (!bIsOnScreen || TargetScreenPos.X < 0 || TargetScreenPos.Y < 0 || TargetScreenPos.X > Canvas->SizeX || TargetScreenPos.Y > Canvas->SizeY)
 				{
-					if (TargetScreenPos.X == 0 && TargetScreenPos.Y == 0)
+					// Calculate Pos And Rot
+					FVector2D DrawPos;
+					float RotDegree;
+					if (!bIsOnScreen/*TargetScreenPos.X == 0 && TargetScreenPos.Y == 0*/)
 					{
-
+						FVector CameraLoc = GetOwningPlayerController()->PlayerCameraManager->GetCameraLocation();
+						FVector TargetDirection = (TargetLocation - CameraLoc).GetSafeNormal();
+						FVector TargetRelativeDirection = GetOwningPlayerController()->PlayerCameraManager->GetCameraRotation().UnrotateVector(TargetDirection);
+						FVector2D VirtualScreenPos = FVector2D(TargetRelativeDirection.Y, TargetRelativeDirection.Z) * Canvas->SizeX;
+						if (VirtualScreenPos.X == 0 && VirtualScreenPos.Y == 0)
+						{
+							VirtualScreenPos = FVector2D(0.0f, -Canvas->SizeY);
+						}
+						GetMarkPointerDrawPos(DrawPos, RotDegree, VirtualScreenPos.X, VirtualScreenPos.Y, ScreenCenter, TextureSize);
 					}
 					else
 					{
 						FVector2D TargetCenterRelativePos = TargetScreenPos - ScreenCenter;
-						float RotDegree = FMath::RadiansToDegrees(FMath::Atan2(TargetCenterRelativePos.Y, TargetCenterRelativePos.X));
-						float PosProportion = FMath::Abs(TargetCenterRelativePos.X) > ScreenCenter.X ?
-							ScreenCenter.X / FMath::Abs(TargetCenterRelativePos.X) :
-							ScreenCenter.Y / FMath::Abs(TargetCenterRelativePos.Y);
-						FVector2D TargetScreenEdgePos = TargetCenterRelativePos * PosProportion + ScreenCenter;
+						GetMarkPointerDrawPos(DrawPos, RotDegree, TargetCenterRelativePos.X, TargetCenterRelativePos.Y, ScreenCenter, TextureSize);
 					}
+
+					// Get Colot
+					FLinearColor DrawColor;
+					if (target->ActorHasTag("TeamMate"))
+					{
+						DrawColor = TeamateColor;
+					}
+					if (target->ActorHasTag("Enemy"))
+					{
+						DrawColor = EnemyColor;
+					}
+
+					DrawTexture(MarkPointer, DrawPos.X, DrawPos.Y, TextureSize.X, TextureSize.Y, 0.0f, 0.0f, 1.0f, 1.0f, DrawColor, BLEND_Translucent, 1.2f, false, RotDegree, FVector2D(0.5, 0.5));
 				}
-				//DrawTexture()
-				//GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Cyan, FString::Printf(TEXT("Target Screen Loc: %d, %d"), FMath::RoundToInt(TargetScreenPos.X), FMath::RoundToInt(TargetScreenPos.Y)));
 			}
 		}
 	}
+}
+
+void ASkyDominionHUD::GetMarkPointerDrawPos(FVector2D& DrawPos, float& RotDegree, float RelativeX, float RelativeY, FVector2D ScreenCenter, FVector2D TextureSize)
+{
+	RotDegree = FMath::RadiansToDegrees(FMath::Atan2(RelativeY, RelativeX)) + 90.0f;
+
+	float PosProportion = FMath::Abs(RelativeX) > ScreenCenter.X ?
+		ScreenCenter.X / FMath::Abs(RelativeX) :
+		ScreenCenter.Y / FMath::Abs(RelativeY);
+
+	FVector2D NewEdgePos = FVector2D(RelativeX, RelativeY) * PosProportion;
+
+	float RotPosOffset = TextureSize.Y * 0.5f;
+	FVector2D DeltaV2D = NewEdgePos.GetSafeNormal() * RotPosOffset;
+
+	FVector2D DrawCenter = NewEdgePos - DeltaV2D;
+
+	FVector2D TextureDrawOffset = TextureSize * 0.5f;
+	DrawPos = DrawCenter - TextureDrawOffset + ScreenCenter;
 }
 
 

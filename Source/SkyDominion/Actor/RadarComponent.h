@@ -22,7 +22,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	float RadarSearchRadius = 50000.0f;
 
-	TSet<AActor*> DetectedTargetsInMemory;
+	TArray<AActor*> DetectedTargetsInMemory;
 
 protected:
 	virtual void BeginPlay() override;
