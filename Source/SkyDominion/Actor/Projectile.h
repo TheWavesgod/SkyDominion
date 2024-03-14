@@ -24,7 +24,7 @@ protected:
 	class UCapsuleComponent* CollisionBody;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
-	class UStaticMeshComponent* VisualEffect;
+	class UStaticMeshComponent* VisualMesh;
 
 public:	
 	virtual void Tick(float DeltaTime) override;

@@ -12,7 +12,7 @@ AProjectile::AProjectile()
 
 	CollisionBody = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CollisionBody"));
 	CollisionBody->SetupAttachment(RootComponent);
-	CollisionBody->SetRelativeRotation(FQuat(FVector(), FMath::));
+	CollisionBody->SetRelativeRotation(FQuat(FVector(0,1,0), FMath::DegreesToRadians(90.0f)));
 
 	if (HasAuthority())
 	{
