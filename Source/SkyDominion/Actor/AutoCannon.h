@@ -39,6 +39,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Config")
 	TSubclassOf<class AProjectile> BulletClass;
 
+	// the amount of bullet shoot in a minute
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Config")
+	int FireRadte = 3000;
+
+	// unit m/s
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Config")
+	float InitSpeed = 1000.0f;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -57,6 +65,8 @@ protected:
 	UAudioComponent* LoopSoundComponent;
 
 	void PlayLoopSound();
+
+	void SpawnBullet();
 
 public:	
 	UFUNCTION(BlueprintCallable)

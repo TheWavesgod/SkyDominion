@@ -6,6 +6,7 @@
 #include "Components/AudioComponent.h"
 #include "SkyDominion/Pawn/Fighter.h"
 #include "Kismet/GameplayStatics.h"
+#include "Projectile.h"
 
 AAutoCannon::AAutoCannon()
 {
@@ -114,5 +115,13 @@ void AAutoCannon::PlayLoopSound()
 			LoopSoundComponent->SetSound(LoopSound);
 			LoopSoundComponent->Play();
 		}
+	}
+}
+
+void AAutoCannon::SpawnBullet()
+{
+	if (BulletClass)
+	{
+
 	}
 }
