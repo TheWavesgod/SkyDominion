@@ -11,6 +11,7 @@
 #include "SkyDominion/Actor/RadarComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Net/UnrealNetwork.h"
+#include "SkyDominion/Actor/AutoCannon.h"
 
 AFighter::AFighter()
 {
@@ -40,11 +41,23 @@ AFighter::AFighter()
 	RadarDetectCollsion->SetupAttachment(RootComponent);
 
 	RadarComponent = CreateDefaultSubobject<URadarComponent>(TEXT("RadarComponent"));
+
+	AutoCannonClass = AAutoCannon::StaticClass();
 }
 
 void AFighter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (AutoCannonClass)
+	{
+		AutoCannon = GetWorld()->SpawnActor<AAutoCannon>(AutoCannonClass, FVector::ZeroVector, FRotator::ZeroRotator);
+		if (AutoCannon)
+		{
+			AutoCannon->AttachToComponent(RootComponent, FAttachmentTransformRules::SnapToTargetNotIncludingScale, AutoCannonSocketName);
+			AutoCannon->SetOwner(this);
+		}
+	}
 
 	OriginalSpringArmLength = MainCameraSpringArm->TargetArmLength;
 
@@ -52,11 +65,20 @@ void AFighter::BeginPlay()
 	SoundComponent->InitialiseAllSounds();
 	if (IsLocallyControlled())
 	{
-		SoundComponent->SwitchCockpitSnd();
+		if (!SoundComponent->GetIsCockpitMixerOn())
+		{
+			SoundComponent->SwitchCockpitSnd();
+		}
 	}
 	else
 	{
-
+		APawn* LocalContorlledPawn = GetWorld()->GetFirstLocalPlayerFromController()->GetPlayerController(GetWorld())->GetPawn();
+		AFighter* LocalContorlledFighter = Cast<AFighter>(LocalContorlledPawn);
+		if (LocalContorlledFighter)
+		{
+			this->SoundComponent->ChangeAudioListener(LocalContorlledFighter->GetMainCamera());
+			GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("ChangeAudioListener to:") + LocalContorlledFighter->GetName());
+		}
 	}
 }
 
@@ -95,6 +117,8 @@ void AFighter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindAction(TEXT("Flap"), EInputEvent::IE_Pressed, this, &ThisClass::FlapBttnPressed);
 	PlayerInputComponent->BindAction(TEXT("WheelRetreat"), EInputEvent::IE_Pressed, this, &ThisClass::WheelRetreatBttnPressed);
+	PlayerInputComponent->BindAction(TEXT("AutoCannon"), EInputEvent::IE_Pressed, this, &ThisClass::AutoCannonBttnPressed);
+	PlayerInputComponent->BindAction(TEXT("AutoCannon"), EInputEvent::IE_Released, this, &ThisClass::AutoCannonBttnReleased);
 }
 
 void AFighter::LookUpDown(float Value)
@@ -143,6 +167,24 @@ void AFighter::WheelRetreatBttnPressed()
 	ServerWheelRetreatBttnPressed();
 }
 
+void AFighter::AutoCannonBttnPressed()
+{
+	ServerAutoCannonBttnPressed();
+	if (AutoCannon)
+	{
+		AutoCannon->FireStart();
+	}
+}
+
+void AFighter::AutoCannonBttnReleased()
+{
+	ServerAutoCannonBttnReleased();
+	if (AutoCannon)
+	{
+		AutoCannon->FireEnd();
+	}
+}
+
 void AFighter::ServerThrusterInput_Implementation(float Value)
 {
 	AeroPhysicsComponent->SetAddThruster(Value);
@@ -176,6 +218,22 @@ void AFighter::ServerFlapBttnPressed_Implementation()
 void AFighter::ServerWheelRetreatBttnPressed_Implementation()
 {
 	AeroPhysicsComponent->SetWheelsRetreated(!AeroPhysicsComponent->GetIsWheelsRetreated());
+}
+
+void AFighter::ServerAutoCannonBttnPressed_Implementation()
+{
+	if (AutoCannon)
+	{
+		AutoCannon->FireStart();
+	}
+}
+
+void AFighter::ServerAutoCannonBttnReleased_Implementation()
+{
+	if (AutoCannon)
+	{
+		AutoCannon->FireEnd();
+	}
 }
 
 void AFighter::HandleRudderInput(float DeltaTime)

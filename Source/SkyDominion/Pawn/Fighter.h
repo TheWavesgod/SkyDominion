@@ -49,6 +49,12 @@ public:
 	UPROPERTY(EditAnywhere, Category = "ThrusterFX")
 	FCustomThrusterParameter ThrusterFXConfig;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Config")
+	TSubclassOf<class AAutoCannon> AutoCannonClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Config")
+	FName AutoCannonSocketName;
+
 	UPROPERTY(Replicated)
 	bool bInRedTeam;
 
@@ -82,6 +88,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	class URadarComponent* RadarComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	AAutoCannon* AutoCannon;
+
 	/** PlayerInput Bind Function */
 	void LookUpDown(float Value);
 	void LookRightLeft(float Value);
@@ -92,6 +101,8 @@ protected:
 	void LeftRudderInput(float Value);
 	void FlapBttnPressed();
 	void WheelRetreatBttnPressed();
+	void AutoCannonBttnPressed();
+	void AutoCannonBttnReleased();
 
 	UFUNCTION(Server, Unreliable)
 	void ServerThrusterInput(float Value);
@@ -113,6 +124,12 @@ protected:
 
 	UFUNCTION(Server, Reliable)
 	void ServerWheelRetreatBttnPressed();
+
+	UFUNCTION(Server, Reliable)
+	void ServerAutoCannonBttnPressed();
+
+	UFUNCTION(Server, Reliable)
+	void ServerAutoCannonBttnReleased();
 
 private:
 	void HandleRudderInput(float DeltaTime);
