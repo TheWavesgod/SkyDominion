@@ -1,5 +1,6 @@
 #include "Projectile.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/StaticMeshComponent.h"
 
 AProjectile::AProjectile()
 {
@@ -13,6 +14,10 @@ AProjectile::AProjectile()
 	CollisionBody = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CollisionBody"));
 	CollisionBody->SetupAttachment(RootComponent);
 	CollisionBody->SetRelativeRotation(FQuat(FVector(0,1,0), FMath::DegreesToRadians(90.0f)));
+
+	VisualMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("VisualMesh"));
+	VisualMesh->SetupAttachment(RootComponent);
+	VisualMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	if (HasAuthority())
 	{

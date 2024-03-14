@@ -36,6 +36,9 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Config")
+	TSubclassOf<class AProjectile> BulletClass;
+
 protected:
 	virtual void BeginPlay() override;
 
