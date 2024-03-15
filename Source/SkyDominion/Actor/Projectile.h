@@ -27,10 +27,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
-	class USceneComponent* Root;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
-	class UCapsuleComponent* CollisionBody;
+	class USphereComponent* CollisionBody;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	class UStaticMeshComponent* VisualMesh;

@@ -55,6 +55,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Config")
 	FName AutoCannonSocketName;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Config")
+	int MaxHealth = 100;
+
 	UPROPERTY(Replicated)
 	bool bInRedTeam;
 
@@ -131,6 +134,9 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void ServerAutoCannonBttnReleased();
 
+	UFUNCTION()
+	void ReceiveDamage(AActor* DamageActor, float Damage, const UDamageType* DamageType, class AController* InvestigatorActor, AActor* DamageCauser);
+
 private:
 	/** Replicated Fighter Movement */
 	UPROPERTY(Replicated)
@@ -140,6 +146,10 @@ private:
 	FQuat TargetRotation;
 
 	void SynchroMovement(float DeltaTime);
+
+	/** Fighter Jet Health */
+	UPROPERTY(Replicated)
+	float CurrentHealth;
 
 	void HandleRudderInput(float DeltaTime);
 
@@ -166,4 +176,6 @@ public:
 	FORCEINLINE USphereComponent* GetRadarDetectCollision() const { return RadarDetectCollsion; }
 	FORCEINLINE UWidgetComponent* GetMarkWidget() const { return MarkWidget; }
 	FORCEINLINE URadarComponent* GetRadarComponent() const { return RadarComponent; }
+	FORCEINLINE AAutoCannon* GetAutoCannon() const { return AutoCannon; }
+	FORCEINLINE float GetCurrentHealthPercent() const { return CurrentHealth / MaxHealth; }
 };

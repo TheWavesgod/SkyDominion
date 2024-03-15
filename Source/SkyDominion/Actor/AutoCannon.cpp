@@ -151,7 +151,7 @@ void AAutoCannon::SpawnBullet()
 				--TracerBulletCounter;
 			}
 
-			bullet->GetProjectileMovementComponent()->Velocity = GetActorForwardVector() * InitSpeed * 100.0f;
+			//bullet->GetProjectileMovementComponent()->Velocity = GetActorForwardVector() * InitSpeed * 100.0f;
 		}
 	}
 }

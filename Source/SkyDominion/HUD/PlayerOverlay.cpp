@@ -44,4 +44,6 @@ void UPlayerOverlay::UpdateParameter()
 	GForce = fighter->GetAeroPhysicsComponent()->GetCurrentGForce();
 
 	bIsWheelRetreated = fighter->GetAeroPhysicsComponent()->GetIsWheelsRetreated();
+
+	HealthPercent = fighter->GetCurrentHealthPercent();
 }

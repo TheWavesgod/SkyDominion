@@ -39,6 +39,9 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsWheelRetreated = false;
 
+	UPROPERTY(BlueprintReadOnly)
+	float HealthPercent = 1.0f;
+
 protected:
 	virtual bool Initialize() override;
 

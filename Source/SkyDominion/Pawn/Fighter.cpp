@@ -42,6 +42,8 @@ AFighter::AFighter()
 	RadarComponent = CreateDefaultSubobject<URadarComponent>(TEXT("RadarComponent"));
 
 	AutoCannonClass = AAutoCannon::StaticClass();
+
+	CurrentHealth = MaxHealth;
 }
 
 void AFighter::BeginPlay()
@@ -79,6 +81,11 @@ void AFighter::BeginPlay()
 			GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("ChangeAudioListener to:") + LocalContorlledFighter->GetName());
 		}
 	}
+
+	if (HasAuthority())
+	{
+		OnTakeAnyDamage.AddDynamic(this, &ThisClass::ReceiveDamage);
+	}
 }
 
 void AFighter::Tick(float DeltaTime)
@@ -103,6 +110,7 @@ void AFighter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 	DOREPLIFETIME(AFighter, bInRedTeam);
 	DOREPLIFETIME(AFighter, TargetLocation);
 	DOREPLIFETIME(AFighter, TargetRotation);
+	DOREPLIFETIME(AFighter, CurrentHealth);
 }
 
 void AFighter::SynchroMovement(float DeltaTime)
@@ -381,5 +389,10 @@ void AFighter::SetMarkWidgetVisble(bool bIsVisible)
 	MarkWidget->SetVisibility(bIsVisible);
 }
 
+void AFighter::ReceiveDamage(AActor* DamageActor, float Damage, const UDamageType* DamageType, AController* InvestigatorActor, AActor* DamageCauser)
+{
+	CurrentHealth -= Damage;
 
+	GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("Receive Damage by ") + InvestigatorActor->GetName());
+}
 
