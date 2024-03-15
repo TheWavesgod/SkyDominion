@@ -66,7 +66,7 @@ void AProjectile::Destroyed()
 
 void AProjectile::OnCollsionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString("Bullet Hit!!!"));
+	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString("Bullet Hit") + OtherActor->GetName());
 	Destroy();
 }
 
