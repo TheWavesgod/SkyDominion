@@ -24,7 +24,7 @@ void UAeroPhysicsComponent::BeginPlay()
 	InitializeAnimationInstance();
 
 	UWorld* World = GetWorld();
-	if (World && World->GetNetMode() == ENetMode::NM_ListenServer)
+	if (Airplane->HasAuthority())
 	{
 		if (Mesh)
 		{
@@ -69,7 +69,7 @@ void UAeroPhysicsComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 
 	InitializeAnimationInstance();
 	
-	if (GetWorld() && GetWorld()->GetNetMode() == ENetMode::NM_ListenServer)
+	if (Airplane->HasAuthority())
 	{
 		AeroPhysicsTick(DeltaTime);
 

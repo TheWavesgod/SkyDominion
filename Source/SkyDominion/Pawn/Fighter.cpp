@@ -18,7 +18,6 @@ AFighter::AFighter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	bReplicates = true;
-	SetReplicateMovement(true);
 
 	MainCameraSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("MainCameraSpringArm"));
 	MainCameraSpringArm->SetupAttachment(RootComponent);
@@ -86,6 +85,8 @@ void AFighter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	SynchroMovement(DeltaTime);
+
 	HandleRudderInput(DeltaTime);
 
 	UpdateThrusterFX(DeltaTime);
@@ -100,6 +101,25 @@ void AFighter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AFighter, bInRedTeam);
+	DOREPLIFETIME(AFighter, TargetLocation);
+	DOREPLIFETIME(AFighter, TargetRotation);
+}
+
+void AFighter::SynchroMovement(float DeltaTime)
+{
+	if (HasAuthority())
+	{
+		TargetLocation = GetActorLocation();
+		TargetRotation = GetActorQuat();
+	}
+	else
+	{
+		float LocationInterpSpeed = 30.0f;
+		float RotationInterpSpeed = 30.0f;
+		FVector SmoothLocation = FMath::Lerp(GetActorLocation(), TargetLocation, DeltaTime * LocationInterpSpeed);
+		FQuat SmoothRotation = FMath::Lerp(GetActorQuat(), TargetRotation, DeltaTime * RotationInterpSpeed);
+		SetActorLocationAndRotation(TargetLocation, TargetRotation);
+	}
 }
 
 void AFighter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -238,7 +258,7 @@ void AFighter::ServerAutoCannonBttnReleased_Implementation()
 
 void AFighter::HandleRudderInput(float DeltaTime)
 {
-	if (GetWorld() && GetWorld()->GetNetMode() == ENetMode::NM_ListenServer)
+	if (HasAuthority())
 	{
 		if (RightRudderInputVal > 0.005f && LeftRudderInputVal > 0.05f)
 		{

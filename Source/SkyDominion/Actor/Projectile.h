@@ -14,6 +14,15 @@ class SKYDOMINION_API AProjectile : public AActor
 public:	
 	AProjectile();
 
+	virtual void Tick(float DeltaTime) override;
+
+	virtual void Destroyed() override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Config")
+	float BulletLifeSpan = 8.0f;
+
+	void SetVisualMeshVisibility(bool bIsVisible);
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -26,7 +35,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	class UStaticMeshComponent* VisualMesh;
 
-public:	
-	virtual void Tick(float DeltaTime) override;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	class UProjectileMovementComponent* ProjectileMovementComponent;
 
+	UFUNCTION()
+	void OnCollsionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+public:	
+	FORCEINLINE UProjectileMovementComponent* GetProjectileMovementComponent() const { return ProjectileMovementComponent; }
 };

@@ -97,7 +97,7 @@ void ASkyDominionHUD::DrawTargetMarkPointer()
 						DrawColor = EnemyColor;
 					}
 
-					GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Red, FString::Printf(TEXT("Draw Pos: %f, %f"), DrawPos.X, DrawPos.Y));
+					//GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Red, FString::Printf(TEXT("Draw Pos: %f, %f"), DrawPos.X, DrawPos.Y));
 					DrawTexture(MarkPointer, DrawPos.X, DrawPos.Y, TextureSize.X, TextureSize.Y, 0.0f, 0.0f, 1.0f, 1.0f, DrawColor, BLEND_Translucent, 1.2f, false, RotDegree, FVector2D(0.5, 0.5));
 				}
 			}

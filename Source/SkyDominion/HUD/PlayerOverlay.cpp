@@ -42,4 +42,6 @@ void UPlayerOverlay::UpdateParameter()
 	GroundSpeed = fighter->GetAeroPhysicsComponent()->GetCurrentGroundSpeed();
 
 	GForce = fighter->GetAeroPhysicsComponent()->GetCurrentGForce();
+
+	bIsWheelRetreated = fighter->GetAeroPhysicsComponent()->GetIsWheelsRetreated();
 }

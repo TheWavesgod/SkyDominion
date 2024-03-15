@@ -7,10 +7,11 @@
 #include "SkyDominion/Pawn/Fighter.h"
 #include "Kismet/GameplayStatics.h"
 #include "Projectile.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 
 AAutoCannon::AAutoCannon()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	StartSoundComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("StartSoundComponent"));
 	StartSoundComponent->bAutoActivate = false;
@@ -31,7 +32,7 @@ void AAutoCannon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
-	DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + GetActorForwardVector() * 10000.0f, FColor::Red, false, 0.0f);
+	//DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + GetActorForwardVector() * 10000.0f, FColor::Red, false, 0.0f);
 }
 
 void AAutoCannon::FireStart()
@@ -59,6 +60,11 @@ void AAutoCannon::FireStart()
 		FTimerHandle TimerHandle;
 		FTimerDelegate TimerDelegate = FTimerDelegate::CreateUObject(this, &ThisClass::PlayLoopSound);
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, SoundsToUse.StartSoundDuration, false);
+
+		if (HasAuthority())
+		{
+			GetWorld()->GetTimerManager().SetTimer(FiringTimer, this, &ThisClass::SpawnBullet, 60.0f / FireRadte, true);
+		}
 	}
 }
 
@@ -93,6 +99,11 @@ void AAutoCannon::FireEnd()
 		{
 			UGameplayStatics::PlaySoundAtLocation(this, EndSound, GetActorLocation());
 		}
+
+		if (HasAuthority())
+		{
+			GetWorld()->GetTimerManager().ClearTimer(FiringTimer);
+		}
 	}
 }
 
@@ -122,6 +133,25 @@ void AAutoCannon::SpawnBullet()
 {
 	if (BulletClass)
 	{
+		FActorSpawnParameters BulletSpawnParameter;
+		APawn* bulletInstigator = this->GetOwner<APawn>();
+		BulletSpawnParameter.Owner = GetOwner();
+		BulletSpawnParameter.Instigator = bulletInstigator;
+		AProjectile* bullet = GetWorld()->SpawnActor<AProjectile>(BulletClass, GetActorTransform(), BulletSpawnParameter);
+		if (bullet)
+		{
+			if (TracerBulletCounter <= 0)
+			{
+				bullet->SetVisualMeshVisibility(true);
+				TracerBulletCounter = TracerBulletGap;
+			}
+			else
+			{
+				bullet->SetVisualMeshVisibility(false);
+				--TracerBulletCounter;
+			}
 
+			bullet->GetProjectileMovementComponent()->Velocity = GetActorForwardVector() * InitSpeed * 100.0f;
+		}
 	}
 }

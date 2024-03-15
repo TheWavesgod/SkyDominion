@@ -132,6 +132,15 @@ protected:
 	void ServerAutoCannonBttnReleased();
 
 private:
+	/** Replicated Fighter Movement */
+	UPROPERTY(Replicated)
+	FVector TargetLocation;
+
+	UPROPERTY(Replicated)
+	FQuat TargetRotation;
+
+	void SynchroMovement(float DeltaTime);
+
 	void HandleRudderInput(float DeltaTime);
 
 	float RightRudderInputVal = 0.0f;

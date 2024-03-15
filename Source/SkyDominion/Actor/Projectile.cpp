@@ -1,6 +1,7 @@
 #include "Projectile.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 
 AProjectile::AProjectile()
 {
@@ -10,6 +11,9 @@ AProjectile::AProjectile()
 
 	Root = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
 	SetRootComponent(Root);
+
+	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
+	ProjectileMovementComponent->bRotationFollowsVelocity = true;
 
 	CollisionBody = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CollisionBody"));
 	CollisionBody->SetupAttachment(RootComponent);
@@ -25,7 +29,11 @@ AProjectile::AProjectile()
 		CollisionBody->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
 		CollisionBody->SetCollisionResponseToAllChannels(ECR_Ignore);
 		CollisionBody->SetCollisionResponseToChannel(ECC_Vehicle, ECollisionResponse::ECR_Overlap);
+		CollisionBody->SetCollisionResponseToChannel(ECC_WorldStatic, ECollisionResponse::ECR_Overlap);
 		CollisionBody->SetGenerateOverlapEvents(true);
+		// CCD for fast move bullet
+		CollisionBody->SetUseCCD(true);
+		CollisionBody->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnCollsionBeginOverlap);
 	}
 	else
 	{
@@ -36,6 +44,13 @@ AProjectile::AProjectile()
 void AProjectile::BeginPlay()
 {
 	Super::BeginPlay();
+
+	SetLifeSpan(BulletLifeSpan);
+
+	if (HasAuthority())
+	{
+		CollisionBody->IgnoreActorWhenMoving(GetOwner(), true);
+	}
 }
 
 void AProjectile::Tick(float DeltaTime)
@@ -44,3 +59,18 @@ void AProjectile::Tick(float DeltaTime)
 
 }
 
+void AProjectile::Destroyed()
+{
+	Super::Destroyed();
+}
+
+void AProjectile::OnCollsionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString("Bullet Hit!!!"));
+	Destroy();
+}
+
+void AProjectile::SetVisualMeshVisibility(bool bIsVisible)
+{
+	VisualMesh->SetVisibility(bIsVisible);
+}

@@ -36,6 +36,9 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	float GForce = 0.0f;
 
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsWheelRetreated = false;
+
 protected:
 	virtual bool Initialize() override;
 

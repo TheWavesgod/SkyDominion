@@ -47,6 +47,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Config")
 	float InitSpeed = 1000.0f;
 
+	// How many bullet Contain a tracer bullet
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Config")
+	int TracerBulletGap = 5;
 protected:
 	virtual void BeginPlay() override;
 
@@ -66,7 +69,14 @@ protected:
 
 	void PlayLoopSound();
 
+	// for firing bullet
 	void SpawnBullet();
+
+	int TracerBulletCounter = 0;
+
+	FTimerHandle FiringTimer;
+
+
 
 public:	
 	UFUNCTION(BlueprintCallable)
