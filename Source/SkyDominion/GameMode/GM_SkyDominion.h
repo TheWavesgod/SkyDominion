@@ -24,4 +24,10 @@ public:
 	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
 
 	virtual UClass* GetDefaultPawnClassForController_Implementation(AController* InController) override;
+
+	void FighterDestroyed(class AFighter* DestroyedFighter, class ASkyPlayerController* VictimController, class ASkyPlayerController* AttackerController);
+
+	void SwitchToSpectator(AFighter* DestroyedFighter, ASkyPlayerController* SpecController);
+
+	void RequestRespawn(ASkyPlayerController* TargetController);
 };

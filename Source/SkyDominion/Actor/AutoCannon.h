@@ -36,8 +36,14 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Config")
 	TSubclassOf<class AProjectile> BulletClass;
+
+	// Maximum bullet carrying capacity
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Config")
+	int MaxCarring = 1200;
 
 	// the amount of bullet shoot in a minute
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Config")
@@ -49,7 +55,10 @@ public:
 
 	// How many bullet Contain a tracer bullet
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Config")
-	int TracerBulletGap = 5;
+	int TracerBulletGap = 4;
+
+	virtual void Destroyed() override;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -76,7 +85,8 @@ protected:
 
 	FTimerHandle FiringTimer;
 
-
+	UPROPERTY(Replicated)
+	int CurrentBulletLeft;
 
 public:	
 	UFUNCTION(BlueprintCallable)
@@ -84,4 +94,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void FireEnd();
+
+	FORCEINLINE int GetCurrentBulletLeft() const { return CurrentBulletLeft; }
 };

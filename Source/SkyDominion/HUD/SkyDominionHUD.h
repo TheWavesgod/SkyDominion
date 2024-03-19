@@ -17,10 +17,20 @@ class SKYDOMINION_API ASkyDominionHUD : public AHUD
 public:
 	virtual void DrawHUD() override;
 
-	UPROPERTY(EditAnywhere, Category = "Player Overlay")
+	UPROPERTY(EditAnywhere, Category = "Overlay Settings")
 	TSubclassOf<class UUserWidget> PlayerOverlayClass;
 
+	UPROPERTY(EditAnywhere, Category = "Overlay Settings")
+	TSubclassOf<class UUserWidget> SpectatorOverlayClass;
+
+	UPROPERTY()
 	class UPlayerOverlay* PlayerOverlay;
+
+	UPROPERTY()
+	class USpectatorOverlay* SpectatorOverlay;
+
+	UPROPERTY(EditAnywhere, Category = "Cross Hair")
+	UTexture2D* Crosshair;
 
 	UPROPERTY(EditAnywhere, Category = "Mark Pointer")
 	UTexture2D* MarkPointer;
@@ -34,15 +44,22 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Mark Pointer")
 	FLinearColor LockColor;
 
+	class AFighter* OwnerFighter;
+
 protected:
 	virtual void BeginPlay() override;
 
-	void AddPlayerOverlay();
+	void DrawCrosshair();
 
 	void DrawTargetMarkPointer();
 	
 	void GetMarkPointerDrawPos(FVector2D& DrawPos, float& RotDegree, float RelativeX, float RelativeY, FVector2D ScreenCenter, FVector2D TextureSize);
 
-	class AFighter* OwnerFighter;
-	
+public:
+	void AddPlayerOverlay();
+
+	void SetPlayerOverlayVisibility(bool bIsVisible);
+
+	void AddSpectatorOverlay();
+	void RemoveSpectatorOverlay();
 };

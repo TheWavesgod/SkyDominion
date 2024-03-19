@@ -3,8 +3,10 @@
 
 #include "SkyDominionHUD.h"
 #include "PlayerOverlay.h"
+#include "SpectatorOverlay.h"
 #include "SkyDominion/Pawn/Fighter.h"
 #include "SkyDominion/Actor/RadarComponent.h"
+#include "SkyDominion/Actor/AutoCannon.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/Canvas.h"
 
@@ -15,39 +17,39 @@ void ASkyDominionHUD::BeginPlay()
 	AddPlayerOverlay();
 }
 
-void ASkyDominionHUD::AddPlayerOverlay()
-{
-	APlayerController* PlayerController = GetOwningPlayerController();
-	if (PlayerController && PlayerOverlayClass)
-	{
-		PlayerOverlay = CreateWidget<UPlayerOverlay>(PlayerController, PlayerOverlayClass);
-		PlayerOverlay->AddToViewport();
-
-		APawn* controledPawn = PlayerController->GetPawn();
-		AFighter* fighter = Cast<AFighter>(controledPawn);
-		if (fighter)
-		{
-			PlayerOverlay->fighter = fighter;
-			OwnerFighter = fighter;
-		}
-	}
-}
-
 void ASkyDominionHUD::DrawHUD()
 {
 	Super::DrawHUD();
 
-	FVector2D ViewportSize;
-	if (GEngine)
-	{
-		GEngine->GameViewport->GetViewportSize(ViewportSize);
+	DrawTargetMarkPointer();
+	DrawCrosshair();
+}
 
-		DrawTargetMarkPointer();
+void ASkyDominionHUD::DrawCrosshair()
+{
+	OwnerFighter = OwnerFighter == nullptr ? Cast<AFighter>(GetOwningPawn()) : OwnerFighter;
+	if (!OwnerFighter) return;
+	if (!Crosshair) return;
+
+	FVector2D ScreenCenter = FVector2D(Canvas->SizeX / 2, Canvas->SizeY / 2);
+	FVector2D TextureSize = FVector2D(Crosshair->GetSizeX(), Crosshair->GetSizeY()) * Canvas->SizeX / 2560 * 0.135f;
+
+	AAutoCannon* OwnerCannon = OwnerFighter->GetAutoCannon();
+	if (!OwnerCannon) return;
+	FVector CrosshairWorldPos = OwnerCannon->GetActorLocation() + OwnerCannon->GetActorForwardVector() * 100000.0f;
+	FVector2D CrosshairScreenPos;
+	if (UGameplayStatics::ProjectWorldToScreen(GetOwningPlayerController(), CrosshairWorldPos, CrosshairScreenPos))
+	{
+		FVector2D DrawPos = CrosshairScreenPos - FVector2D(TextureSize.X * 0.5f, TextureSize.Y * 0.5f);
+		DrawPos *= FVector2D(1.0f, 1.007f);
+		DrawTexture(Crosshair, DrawPos.X, DrawPos.Y, TextureSize.X, TextureSize.Y, 0.0f, 0.0f, 1.0f, 1.0f, FLinearColor::Red, BLEND_Translucent);
+		//GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Blue, FString("Draw CrossHair"));
 	}
 }
 
 void ASkyDominionHUD::DrawTargetMarkPointer()
 {
+	OwnerFighter = OwnerFighter == nullptr ? Cast<AFighter>(GetOwningPawn()) : OwnerFighter;
 	if (OwnerFighter)
 	{
 		FVector2D ScreenCenter = FVector2D(Canvas->SizeX / 2, Canvas->SizeY / 2);
@@ -124,4 +126,54 @@ void ASkyDominionHUD::GetMarkPointerDrawPos(FVector2D& DrawPos, float& RotDegree
 	DrawPos = DrawCenter - TextureDrawOffset + ScreenCenter;
 }
 
+void ASkyDominionHUD::AddPlayerOverlay()
+{
+	APlayerController* PlayerController = GetOwningPlayerController();
+	if (PlayerController && PlayerOverlayClass)
+	{
+		PlayerOverlay = PlayerOverlay == nullptr ? CreateWidget<UPlayerOverlay>(PlayerController, PlayerOverlayClass) : PlayerOverlay;
+		PlayerOverlay->AddToViewport();
 
+		APawn* controledPawn = PlayerController->GetPawn();
+		AFighter* fighter = Cast<AFighter>(controledPawn);
+		if (fighter)
+		{
+			PlayerOverlay->fighter = fighter;
+			OwnerFighter = fighter;
+			fighter->SetPlayerOverlay(PlayerOverlay);
+		}
+	}
+}
+
+void ASkyDominionHUD::SetPlayerOverlayVisibility(bool bIsVisible)
+{
+	if (!PlayerOverlay) return;
+
+	if (bIsVisible)
+	{
+		PlayerOverlay->AddToViewport();
+	}
+	else
+	{
+		PlayerOverlay->RemoveFromViewport();
+	}
+}
+
+void ASkyDominionHUD::AddSpectatorOverlay()
+{
+	APlayerController* PlayerController = GetOwningPlayerController();
+	if (PlayerController && SpectatorOverlayClass)
+	{
+		SpectatorOverlay = SpectatorOverlay == nullptr ? CreateWidget<USpectatorOverlay>(PlayerController, SpectatorOverlayClass) : SpectatorOverlay;
+		SpectatorOverlay->AddToViewport();
+		SpectatorOverlay->Init();
+	}
+}
+
+void ASkyDominionHUD::RemoveSpectatorOverlay()
+{
+	if (SpectatorOverlay)
+	{
+		SpectatorOverlay->RemoveFromViewport();
+	}
+}

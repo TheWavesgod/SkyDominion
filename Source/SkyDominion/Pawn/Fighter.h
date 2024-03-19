@@ -4,6 +4,8 @@
 #include "AerodynamicPhysics/Public/Airplane.h"
 #include "Fighter.generated.h"
 
+class USoundCue;
+
 USTRUCT(BlueprintType)
 struct FCustomThrusterParameter
 {
@@ -27,6 +29,15 @@ struct FCustomThrusterParameter
 	// RGB for the emissive iner Color, A for the Maximum emissive strength
 	UPROPERTY(EditAnywhere, Category = "ThrusterFX")
 	FLinearColor EmissiveIner;
+};
+
+USTRUCT(BlueprintType)
+struct FAlertSoundConfig
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound Config")
+	USoundCue* LowAltitudeAlert;
 };
 
 /**
@@ -58,10 +69,23 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Config")
 	int MaxHealth = 100;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Config")
+	FAlertSoundConfig AlertSoundConfig;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Config")
+	TSubclassOf<class AFighterWreckage> WreckageClass;
+
 	UPROPERTY(Replicated)
 	bool bInRedTeam;
 
 	void SetMarkWidgetVisble(bool bIsVisible);
+
+	void ActivateAlertSoundLowAltitude(bool bActivated);
+
+	UFUNCTION(NetMulticast, Reliable, BlueprintCallable)
+	void Elim();
+
+	virtual void Destroyed() override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -135,7 +159,7 @@ protected:
 	void ServerAutoCannonBttnReleased();
 
 	UFUNCTION()
-	void ReceiveDamage(AActor* DamageActor, float Damage, const UDamageType* DamageType, class AController* InvestigatorActor, AActor* DamageCauser);
+	void ReceiveDamage(AActor* DamageActor, float Damage, const UDamageType* DamageType, class AController* InvestigatorController, AActor* DamageCauser);
 
 private:
 	/** Replicated Fighter Movement */
@@ -170,6 +194,12 @@ private:
 	/** Fighter Sound Update */
 	void SoundComponentUpdate(float DeltaTime);
 
+	/** Alert Sound Component */
+	class UAudioComponent* LowAltitudeHandle;
+
+	/** HUD */
+	class UPlayerOverlay* PlayerOverlay;
+
 public:
 	FORCEINLINE USounds_F35* GetSoundComponent() const { return SoundComponent; }
 	FORCEINLINE UCameraComponent* GetMainCamera() const { return MainCamera; }
@@ -178,4 +208,6 @@ public:
 	FORCEINLINE URadarComponent* GetRadarComponent() const { return RadarComponent; }
 	FORCEINLINE AAutoCannon* GetAutoCannon() const { return AutoCannon; }
 	FORCEINLINE float GetCurrentHealthPercent() const { return CurrentHealth / MaxHealth; }
+	int GetAutoCannonBulletLeft() const;
+	void SetPlayerOverlay(UPlayerOverlay* val) { PlayerOverlay = val; }
 };

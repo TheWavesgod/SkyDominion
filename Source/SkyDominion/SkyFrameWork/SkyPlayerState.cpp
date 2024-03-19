@@ -13,6 +13,23 @@ void ASkyPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	DOREPLIFETIME(ASkyPlayerState, bInRedTeam);
 	DOREPLIFETIME(ASkyPlayerState, TeamIndex);
 	DOREPLIFETIME(ASkyPlayerState, ChoosedFighterType);
+	DOREPLIFETIME(ASkyPlayerState, Defeat);
+}
+
+void ASkyPlayerState::AddKill()
+{
+	if (HasAuthority())
+	{
+		SetScore(GetScore() + 1);
+	}
+}
+
+void ASkyPlayerState::AddDefeat()
+{
+	if (HasAuthority())
+	{
+		++Defeat;
+	}
 }
 
 void ASkyPlayerState::ServerChangeChoosedFighterType_Implementation(int32 Index)

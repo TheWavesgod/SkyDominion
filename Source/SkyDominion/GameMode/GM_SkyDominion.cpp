@@ -8,6 +8,9 @@
 #include "GameFramework/GameState.h"
 #include "GameFramework/DefaultPawn.h"
 #include "SkyDominion/SkyFrameWork/SkyGameInstance.h"
+#include "SkyDominion/SkyFrameWork/SkyPlayerController.h"
+#include "SkyDominion/Pawn/Fighter.h"
+#include "SkyDominion/Pawn/SkySpectatorPawn.h"
 
 void AGM_SkyDominion::PostLogin(APlayerController* NewPlayer)
 {
@@ -134,6 +137,61 @@ UClass* AGM_SkyDominion::GetDefaultPawnClassForController_Implementation(AContro
         }
     }
     return DefaultPawnClass;
+}
+
+void AGM_SkyDominion::FighterDestroyed(AFighter* DestroyedFighter, ASkyPlayerController* VictimController, ASkyPlayerController* AttackerController)
+{
+    ASkyPlayerState* VictimPlayerState = VictimController ? Cast<ASkyPlayerState>(VictimController->PlayerState) : nullptr;
+    ASkyPlayerState* AttackerPlayerState = AttackerController ? Cast<ASkyPlayerState>(AttackerController->PlayerState) : nullptr;
+
+    if (VictimPlayerState && AttackerPlayerState)
+    {
+        if (VictimPlayerState->bInRedTeam != AttackerPlayerState->bInRedTeam)
+        {
+            AttackerPlayerState->AddKill();
+        }
+        VictimPlayerState->AddDefeat();
+    }
+
+    if (DestroyedFighter)
+    {
+        DestroyedFighter->Elim();
+    }
+}
+
+void AGM_SkyDominion::SwitchToSpectator(AFighter* DestroyedFighter, ASkyPlayerController* SpecController)
+{
+    if (!DestroyedFighter || !SpecController) return;
+    
+    FTransform SpecSpawnTransform;
+    SpecSpawnTransform.SetLocation(DestroyedFighter->GetActorLocation());
+    FRotator FighterRotation = DestroyedFighter->GetActorRotation();
+    FighterRotation.Roll = 0.0f;
+    SpecSpawnTransform.SetRotation(FQuat(FighterRotation));
+
+    DestroyedFighter->Reset();
+    DestroyedFighter->Destroy();
+
+    //if (SpectatorClass) return;
+    //SpecController->ChangeState(NAME_Spectating);
+    SpecController->SetSpectatorState(true);
+    SpecController->SetControlRotation(FighterRotation);
+    GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("Change to Spectator Pawn."));
+}
+
+void AGM_SkyDominion::RequestRespawn(ASkyPlayerController* TargetController)
+{
+    if (!TargetController) return;
+
+    TargetController->SetSpectatorState(false);
+
+	/* GetDefaultPawnClassForController(TargetController)->StaticClass();
+
+	 FTransform SpawnTransform = ChoosePlayerStart(TargetController)->GetActorTransform();
+
+	 AFighter* newFighter = GetWorld()->SpawnActor<AFighter>(GetDefaultPawnClassForController(TargetController)->StaticClass(), SpawnTransform, FActorSpawnParameters());*/
+
+    RestartPlayer(TargetController);
 }
 
 

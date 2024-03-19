@@ -67,6 +67,7 @@ void AProjectile::Tick(float DeltaTime)
 void AProjectile::Destroyed()
 {
 	Super::Destroyed();
+
 }
 
 void AProjectile::OnCollsionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -80,6 +81,7 @@ void AProjectile::OnCollsionBeginOverlap(UPrimitiveComponent* OverlappedComponen
 		}
 		//GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString("Bullet Hit By") + GetOwner()->GetName());	
 	}
+
 	Destroy();
 }
 

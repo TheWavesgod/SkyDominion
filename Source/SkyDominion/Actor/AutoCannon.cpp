@@ -8,10 +8,13 @@
 #include "Kismet/GameplayStatics.h"
 #include "Projectile.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Net/UnrealNetwork.h"
 
 AAutoCannon::AAutoCannon()
 {
 	PrimaryActorTick.bCanEverTick = false;
+
+	bReplicates = true;
 
 	StartSoundComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("StartSoundComponent"));
 	StartSoundComponent->bAutoActivate = false;
@@ -20,12 +23,22 @@ AAutoCannon::AAutoCannon()
 	LoopSoundComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("LoopAudioComponent"));
 	LoopSoundComponent->bAutoActivate = false; 
 	LoopSoundComponent->bStopWhenOwnerDestroyed = true;
+
+	CurrentBulletLeft = MaxCarring;
 }
 
 void AAutoCannon::BeginPlay()
 {
 	Super::BeginPlay();
 	
+}
+
+void AAutoCannon::Destroyed()
+{
+	/*GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+	GetWorld()->GetTimerManager().ClearTimer(FiringTimer);*/
+
+	Super::Destroyed();
 }
 
 void AAutoCannon::Tick(float DeltaTime)
@@ -35,8 +48,17 @@ void AAutoCannon::Tick(float DeltaTime)
 	//DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + GetActorForwardVector() * 10000.0f, FColor::Red, false, 0.0f);
 }
 
+void AAutoCannon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AAutoCannon, CurrentBulletLeft);
+}
+
 void AAutoCannon::FireStart()
 {
+	if (CurrentBulletLeft == 0) return;
+
 	Owner = Owner == nullptr ? Cast<AFighter>(this->GetOwner()) : Owner;
 
 	if (Owner)
@@ -61,10 +83,7 @@ void AAutoCannon::FireStart()
 		FTimerDelegate TimerDelegate = FTimerDelegate::CreateUObject(this, &ThisClass::PlayLoopSound);
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, SoundsToUse.StartSoundDuration, false);
 
-		if (HasAuthority())
-		{
-			GetWorld()->GetTimerManager().SetTimer(FiringTimer, this, &ThisClass::SpawnBullet, 60.0f / FireRadte, true);
-		}
+		GetWorld()->GetTimerManager().SetTimer(FiringTimer, this, &ThisClass::SpawnBullet, 60.0f / FireRadte, true);
 	}
 }
 
@@ -76,36 +95,39 @@ void AAutoCannon::FireEnd()
 	{
 		GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 
+		bool bNeedEndSound = false;
 		if (StartSoundComponent && StartSoundComponent->IsPlaying())
 		{
 			StartSoundComponent->Stop();
+			bNeedEndSound = true;
 		}
 
 		if (LoopSoundComponent && LoopSoundComponent->IsPlaying())
 		{
 			LoopSoundComponent->Stop();
+			bNeedEndSound = true;
 		}
 
-		USoundCue* EndSound;
-		if (Owner->IsLocallyControlled() && !bDebugOuterSound)
+		if (bNeedEndSound)
 		{
-			EndSound = CockpitSound.SoundEnd;
-		}
-		else
-		{
-			EndSound = OuterSound.SoundEnd;
-		}
-		if (EndSound)
-		{
-			UGameplayStatics::PlaySoundAtLocation(this, EndSound, GetActorLocation());
+			USoundCue* EndSound;
+			if (Owner->IsLocallyControlled() && !bDebugOuterSound)
+			{
+				EndSound = CockpitSound.SoundEnd;
+			}
+			else
+			{
+				EndSound = OuterSound.SoundEnd;
+			}
+			if (EndSound)
+			{
+				UGameplayStatics::PlaySoundAtLocation(this, EndSound, GetActorLocation());
+			}
 		}
 
-		if (HasAuthority())
-		{
-			GetWorld()->GetTimerManager().ClearTimer(FiringTimer);
-		}
+		GetWorld()->GetTimerManager().ClearTimer(FiringTimer);
 	}
-}
+}   
 
 void AAutoCannon::PlayLoopSound()
 {
@@ -131,6 +153,13 @@ void AAutoCannon::PlayLoopSound()
 
 void AAutoCannon::SpawnBullet()
 {
+	if (CurrentBulletLeft == 0)
+	{
+		FireEnd();
+	}
+
+	if (!HasAuthority()) return;
+	
 	if (BulletClass)
 	{
 		FActorSpawnParameters BulletSpawnParameter;
@@ -150,8 +179,8 @@ void AAutoCannon::SpawnBullet()
 				bullet->SetVisualMeshVisibility(false);
 				--TracerBulletCounter;
 			}
-
 			//bullet->GetProjectileMovementComponent()->Velocity = GetActorForwardVector() * InitSpeed * 100.0f;
+			CurrentBulletLeft = FMath::Clamp(CurrentBulletLeft - 1, 0, MaxCarring);
 		}
 	}
 }

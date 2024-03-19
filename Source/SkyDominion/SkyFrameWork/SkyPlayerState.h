@@ -41,5 +41,13 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerChangeChoosedFighterType(int32 Index);
 
+	void AddKill();
+	void AddDefeat();
+
 private:
+	UPROPERTY(Replicated)
+	int32 Defeat = 0;
+
+public:
+	FORCEINLINE int32 GetDefeat() const { return Defeat; }
 };

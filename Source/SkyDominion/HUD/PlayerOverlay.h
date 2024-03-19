@@ -18,6 +18,9 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	class AFighter* fighter;
 
+	UPROPERTY()
+	class ASkyPlayerState* SkyPlayerState;
+
 	UPROPERTY(BlueprintReadOnly)
 	float ThrusterRatio = 0.0f;
 
@@ -26,6 +29,9 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	float Altitude = 0.0f;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bShowLowAltitudeAlert = false;
 
 	UPROPERTY(BlueprintReadOnly)
 	float AngleOfAttack = 0.0f;
@@ -41,6 +47,24 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	float HealthPercent = 1.0f;
+
+	UPROPERTY(BlueprintReadOnly)
+	int AutoCannonBulletAmount = 0;
+
+	UPROPERTY(BlueprintReadOnly)
+	FRotator FighterRotation;
+
+	UPROPERTY(BlueprintReadOnly)
+	int32 Kill;
+
+	UPROPERTY(BlueprintReadOnly)
+	int32 Defeat;
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Event")
+	void ShowBulletRunoutAlert();
+
+	UFUNCTION(BlueprintCallable)
+	void ActivateLowAltitudeAlertSound(bool bActivated);
 
 protected:
 	virtual bool Initialize() override;

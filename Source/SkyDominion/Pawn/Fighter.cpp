@@ -12,6 +12,13 @@
 #include "Components/WidgetComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "SkyDominion/Actor/AutoCannon.h"
+#include "SkyDominion/HUD/PlayerOverlay.h"
+#include "Sound/SoundCue.h"
+#include "Components/AudioComponent.h"
+#include "SkyDominion/Actor/FighterWreckage.h"
+#include "SkyDominion/GameMode/GM_SkyDominion.h"
+#include "SkyDominion/SkyFrameWork/SkyPlayerController.h"
+#include "SkyDominion/HUD/SkyDominionHUD.h"
 
 AFighter::AFighter()
 {
@@ -44,6 +51,10 @@ AFighter::AFighter()
 	AutoCannonClass = AAutoCannon::StaticClass();
 
 	CurrentHealth = MaxHealth;
+
+	LowAltitudeHandle = CreateDefaultSubobject<UAudioComponent>(TEXT("LowAltitudeHandle"));
+	LowAltitudeHandle->bAutoActivate = false;
+	LowAltitudeHandle->bStopWhenOwnerDestroyed = true;
 }
 
 void AFighter::BeginPlay()
@@ -77,8 +88,11 @@ void AFighter::BeginPlay()
 		AFighter* LocalContorlledFighter = Cast<AFighter>(LocalContorlledPawn);
 		if (LocalContorlledFighter)
 		{
-			this->SoundComponent->ChangeAudioListener(LocalContorlledFighter->GetMainCamera());
-			GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("ChangeAudioListener to:") + LocalContorlledFighter->GetName());
+			this->SoundComponent->ChangeAudioListener(LocalContorlledFighter->GetMainCamera(), true);
+			if (HasAuthority())
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("ChangeAudioListener to:") + LocalContorlledFighter->GetName());
+			}
 		}
 	}
 
@@ -149,6 +163,43 @@ void AFighter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction(TEXT("AutoCannon"), EInputEvent::IE_Released, this, &ThisClass::AutoCannonBttnReleased);
 }
 
+void AFighter::Elim_Implementation()
+{
+	if (AutoCannon)
+	{
+		AutoCannon->FireEnd();
+	}
+
+	ASkyPlayerController* OnwingController = Cast<ASkyPlayerController>(Controller);
+	if (OnwingController)
+	{
+		ASkyDominionHUD* SkyDominionHUD = OnwingController->GetHUD<ASkyDominionHUD>();
+		if (SkyDominionHUD)
+		{
+			SkyDominionHUD->OwnerFighter = nullptr;
+			SkyDominionHUD->SetPlayerOverlayVisibility(false);
+			SkyDominionHUD->AddSpectatorOverlay();
+		}
+	}
+
+	AGM_SkyDominion* SkyDominionGM = GetWorld()->GetAuthGameMode<AGM_SkyDominion>();
+	if (SkyDominionGM && OnwingController)
+	{
+		SkyDominionGM->SwitchToSpectator(this, OnwingController);
+	}
+}
+
+void AFighter::Destroyed()
+{
+	Super::Destroyed();
+
+	if (HasAuthority() && WreckageClass)
+	{
+		AFighterWreckage* Wreckage = GetWorld()->SpawnActor<AFighterWreckage>(WreckageClass, GetActorTransform(), FActorSpawnParameters());
+		Wreckage->SetPhysicalVelocity(Mesh->GetPhysicsLinearVelocity(), Mesh->GetPhysicsAngularVelocityInRadians());
+	}
+}
+
 void AFighter::LookUpDown(float Value)
 {
 	//GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Red, FString::Printf(TEXT("LookUp: %f"), Value));
@@ -201,6 +252,23 @@ void AFighter::AutoCannonBttnPressed()
 	if (AutoCannon)
 	{
 		AutoCannon->FireStart();
+
+		if (!PlayerOverlay)
+		{
+			ASkyPlayerController* OnwingController = Cast<ASkyPlayerController>(Controller);
+			if (OnwingController)
+			{
+				ASkyDominionHUD* SkyDominionHUD = OnwingController->GetHUD<ASkyDominionHUD>();
+				if (SkyDominionHUD)
+				{
+					PlayerOverlay = SkyDominionHUD->PlayerOverlay;
+				}
+			}
+		}
+		if (PlayerOverlay)
+		{
+			PlayerOverlay->ShowBulletRunoutAlert();
+		}
 	}
 }
 
@@ -389,10 +457,44 @@ void AFighter::SetMarkWidgetVisble(bool bIsVisible)
 	MarkWidget->SetVisibility(bIsVisible);
 }
 
-void AFighter::ReceiveDamage(AActor* DamageActor, float Damage, const UDamageType* DamageType, AController* InvestigatorActor, AActor* DamageCauser)
+void AFighter::ReceiveDamage(AActor* DamageActor, float Damage, const UDamageType* DamageType, AController* InvestigatorController, AActor* DamageCauser)
 {
-	CurrentHealth -= Damage;
+	CurrentHealth = FMath::Clamp(CurrentHealth - Damage, 0.0f, MaxHealth);
 
-	GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("Receive Damage by ") + InvestigatorActor->GetName());
+	if (CurrentHealth == 0.0f)
+	{
+		AGM_SkyDominion* SkyDominionGM = GetWorld()->GetAuthGameMode<AGM_SkyDominion>();
+		if (SkyDominionGM)
+		{
+			ASkyPlayerController* OwnerController = Cast<ASkyPlayerController>(Controller);
+			ASkyPlayerController* AttackerController = Cast<ASkyPlayerController>(InvestigatorController);
+
+			SkyDominionGM->FighterDestroyed(this, OwnerController, AttackerController);
+		}
+	}
+
+	GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("Receive Damage by ") + InvestigatorController->GetName());
+}
+
+int AFighter::GetAutoCannonBulletLeft() const
+{
+	if (AutoCannon)
+	{
+		return AutoCannon->GetCurrentBulletLeft();
+	}
+	return 0;
+}
+
+void AFighter::ActivateAlertSoundLowAltitude(bool bActivated)
+{
+	if (bActivated)
+	{
+		LowAltitudeHandle->SetSound(AlertSoundConfig.LowAltitudeAlert);
+		LowAltitudeHandle->Play();
+	}
+	if (!bActivated && LowAltitudeHandle->IsPlaying())
+	{
+		LowAltitudeHandle->Stop();
+	}
 }
 
