@@ -49,6 +49,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	void CheckOwnerFighterStateAndPlayerOverlay();
+
 	void DrawCrosshair();
 
 	void DrawTargetMarkPointer();

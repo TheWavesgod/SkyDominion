@@ -19,10 +19,15 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Config")
+	int RespawnCoolingTime = 10;
+
 protected:
 	virtual void BeginPlay() override;
 
 	void RespawnRequestPressed();
+
+	float CurrentCoolingTimeHandle;
 
 public:	
 

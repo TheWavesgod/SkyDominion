@@ -9,6 +9,7 @@
 #include "Projectile.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Net/UnrealNetwork.h"
+#include "Sound/SoundAttenuation.h"
 
 AAutoCannon::AAutoCannon()
 {
@@ -19,10 +20,12 @@ AAutoCannon::AAutoCannon()
 	StartSoundComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("StartSoundComponent"));
 	StartSoundComponent->bAutoActivate = false;
 	StartSoundComponent->bStopWhenOwnerDestroyed = true;
+	StartSoundComponent->AttenuationSettings = AutoCannonSoundAttenuation;
 
 	LoopSoundComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("LoopAudioComponent"));
 	LoopSoundComponent->bAutoActivate = false; 
 	LoopSoundComponent->bStopWhenOwnerDestroyed = true;
+	LoopSoundComponent->AttenuationSettings = AutoCannonSoundAttenuation;
 
 	CurrentBulletLeft = MaxCarring;
 }

@@ -14,6 +14,7 @@ void ASkySpectatorPawn::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	CurrentCoolingTimeHandle = RespawnCoolingTime;
 }
 
 
@@ -21,6 +22,7 @@ void ASkySpectatorPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	CurrentCoolingTimeHandle = FMath::Clamp(CurrentCoolingTimeHandle - DeltaTime, 0.0f, RespawnCoolingTime);
 }
 
 void ASkySpectatorPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -32,6 +34,8 @@ void ASkySpectatorPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 void ASkySpectatorPawn::RespawnRequestPressed()
 {
+	if (CurrentCoolingTimeHandle != 0.0f) return;
+
 	ASkyPlayerController* OnwingController = Cast<ASkyPlayerController>(Controller);
 	if (OnwingController)
 	{

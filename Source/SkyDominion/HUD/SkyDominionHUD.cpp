@@ -17,17 +17,26 @@ void ASkyDominionHUD::BeginPlay()
 	AddPlayerOverlay();
 }
 
+void ASkyDominionHUD::CheckOwnerFighterStateAndPlayerOverlay()
+{
+	if (!GetOwningPawn()) return;
+	OwnerFighter = OwnerFighter == nullptr ? Cast<AFighter>(GetOwningPawn()) : OwnerFighter;
+
+	PlayerOverlay->fighter = PlayerOverlay->fighter != OwnerFighter ? OwnerFighter : PlayerOverlay->fighter;
+	OwnerFighter->SetPlayerOverlay(PlayerOverlay);
+}
+
 void ASkyDominionHUD::DrawHUD()
 {
 	Super::DrawHUD();
 
+	CheckOwnerFighterStateAndPlayerOverlay();
 	DrawTargetMarkPointer();
 	DrawCrosshair();
 }
 
 void ASkyDominionHUD::DrawCrosshair()
 {
-	OwnerFighter = OwnerFighter == nullptr ? Cast<AFighter>(GetOwningPawn()) : OwnerFighter;
 	if (!OwnerFighter) return;
 	if (!Crosshair) return;
 
@@ -49,7 +58,6 @@ void ASkyDominionHUD::DrawCrosshair()
 
 void ASkyDominionHUD::DrawTargetMarkPointer()
 {
-	OwnerFighter = OwnerFighter == nullptr ? Cast<AFighter>(GetOwningPawn()) : OwnerFighter;
 	if (OwnerFighter)
 	{
 		FVector2D ScreenCenter = FVector2D(Canvas->SizeX / 2, Canvas->SizeY / 2);

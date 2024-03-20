@@ -7,6 +7,7 @@
 #include "AutoCannon.generated.h"
 
 class USoundCue;
+class USoundAttenuation;
 
 USTRUCT(BlueprintType)
 struct FCannonSounds
@@ -69,6 +70,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound Config")
 	FCannonSounds OuterSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound Config")
+	USoundAttenuation* AutoCannonSoundAttenuation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound Config")
 	bool bDebugOuterSound = false;
