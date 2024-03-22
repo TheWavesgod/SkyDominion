@@ -173,6 +173,9 @@ public:
 	 UPROPERTY(EditAnywhere, Category = "Configs")
 	 TArray<FAeroSurface> AerodynamicSurfaceSettings;
 
+	 UPROPERTY(EditAnywhere, Category = "Configs")
+	 float AirbrakeArea = 6.0f;
+
 	 /** Axis Value between 0 - 1 */
 	UFUNCTION(BlueprintCallable)
 	void SetWheelsBrake(float AxisValue);
@@ -206,6 +209,10 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SetAeroFlapActivated(bool bActivate);
+
+	/** Axis form 0 ~ 1 */
+	UFUNCTION(BlueprintCallable)
+	void SetAirbrake(float AxisValue);
 
 protected:
 	virtual void BeginPlay() override;
@@ -348,6 +355,16 @@ private:
 	UPROPERTY(EditAnywhere, Category = "AeroControl Parameters")
 	FVector2D FlapControlSpeedThreshold = FVector2D(150.0f, 300.0f);
 
+	/** Air brake */
+	void CalculateAirbrakeForce(float DeltaTime);
+
+	FVector AirbrakeForceToAdd = FVector::ZeroVector;
+
+	float AirbrakeInput;
+	
+	UPROPERTY(Replicated)
+	float AirbrakeRatio;
+
 	/**
 	 * Flying Control System
 	 */
@@ -393,4 +410,7 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE bool GetFlapControlActivated() const { return bIsFlapActivated; }
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE float GetAirbrakeRatio() const { return AirbrakeRatio; }
 };

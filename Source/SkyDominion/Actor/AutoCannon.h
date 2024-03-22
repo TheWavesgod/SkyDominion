@@ -58,12 +58,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Config")
 	int TracerBulletGap = 4;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Config")
+	class UNiagaraComponent* FiringFX;
+
 	virtual void Destroyed() override;
 
 protected:
 	virtual void BeginPlay() override;
 
 	class AFighter* Owner;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Component")
+	class USceneComponent* Root;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound Config")
 	FCannonSounds CockpitSound;

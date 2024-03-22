@@ -91,6 +91,7 @@ void UAeroPhysicsComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	DOREPLIFETIME(UAeroPhysicsComponent, MeshAcceleration);
 	DOREPLIFETIME(UAeroPhysicsComponent, GForce);
 	DOREPLIFETIME(UAeroPhysicsComponent, AngleOfAttack);
+	DOREPLIFETIME(UAeroPhysicsComponent, AirbrakeRatio);
 }
 
 void UAeroPhysicsComponent::InitializeArray()
@@ -150,6 +151,7 @@ void UAeroPhysicsComponent::AddForceToMesh()
 	Mesh->AddForce(Airplane->GetTransform().TransformVector(AeroSufaceTotalForceAndTorque.f) * 100.0f);
 	Mesh->AddTorqueInRadians(Airplane->GetTransform().TransformVector(AeroSufaceTotalForceAndTorque.t) * 10000.0f);
 	//DrawDebugLine(GetWorld(), Airplane->GetTransform().GetLocation(), Airplane->GetTransform().GetLocation() + Airplane->GetTransform().TransformVector(AeroSufaceTotalForceAndTorque.t), FColor::Red, false, 0.0f);
+	Mesh->AddForce(AirbrakeForceToAdd * 100.0f);
 }
 
 void UAeroPhysicsComponent::AeroPhysicsTick(float DeltaTime)
@@ -161,6 +163,8 @@ void UAeroPhysicsComponent::AeroPhysicsTick(float DeltaTime)
 	WheelsForceCalculation(DeltaTime);
 
 	ThrusterForceCalculation(DeltaTime);
+
+	CalculateAirbrakeForce(DeltaTime);
 
 	CalculateFlyControl(DeltaTime);
 
@@ -526,6 +530,16 @@ float UAeroPhysicsComponent::CalculateRotDegree(float ControlAxis, float X, floa
 	}
 }
 
+void UAeroPhysicsComponent::CalculateAirbrakeForce(float DeltaTime)
+{
+	AirbrakeRatio = FMath::FInterpTo(AirbrakeRatio, AirbrakeInput, DeltaTime, 1.0f);
+
+	FVector ForwardVelocity = MeshVelocity.ProjectOnTo(Mesh->GetForwardVector());
+	float Speed = ForwardVelocity.Size() / 100.0f;
+	float AirbrakeForceSize = 1.2f * 1.225f * Speed * Speed * 0.5f * AirbrakeArea * AirbrakeRatio;
+	AirbrakeForceToAdd = -Mesh->GetForwardVector() * AirbrakeForceSize;
+}
+
 void UAeroPhysicsComponent::CalculateFlyControl(float DeltaTime)
 {
 	float Speed = FMath::Abs(FVector::VectorPlaneProject(Mesh->GetPhysicsLinearVelocity(), Mesh->GetRightVector()).Size()) / 10000.0f;
@@ -655,6 +669,11 @@ void UAeroPhysicsComponent::SetAeroFlapControl(float AxisValue)
 void UAeroPhysicsComponent::SetAeroFlapActivated(bool bActivate)
 {
 	bIsFlapActivated = bActivate;
+}
+
+void UAeroPhysicsComponent::SetAirbrake(float AxisValue)
+{
+	AirbrakeInput = FMath::Clamp(AxisValue, 0.0f, 1.0f);
 }
 
 void UAeroPhysicsComponent::DebugTick(float DeltaTime)

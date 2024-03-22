@@ -10,12 +10,17 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Sound/SoundAttenuation.h"
+#include "NiagaraComponent.h"
+#include "Components/SceneComponent.h"
 
 AAutoCannon::AAutoCannon()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
 	bReplicates = true;
+
+	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	SetRootComponent(Root);
 
 	StartSoundComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("StartSoundComponent"));
 	StartSoundComponent->bAutoActivate = false;
@@ -28,6 +33,10 @@ AAutoCannon::AAutoCannon()
 	LoopSoundComponent->AttenuationSettings = AutoCannonSoundAttenuation;
 
 	CurrentBulletLeft = MaxCarring;
+
+	FiringFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("FiringFX"));
+	FiringFX->SetupAttachment(RootComponent);
+	FiringFX->bAutoActivate = false;
 }
 
 void AAutoCannon::BeginPlay()
@@ -87,6 +96,11 @@ void AAutoCannon::FireStart()
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, SoundsToUse.StartSoundDuration, false);
 
 		GetWorld()->GetTimerManager().SetTimer(FiringTimer, this, &ThisClass::SpawnBullet, 60.0f / FireRadte, true);
+
+		if (FiringFX)
+		{
+			FiringFX->SetActive(true);
+		}
 	}
 }
 
@@ -129,6 +143,11 @@ void AAutoCannon::FireEnd()
 		}
 
 		GetWorld()->GetTimerManager().ClearTimer(FiringTimer);
+
+		if (FiringFX)
+		{
+			FiringFX->SetActive(false);
+		}
 	}
 }   
 

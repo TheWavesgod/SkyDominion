@@ -336,16 +336,18 @@ void AFighter::HandleRudderInput(float DeltaTime)
 {
 	if (HasAuthority())
 	{
-		if (RightRudderInputVal > 0.005f && LeftRudderInputVal > 0.05f)
+		if (RightRudderInputVal > 0.005f && LeftRudderInputVal > 0.005f)
 		{
 			float input = (LeftRudderInputVal + RightRudderInputVal) * 0.5f;
 			AeroPhysicsComponent->SetWheelsBrake(input);
+			AeroPhysicsComponent->SetAirbrake(input);
 			AeroPhysicsComponent->SetAeroYawControl(0.0f);
 			AeroPhysicsComponent->SetSteeringWheels(0.0f);
 		}
 		else
 		{
 			AeroPhysicsComponent->SetWheelsBrake(0.0f);
+			AeroPhysicsComponent->SetAirbrake(0.0f);
 			if (RightRudderInputVal > LeftRudderInputVal)
 			{
 				AeroPhysicsComponent->SetSteeringWheels(RightRudderInputVal);
@@ -416,8 +418,8 @@ void AFighter::UpdateThrusterFX(float DeltaTime)
 
 void AFighter::VisionUpdate(float DeltaTime)
 {
-	FQuat UpDown = FQuat(FVector(0, 1, 0), FMath::DegreesToRadians(VisionInput.Y * 70.0f));
-	FQuat RightLeft = FQuat(FVector(0, 0, 1), FMath::DegreesToRadians(VisionInput.X * 150.0f)); 
+	FQuat UpDown = FQuat(FVector(0, 1, 0), FMath::DegreesToRadians(VisionInput.Y * 80.0f));
+	FQuat RightLeft = FQuat(FVector(0, 0, 1), FMath::DegreesToRadians(VisionInput.X * 170.0f)); 
 
 	SpringArmQuat = FMath::QInterpTo(SpringArmQuat, RightLeft * UpDown, DeltaTime, 6.5f);
 
