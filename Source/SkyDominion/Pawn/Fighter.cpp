@@ -85,28 +85,18 @@ void AFighter::BeginPlay()
 	else
 	{
 		SoundComponent->SetIsFlybyCamera(true);
-		//APawn* LocalContorlledPawn = GetWorld()->GetFirstLocalPlayerFromController()->GetPlayerController(GetWorld())->GetPawn();
-		//AFighter* LocalContorlledFighter = Cast<AFighter>(LocalContorlledPawn);
-		//if (LocalContorlledFighter)
-		//{
-		//	/*this->SoundComponent->ChangeAudioListener(LocalContorlledFighter->GetMainCamera(), true);
-		//	if (HasAuthority())
-		//	{
-		//		GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("ChangeAudioListener to:") + LocalContorlledFighter->GetName());
-		//	}*/
-		//}
 	}
 
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		FString isCockpitMexOn = SoundComponent->GetIsCockpitMixerOn() ? "On" : "Off";
-		GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("Server: CockpitSnd ") + isCockpitMexOn);
-	}
-	else
-	{
-		FString isCockpitMexOn = SoundComponent->GetIsCockpitMixerOn() ? "On" : "Off";
-		GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("Client: CockpitSnd ") + isCockpitMexOn);
-	}
+	//if (GetLocalRole() == ROLE_Authority)
+	//{
+	//	FString isCockpitMexOn = SoundComponent->GetIsCockpitMixerOn() ? "On" : "Off";
+	//	GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("Server: CockpitSnd ") + isCockpitMexOn);
+	//}
+	//else
+	//{
+	//	FString isCockpitMexOn = SoundComponent->GetIsCockpitMixerOn() ? "On" : "Off";
+	//	GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("Client: CockpitSnd ") + isCockpitMexOn);
+	//}
 
 	if (HasAuthority())
 	{
