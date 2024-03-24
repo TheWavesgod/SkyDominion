@@ -80,6 +80,17 @@ void AFighter::BeginPlay()
 		if (!SoundComponent->GetIsCockpitMixerOn())
 		{
 			SoundComponent->SwitchCockpitSnd();
+
+			if (GetLocalRole() == ROLE_Authority)
+			{
+				FString isCockpitMexOn = SoundComponent->GetIsCockpitMixerOn() ? "On" : "Off";
+				GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("Server: CockpitSnd ") + isCockpitMexOn);
+			}
+			else
+			{
+				FString isCockpitMexOn = SoundComponent->GetIsCockpitMixerOn() ? "On" : "Off";
+				GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("Client: CockpitSnd ") + isCockpitMexOn);
+			}
 		}
 	}
 	else
@@ -437,7 +448,7 @@ void AFighter::VisionUpdate(float DeltaTime)
 	MainCameraSpringArm->TargetArmLength = FMath::FInterpTo(MainCameraSpringArm->TargetArmLength, OriginalSpringArmLength + ForwardRatio * 400.0f, DeltaTime, 1.0f);
 	//MainCameraSpringArm->SocketOffset
 
-	MainCamera->SetRelativeRotation(MainCameraPitchQuat);
+	//MainCamera->SetRelativeRotation(MainCameraPitchQuat);
 	//GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Blue, FString::Printf(TEXT("Forward A: %f"), ForwardAcceleration));
 }
 
@@ -449,9 +460,9 @@ void AFighter::SoundComponentUpdate(float DeltaTime)
 	SoundComponent->SetIsEngineRunning(true);
 	SoundComponent->SetIsPlaneOnLand(GetActorLocation().Z < 500.0f);
 
-	FSoundParams_F35 SoundPara = SoundComponent->SoundParams;
+	/*SoundComponent->SoundParams.bPlayCockpitSounds = true;*/
 
-	SoundComponent->UpdatePlaneSounds(SoundPara);
+	SoundComponent->UpdatePlaneSounds(SoundComponent->SoundParams);
 }
 
 void AFighter::SetMarkWidgetVisble(bool bIsVisible)

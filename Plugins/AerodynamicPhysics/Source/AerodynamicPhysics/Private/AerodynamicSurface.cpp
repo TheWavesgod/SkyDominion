@@ -66,7 +66,7 @@ FBiVector FAeroSurface::CalculateAerodynamicForces(FVector LocalAirVelocity, flo
 	FVector torque = CurrentRelativeRotation.GetRightVector() * aerodynamicCoefficients.Z * dynamicPressure * area * Config.Chord;
 	FVector LiftAndDragTorque = (RelativePosition - CenterOfMass).Cross(lift + drag) * 0.01f;
 
-	return FBiVector(lift + drag, LiftAndDragTorque);
+	return FBiVector(lift + drag, torque + LiftAndDragTorque);
 	//return FBiVector(CurrentRelativeRotation.GetForwardVector(), CurrentRelativeRotation.GetUpVector());
 	//return FBiVector(lift, drag);
 }
