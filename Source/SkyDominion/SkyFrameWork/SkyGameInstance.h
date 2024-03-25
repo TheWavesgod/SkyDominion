@@ -6,6 +6,18 @@
 #include "Engine/GameInstance.h"
 #include "SkyGameInstance.generated.h"
 
+USTRUCT(BlueprintType)
+struct FPlayersInfo
+{
+	GENERATED_BODY()
+
+	bool bInRedTeam;
+
+	int32 TeamIndex;
+
+	int32 ChooseJet;
+};
+
 /**
  * 
  */
@@ -24,7 +36,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Game Config")
 	TArray<UClass*> FighterJetClass;
 
-	TArray<int32> PlayersChooseJetList;
+	TMap<FUniqueNetIdPtr, FPlayersInfo> PlayersInfoList;
 
-	void UpdatePlayersChooseJetList();
+	void UpdatePlayersInfoList();
 };

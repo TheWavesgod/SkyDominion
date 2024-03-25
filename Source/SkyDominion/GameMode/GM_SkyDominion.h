@@ -17,7 +17,7 @@ class SKYDOMINION_API AGM_SkyDominion : public AGameMode
 public:
 	//virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
 
-	//virtual void StartPlay() override;
+	virtual void StartPlay() override;
 
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 
@@ -30,4 +30,11 @@ public:
 	void SwitchToSpectator(AFighter* DestroyedFighter, ASkyPlayerController* SpecController);
 
 	void RequestRespawn(ASkyPlayerController* TargetController);
+
+	void StartRoundTimer(int RoundTime);
+
+protected:
+	FTimerHandle CountdownTimerHandle;
+	void CountdownTick();
+	int LeftRoundTime;
 };

@@ -21,6 +21,9 @@ public:
 	UPROPERTY()
 	class ASkyPlayerState* SkyPlayerState;
 
+	UPROPERTY()
+	class ASkyGameState* SkyGameState;
+
 	UPROPERTY(BlueprintReadOnly)
 	float ThrusterRatio = 0.0f;
 
@@ -59,6 +62,15 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	int32 Defeat;
+
+	UPROPERTY(BlueprintReadOnly)
+	int Score_RedTeam;
+
+	UPROPERTY(BlueprintReadOnly)
+	int Score_BlueTeam;
+
+	UPROPERTY(BlueprintReadOnly)
+	int LeftRoundTime;
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Event")
 	void ShowBulletRunoutAlert();

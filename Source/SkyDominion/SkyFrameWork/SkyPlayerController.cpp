@@ -52,6 +52,11 @@ void ASkyPlayerController::SetSpectatorState_Implementation(bool bActivated)
 	}
 }
 
+void ASkyPlayerController::ClientDisconnect_Implementation()
+{
+	ConsoleCommand(TEXT("disconnect"));
+}
+
 void ASkyPlayerController::RequestRespawn()
 {
 	ASkyDominionHUD* SkyDominionHUD = GetHUD<ASkyDominionHUD>();

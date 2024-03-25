@@ -18,6 +18,7 @@
 #include "SkyDominion/Actor/FighterWreckage.h"
 #include "SkyDominion/GameMode/GM_SkyDominion.h"
 #include "SkyDominion/SkyFrameWork/SkyPlayerController.h"
+#include "SkyDominion/SkyFrameWork/SkyPlayerState.h"
 #include "SkyDominion/HUD/SkyDominionHUD.h"
 
 AFighter::AFighter()
@@ -100,6 +101,9 @@ void AFighter::BeginPlay()
 
 	if (HasAuthority())
 	{
+		Mesh->SetNotifyRigidBodyCollision(true);
+		Mesh->OnComponentHit.AddDynamic(this, &ThisClass::OnFighterHit);
+
 		OnTakeAnyDamage.AddDynamic(this, &ThisClass::ReceiveDamage);
 	}
 }
@@ -482,7 +486,26 @@ void AFighter::ReceiveDamage(AActor* DamageActor, float Damage, const UDamageTyp
 		}
 	}
 
-	GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("Receive Damage by ") + InvestigatorController->GetName());
+	//GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("Receive Damage by ") + InvestigatorController->GetName());
+}
+
+void AFighter::OnFighterHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	//GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("Hit ") + OtherActor->GetName() + FString::Printf(TEXT(" Impulse: %d"), NormalImpulse.Size()));
+	float HitNormalVel = Mesh->GetPhysicsLinearVelocity().ProjectOnTo(Hit.ImpactNormal).Size() * 0.036;
+
+	float Damage = HitNormalVel * 0.5;
+
+	CurrentHealth = FMath::Clamp(CurrentHealth - Damage, 0.0f, MaxHealth);
+
+	if (CurrentHealth == 0.0f)
+	{
+		ASkyPlayerController* OwnerController = GetController<ASkyPlayerController>();
+		if (OwnerController && OwnerController->GetPlayerState<ASkyPlayerState>())
+			OwnerController->GetPlayerState<ASkyPlayerState>()->AddDefeat();
+
+		Elim();
+	}
 }
 
 int AFighter::GetAutoCannonBulletLeft() const

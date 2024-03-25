@@ -5,22 +5,28 @@
 #include "GameFramework/GameState.h"
 #include "SkyDominion/SkyFrameWork/SkyPlayerState.h"
 
-void USkyGameInstance::UpdatePlayersChooseJetList()
+void USkyGameInstance::UpdatePlayersInfoList()
 {
-	PlayersChooseJetList.Empty();
+	PlayersInfoList.Empty();
 	if (GetWorld() && GetWorld()->GetGameState())
 	{
 		AGameStateBase* GameState = GetWorld()->GetGameState();
 		for (int i = 0; i < GameState->PlayerArray.Num(); ++i)
 		{
-			ASkyPlayerState* PlayerState = GameState->PlayerArray[i]->GetOwningController()->GetPlayerState<ASkyPlayerState>();
+			ASkyPlayerState* PlayerState = Cast<ASkyPlayerState>(GameState->PlayerArray[i]);
 			if (PlayerState)
 			{
-				PlayersChooseJetList.Add(int32(PlayerState->ChoosedFighterType));
-			}
-			else
-			{
-				PlayersChooseJetList.Add(0);
+				TSharedPtr<const FUniqueNetId> PlayerID = PlayerState->GetUniqueId().GetUniqueNetId();
+
+				if (!PlayerID.IsValid()) continue;
+
+				FPlayersInfo Info;
+				
+				Info.bInRedTeam = PlayerState->bInRedTeam;
+				Info.TeamIndex = PlayerState->TeamIndex;
+				Info.ChooseJet = static_cast<int>(PlayerState->ChoosedFighterType);
+
+				PlayersInfoList.Add(PlayerID, Info);
 			}
 		}
 	}

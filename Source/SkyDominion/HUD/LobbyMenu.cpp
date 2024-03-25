@@ -11,6 +11,7 @@
 #include "MultiplayerSessions/Public/MultiplayerSessionsSubsystem.h"
 #include "SkyDominion/Actor/DisplayAirplane.h"
 #include "SkyDominion/SkyFrameWork/SkyGameInstance.h"
+#include "SkyDominion/SkyFrameWork/SkyPlayerController.h"
 
 bool ULobbyMenu::Initialize()
 {
@@ -38,7 +39,7 @@ bool ULobbyMenu::Initialize()
 		{
 			for (int i = 0; i < static_cast<int>(EFighterJetType::E_Max); ++i)
 			{
-				FString EnumName = EnumRef->GetDisplayNameTextByValue(i).ToString();
+				FString EnumName = EnumRef->GetDisplayNameTextByValue(i).ToString(); 
 				ComboBox_FighterJet->AddOption(EnumName);
 				if (i == 0)
 				{
@@ -84,11 +85,15 @@ void ULobbyMenu::MainMenuBttnClicked()
 	UWorld* World = GetWorld();
 	if (World)
 	{
-		/*if (World->GetNetMode() == ENetMode::NM_ListenServer)
+		if (World->GetNetMode() == ENetMode::NM_ListenServer)
 		{
 			MultiplayerSessionsSubsystem->DestroySession();
-		}*/
-		MultiplayerSessionsSubsystem->DestroySession();
+		}
+		else
+		{
+			GetOwningPlayer()->ConsoleCommand(TEXT("disconnect"));
+			//if (GetOwningPlayer<ASkyPlayerController>()) GetOwningPlayer<ASkyPlayerController>()->ClientDisconnect();
+		}
 	}
 }
 
@@ -97,7 +102,7 @@ void ULobbyMenu::StartGameBttnClicked()
 	USkyGameInstance* GameInstance = GetGameInstance<USkyGameInstance>();
 	if (GameInstance)
 	{
-		GameInstance->UpdatePlayersChooseJetList();
+		GameInstance->UpdatePlayersInfoList();
 	}
 
 	UWorld* World = GetWorld();

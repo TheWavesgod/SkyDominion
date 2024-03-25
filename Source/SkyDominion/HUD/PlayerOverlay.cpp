@@ -5,6 +5,7 @@
 #include "SkyDominion/Pawn/Fighter.h"
 #include "SkyDominion/SkyFrameWork/SkyPlayerState.h"
 #include "AerodynamicPhysics/public/AeroPhysicsComponent.h"
+#include "SkyDominion/SkyFrameWork/SkyGameState.h"
 
 //#include "Sound/SoundCue.h"
 //#include "Components/AudioComponent.h"
@@ -65,6 +66,14 @@ void UPlayerOverlay::UpdateParameter()
 	Kill = SkyPlayerState->GetScore();
 
 	Defeat = SkyPlayerState->GetDefeat();
+
+	/** Game State Info */
+	SkyGameState = SkyGameState == nullptr ? GetWorld()->GetGameState<ASkyGameState>() : SkyGameState;
+	if (!SkyGameState) return;
+
+	Score_RedTeam = SkyGameState->GetRedTeamScore();
+	Score_BlueTeam = SkyGameState->GetBlueTeamScore();
+	LeftRoundTime = SkyGameState->GetRoundTime();
 }
 
 void UPlayerOverlay::ActivateLowAltitudeAlertSound(bool bActivated)

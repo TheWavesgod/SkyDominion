@@ -12,7 +12,7 @@ enum class EFighterJetType : uint8
 {
     E_F15E UMETA(DisplayName = "F15 E"),
     E_Su33 UMETA(DisplayName = "Su 33"),
-    //E_F18A UMETA(DisplayName = "F18 A"),
+    E_F18C UMETA(DisplayName = "F18 C"),
 
 	E_Max UMETA(DisplayName = "Max")
 };

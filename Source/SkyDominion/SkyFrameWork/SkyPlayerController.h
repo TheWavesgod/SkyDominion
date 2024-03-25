@@ -20,6 +20,9 @@ public:
 	UFUNCTION(Client, Reliable)
 	void SetSpectatorState(bool bActivated);
 
+	UFUNCTION(Server, Reliable)
+	void ClientDisconnect();
+
 	void RequestRespawn();
 
 protected:
