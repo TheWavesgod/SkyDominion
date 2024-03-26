@@ -22,7 +22,10 @@ public:
 	float Weight;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wreckage Config")
-	float LinearDamping = 0.2f;
+	float LinearDamping = 2.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wreckage Config")
+	float AngularDamping = 1.0f;
 
 protected:
 	virtual void BeginPlay() override;

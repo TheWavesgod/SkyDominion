@@ -31,6 +31,7 @@ void AFighterWreckage::BeginPlay()
 		WreckageMesh->SetEnableGravity(true);
 		WreckageMesh->SetMassOverrideInKg(NAME_None, Weight);
 		WreckageMesh->SetLinearDamping(LinearDamping);
+		WreckageMesh->SetAngularDamping(AngularDamping);
 		SetLifeSpan(30.0f);
 	}
 	else

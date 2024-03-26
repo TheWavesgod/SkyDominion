@@ -29,6 +29,15 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	int32 RespawnCD;
 
+	UPROPERTY(BlueprintReadOnly)
+	int Score_RedTeam;
+
+	UPROPERTY(BlueprintReadOnly)
+	int Score_BlueTeam;
+
+	UPROPERTY(BlueprintReadOnly)
+	int LeftRoundTime;
+
 protected:
 	UPROPERTY(meta = (BindWidget), EditAnywhere, BlueprintReadWrite)
 	UTextBlock* TextBlock_RespawnHint;
@@ -39,7 +48,11 @@ protected:
 
 	float RespawnCoolingDownTimer;
 
+	UPROPERTY()
 	class ASkyPlayerState* SkyPlayerState;
+
+	UPROPERTY()
+	class ASkyGameState* SkyGameState;
 
 public:
 	void Init();

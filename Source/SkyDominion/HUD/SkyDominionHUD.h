@@ -23,11 +23,17 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Overlay Settings")
 	TSubclassOf<class UUserWidget> SpectatorOverlayClass;
 
+	UPROPERTY(EditAnywhere, Category = "Overlay Settings")
+	TSubclassOf<class UUserWidget> PauseMenuClass;
+
 	UPROPERTY()
 	class UPlayerOverlay* PlayerOverlay;
 
 	UPROPERTY()
 	class USpectatorOverlay* SpectatorOverlay;
+
+	UPROPERTY()
+	class UPauseMenu* PauseMenu;
 
 	UPROPERTY(EditAnywhere, Category = "Cross Hair")
 	UTexture2D* Crosshair;
@@ -59,9 +65,11 @@ protected:
 
 public:
 	void AddPlayerOverlay();
-
 	void SetPlayerOverlayVisibility(bool bIsVisible);
 
 	void AddSpectatorOverlay();
 	void RemoveSpectatorOverlay();
+
+	void AddPauseMenu();
+	void RemovePauseMenu();
 };

@@ -13,6 +13,7 @@ enum class EFighterJetType : uint8
     E_F15E UMETA(DisplayName = "F15 E"),
     E_Su33 UMETA(DisplayName = "Su 33"),
     E_F18C UMETA(DisplayName = "F18 C"),
+	E_Su24 UMETA(DisplayName = "Su 24"),
 
 	E_Max UMETA(DisplayName = "Max")
 };
@@ -34,7 +35,7 @@ public:
 	int32 TeamIndex = 0;
 
 	UPROPERTY(Replicated)
-	EFighterJetType ChoosedFighterType = EFighterJetType::E_F15E;
+	EFighterJetType ChoosedFighterType = EFighterJetType::E_Max;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 

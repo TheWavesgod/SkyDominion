@@ -153,6 +153,9 @@ UClass* AGM_SkyDominion::GetDefaultPawnClassForController_Implementation(AContro
 
     if (PlayerState && GameInstance)
     {
+        if (PlayerState->ChoosedFighterType == EFighterJetType::E_Max)
+            return DefaultClass;
+
         UClass* PawnClass = GameInstance->FighterJetClass[static_cast<int>(PlayerState->ChoosedFighterType)];
 
         if (PawnClass)

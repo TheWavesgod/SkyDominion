@@ -23,7 +23,12 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ClientDisconnect();
 
+	virtual void SetupInputComponent() override;
+
 	void RequestRespawn();
+
+	UFUNCTION()
+	void ResumeGame();
 
 protected:
 	virtual void BeginPlay() override;
@@ -38,4 +43,7 @@ protected:
 
 	UFUNCTION(Client, Reliable)
 	void AddPlayerOverlay();
+
+	UFUNCTION()
+	void PauseBtnPressed();
 };

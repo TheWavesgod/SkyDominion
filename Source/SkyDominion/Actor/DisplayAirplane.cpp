@@ -34,6 +34,10 @@ void ADisplayAirplane::SetDisplayPlaneByIndex(const int Index)
 	case EFighterJetType::E_F18C:
 		AssetPath = TEXT("SkeletalMesh'/Game/VigilanteContent/Vehicles/West_Fighter_F18C/SK_West_Fighter_F18C.SK_West_Fighter_F18C'"); 
 		break;
+
+	case EFighterJetType::E_Su24:
+		AssetPath = TEXT("SkeletalMesh'/Game/VigilanteContent/Vehicles/East_Bomber_SU24/SK_East_Bomber_SU24.SK_East_Bomber_SU24'"); 
+		break;
 	}
 	USkeletalMesh* SkeletalMesh = LoadObject<USkeletalMesh>(nullptr, *AssetPath);
 	if (SkeletalMesh)

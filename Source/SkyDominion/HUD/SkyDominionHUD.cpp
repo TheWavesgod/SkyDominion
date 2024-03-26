@@ -4,6 +4,7 @@
 #include "SkyDominionHUD.h"
 #include "PlayerOverlay.h"
 #include "SpectatorOverlay.h"
+#include "PauseMenu.h"
 #include "SkyDominion/Pawn/Fighter.h"
 #include "SkyDominion/Actor/RadarComponent.h"
 #include "SkyDominion/Actor/AutoCannon.h"
@@ -183,5 +184,23 @@ void ASkyDominionHUD::RemoveSpectatorOverlay()
 	if (SpectatorOverlay)
 	{
 		SpectatorOverlay->RemoveFromViewport();
+	}
+}
+
+void ASkyDominionHUD::AddPauseMenu()
+{
+	APlayerController* PlayerController = GetOwningPlayerController();
+	if (PlayerController && PauseMenuClass)
+	{
+		PauseMenu = PauseMenu == nullptr ? CreateWidget<UPauseMenu>(PlayerController, PauseMenuClass) : PauseMenu;
+		PauseMenu->AddToViewport();
+	}
+}
+
+void ASkyDominionHUD::RemovePauseMenu()
+{
+	if (PauseMenu)
+	{
+		PauseMenu->RemoveFromViewport();
 	}
 }

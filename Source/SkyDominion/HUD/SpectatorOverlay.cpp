@@ -4,6 +4,7 @@
 #include "SpectatorOverlay.h"
 #include "SkyDominion/SkyFrameWork/SkyPlayerState.h"
 #include "Components/TextBlock.h"
+#include "SkyDominion/SkyFrameWork/SkyGameState.h"
 
 void USpectatorOverlay::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
@@ -24,6 +25,14 @@ void USpectatorOverlay::UpdateInfo(float InDeltaTime)
 
 	RespawnCoolingDownTimer = FMath::Clamp(RespawnCoolingDownTimer - InDeltaTime, 0.0f, RespawnCoolingDownTime);
 	RespawnCD = FMath::CeilToInt(RespawnCoolingDownTimer);
+
+	/** Round State Info */
+	SkyGameState = SkyGameState == nullptr ? GetWorld()->GetGameState<ASkyGameState>() : SkyGameState;
+	if (!SkyGameState) return;
+
+	Score_RedTeam = SkyGameState->GetRedTeamScore();
+	Score_BlueTeam = SkyGameState->GetBlueTeamScore();
+	LeftRoundTime = SkyGameState->GetRoundTime();
 }
 
 void USpectatorOverlay::Init()

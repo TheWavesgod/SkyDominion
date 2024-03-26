@@ -57,6 +57,14 @@ void ASkyPlayerController::ClientDisconnect_Implementation()
 	ConsoleCommand(TEXT("disconnect"));
 }
 
+void ASkyPlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+
+	InputComponent->BindAction(TEXT("Pause"), EInputEvent::IE_Pressed, this, &ThisClass::PauseBtnPressed);
+
+}
+
 void ASkyPlayerController::RequestRespawn()
 {
 	ASkyDominionHUD* SkyDominionHUD = GetHUD<ASkyDominionHUD>();
@@ -83,4 +91,35 @@ void ASkyPlayerController::AddPlayerOverlay_Implementation()
 	{
 		SkyDominionHUD->AddPlayerOverlay();
 	}
+}
+
+void ASkyPlayerController::PauseBtnPressed()
+{
+	ASkyDominionHUD* SkyDominionHUD = GetHUD<ASkyDominionHUD>();
+	if (!SkyDominionHUD) return;
+
+	SkyDominionHUD->SetPlayerOverlayVisibility(false);
+	SkyDominionHUD->RemoveSpectatorOverlay();
+	SkyDominionHUD->AddPauseMenu();
+
+	FInputModeUIOnly InputModeUIOnly;
+	SetInputMode(InputModeUIOnly);
+	bShowMouseCursor = true;
+}
+
+void ASkyPlayerController::ResumeGame()
+{
+	ASkyDominionHUD* SkyDominionHUD = GetHUD<ASkyDominionHUD>();
+	if (!SkyDominionHUD) return;
+
+	FInputModeGameOnly InputModeGameOnly;
+	SetInputMode(InputModeGameOnly);
+	bShowMouseCursor = false;
+
+	if (GetStateName() == NAME_Playing)
+		SkyDominionHUD->SetPlayerOverlayVisibility(true);
+	else
+		SkyDominionHUD->AddSpectatorOverlay();
+
+	SkyDominionHUD->RemovePauseMenu();
 }

@@ -62,6 +62,8 @@ void AFighter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	CurrentHealth = MaxHealth;
+
 	if (AutoCannonClass)
 	{
 		AutoCannon = GetWorld()->SpawnActor<AAutoCannon>(AutoCannonClass, FVector::ZeroVector, FRotator::ZeroRotator);
@@ -101,6 +103,8 @@ void AFighter::BeginPlay()
 
 	if (HasAuthority())
 	{
+		Mesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Block);
+		Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 		Mesh->SetNotifyRigidBodyCollision(true);
 		Mesh->OnComponentHit.AddDynamic(this, &ThisClass::OnFighterHit);
 
@@ -449,6 +453,17 @@ void AFighter::VisionUpdate(float DeltaTime)
 
 void AFighter::SoundComponentUpdate(float DeltaTime)
 {
+	if (IsLocallyControlled())
+	{
+		if (!SoundComponent->bInitializeComplete)
+			SoundComponent->SwitchCockpitSnd();
+		if (!SoundComponent->GetIsCockpitMixerOn())
+		{
+			SoundComponent->SwitchCockpitSnd();
+			SoundComponent->SetIsFlybyCamera(false);
+		}
+	}
+
 	SoundComponent->SetRPM(AeroPhysicsComponent->GetRealThrusterRatio());
 	SoundComponent->SetSpeed(AeroPhysicsComponent->GetCurrentGroundSpeed() / 0.036f);
 	SoundComponent->SetPitchRate(AeroPhysicsComponent->GetCurrentGForce());
