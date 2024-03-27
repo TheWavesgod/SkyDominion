@@ -105,6 +105,7 @@ void AFighter::BeginPlay()
 		if (MissileComponent)
 		{
 			MissileComponent->SpawnMissileAtBegin(RootComponent);
+			SyncMissileInfo();
 		}
 	}
 }
@@ -132,6 +133,8 @@ void AFighter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 	DOREPLIFETIME(AFighter, TargetLocation);
 	DOREPLIFETIME(AFighter, TargetRotation);
 	DOREPLIFETIME(AFighter, CurrentHealth);
+	DOREPLIFETIME(AFighter, MissileName);
+	DOREPLIFETIME(AFighter, MissileNum);
 }
 
 void AFighter::SynchroMovement(float DeltaTime)
@@ -362,11 +365,17 @@ void AFighter::ServerChangeMissileBttnPressed_Implementation()
 	if (MissileComponent)
 	{
 		MissileComponent->ChangeSelectMissile();
+		SyncMissileInfo();
 	}
 }
 
 void AFighter::ServerFireMissileBttnPressed_Implementation()
 {
+	if (MissileComponent)
+	{
+		MissileComponent->FireCurrentMissile();
+		SyncMissileInfo();
+	}
 }
 
 
@@ -574,3 +583,8 @@ void AFighter::ActivateAlertSoundLowAltitude(bool bActivated)
 	}
 }
 
+void AFighter::SyncMissileInfo()
+{
+	MissileName = MissileComponent->GetSelectMissileName();
+	MissileNum = MissileComponent->GetSelectMissileNum();
+}

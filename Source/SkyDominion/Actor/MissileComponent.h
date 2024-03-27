@@ -38,6 +38,8 @@ public:
 
 	void ChangeSelectMissile();
 
+	void FireCurrentMissile();
+
 protected:
 	virtual void BeginPlay() override;
 

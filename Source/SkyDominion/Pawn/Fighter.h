@@ -215,6 +215,15 @@ private:
 	/** HUD */
 	class UPlayerOverlay* PlayerOverlay;
 
+	/** Missile Info */
+	UPROPERTY(Replicated)
+	FName MissileName;
+
+	UPROPERTY(Replicated)
+	int32 MissileNum;
+
+	void SyncMissileInfo();
+
 public:
 	FORCEINLINE USounds_F35* GetSoundComponent() const { return SoundComponent; }
 	FORCEINLINE UCameraComponent* GetMainCamera() const { return MainCamera; }
@@ -223,6 +232,8 @@ public:
 	FORCEINLINE URadarComponent* GetRadarComponent() const { return RadarComponent; }
 	FORCEINLINE AAutoCannon* GetAutoCannon() const { return AutoCannon; }
 	FORCEINLINE float GetCurrentHealthPercent() const { return CurrentHealth / MaxHealth; }
+	FORCEINLINE FName GetCurrentMissileName() const { return MissileName; }
+	FORCEINLINE int32 GetCurrentMissileNum() const { return MissileNum; }
 	int GetAutoCannonBulletLeft() const;
 	void SetPlayerOverlay(UPlayerOverlay* val) { PlayerOverlay = val; }
 };

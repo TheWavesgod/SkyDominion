@@ -72,6 +72,12 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	int LeftRoundTime;
 
+	UPROPERTY(BlueprintReadOnly)
+	FName MissileName;
+
+	UPROPERTY(BlueprintReadOnly)
+	int32 MissileNum;
+
 	UFUNCTION(BlueprintImplementableEvent, Category = "Event")
 	void ShowBulletRunoutAlert();
 

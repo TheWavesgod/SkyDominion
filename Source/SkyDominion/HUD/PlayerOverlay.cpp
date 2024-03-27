@@ -59,6 +59,10 @@ void UPlayerOverlay::UpdateParameter()
 
 	FighterRotation = fighter->GetActorRotation();
 
+	MissileName = fighter->GetCurrentMissileName();
+
+	MissileNum = fighter->GetCurrentMissileNum();
+
 	/** Player State Info */
 	SkyPlayerState = SkyPlayerState == nullptr ? GetOwningLocalPlayer()->GetPlayerController(GetWorld())->GetPlayerState<ASkyPlayerState>() : SkyPlayerState;
 	if (!SkyPlayerState) return;

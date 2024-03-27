@@ -74,8 +74,26 @@ void UMissileComponent::ChangeSelectMissile()
 
 	CurrentSelectMissile = GetFirstMissileFromType(GetSelectMissileName());
 
-	GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("Select Missile ") + GetSelectMissileName().ToString() + FString::Printf(TEXT(" Num: %d"), GetSelectMissileNum()));
-}	
+	//GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("Select Missile ") + GetSelectMissileName().ToString() + FString::Printf(TEXT(" Num: %d"), GetSelectMissileNum()));
+}
+
+void UMissileComponent::FireCurrentMissile()
+{
+	if (!CurrentSelectMissile) return;
+
+	GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("Fire ") + CurrentSelectMissile->GetName());
+
+	CurrentSelectMissile->Fire();
+
+	int32* num = CurrentMissileNum.Find(GetSelectMissileName());
+	if (num) *num -= 1;
+
+	if (MissilesUnfire.Find(CurrentSelectMissile) != INDEX_NONE)
+		MissilesUnfire[MissilesUnfire.Find(CurrentSelectMissile)] = nullptr;
+
+	CurrentSelectMissile = GetFirstMissileFromType(GetSelectMissileName());
+}
+
 
 FName UMissileComponent::GetMissileSocketNameByIndex(int index) const
 {
