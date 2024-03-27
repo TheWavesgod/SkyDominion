@@ -39,6 +39,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	class USoundCue* ExplosionSfx;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	class USoundAttenuation* SoundAttenuation;
+
 private:
 	/** Replicated Fighter Movement */
 	UPROPERTY(Replicated)

@@ -8,6 +8,7 @@
 #include "SkyDominion/SkyFrameWork/SkyPlayerState.h"
 #include "SkyDominion/HUD/SkyDominionHUD.h"
 #include "SkyDominion/GameMode/GM_SkyDominion.h"
+#include "SkyDominion/Pawn/SkySpectatorPawn.h"
 
 ASkyPlayerController::ASkyPlayerController()
 {
@@ -45,6 +46,7 @@ void ASkyPlayerController::SetSpectatorState_Implementation(bool bActivated)
 	if (bActivated)
 	{
 		ChangeState(NAME_Spectating);
+		SetAudioListenerOverride(GetSpectatorPawn()->FindComponentByClass<USceneComponent>(), FVector(0), FRotator(0));
 	}
 	else
 	{

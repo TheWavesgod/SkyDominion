@@ -238,7 +238,8 @@ void AGM_SkyDominion::SwitchToSpectator(AFighter* DestroyedFighter, ASkyPlayerCo
 	SpecController->ChangeState(NAME_Spectating);
     SpecController->SetSpectatorState(true);
     SpecController->SetControlRotation(FighterRotation);
-    GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("Change to Spectator Pawn."));
+    //SpecController->SetAudioListenerOverride(SpecController->GetSpectatorPawn()->FindComponentByClass<USceneComponent>(), FVector(0), FRotator(0));
+    //GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("Change to Spectator Pawn."));
 }
 
 void AGM_SkyDominion::RequestRespawn(ASkyPlayerController* TargetController)

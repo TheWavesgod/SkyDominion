@@ -2,7 +2,9 @@
 #include "Components/StaticMeshComponent.h"
 #include "NiagaraComponent.h"
 #include "Sound/SoundCue.h"
+#include "Sound/SoundAttenuation.h"
 #include "Net/UnrealNetwork.h"
+#include "Kismet/GameplayStatics.h"
 
 AFighterWreckage::AFighterWreckage()
 {
@@ -15,6 +17,7 @@ AFighterWreckage::AFighterWreckage()
 
 	ExplosionVfx = CreateDefaultSubobject<UNiagaraComponent>(TEXT("ExplosionVfx")); 
 	ExplosionVfx->SetupAttachment(RootComponent);
+	ExplosionVfx->bAutoActivate = false;
 }
 
 void AFighterWreckage::BeginPlay()
@@ -38,6 +41,10 @@ void AFighterWreckage::BeginPlay()
 	{
 		WreckageMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
+
+	ExplosionVfx->Activate(true);
+	if(ExplosionSfx)
+		UGameplayStatics::PlaySoundAtLocation(this, ExplosionSfx, GetActorLocation(), 1.8f, 1.0f, 0.0f, SoundAttenuation);
 }
 
 void AFighterWreckage::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

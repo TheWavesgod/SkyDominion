@@ -116,6 +116,9 @@ protected:
 	class URadarComponent* RadarComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	class UMissileComponent* MissileComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	AAutoCannon* AutoCannon;
 
 	/** PlayerInput Bind Function */
@@ -130,6 +133,8 @@ protected:
 	void WheelRetreatBttnPressed();
 	void AutoCannonBttnPressed();
 	void AutoCannonBttnReleased();
+	void ChangeMissileBttnPressed();
+	void FireMissileBttnPressed();
 
 	UFUNCTION(Server, Unreliable)
 	void ServerThrusterInput(float Value);
@@ -157,6 +162,13 @@ protected:
 
 	UFUNCTION(Server, Reliable)
 	void ServerAutoCannonBttnReleased();
+
+	UFUNCTION(Server, Reliable)
+	void ServerChangeMissileBttnPressed();
+
+	UFUNCTION(Server, Reliable)
+	void ServerFireMissileBttnPressed();
+
 
 	UFUNCTION()
 	void ReceiveDamage(AActor* DamageActor, float Damage, const UDamageType* DamageType, class AController* InvestigatorController, AActor* DamageCauser);

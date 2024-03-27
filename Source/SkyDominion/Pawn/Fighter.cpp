@@ -20,6 +20,7 @@
 #include "SkyDominion/SkyFrameWork/SkyPlayerController.h"
 #include "SkyDominion/SkyFrameWork/SkyPlayerState.h"
 #include "SkyDominion/HUD/SkyDominionHUD.h"
+#include "SkyDominion/Actor/MissileComponent.h"
 
 AFighter::AFighter()
 {
@@ -48,6 +49,8 @@ AFighter::AFighter()
 	RadarDetectCollsion->SetupAttachment(RootComponent);
 
 	RadarComponent = CreateDefaultSubobject<URadarComponent>(TEXT("RadarComponent"));
+
+	MissileComponent = CreateDefaultSubobject<UMissileComponent>(TEXT("MissileComponent"));
 
 	AutoCannonClass = AAutoCannon::StaticClass();
 
@@ -90,17 +93,6 @@ void AFighter::BeginPlay()
 		SoundComponent->SetIsFlybyCamera(true);
 	}
 
-	//if (GetLocalRole() == ROLE_Authority)
-	//{
-	//	FString isCockpitMexOn = SoundComponent->GetIsCockpitMixerOn() ? "On" : "Off";
-	//	GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("Server: CockpitSnd ") + isCockpitMexOn);
-	//}
-	//else
-	//{
-	//	FString isCockpitMexOn = SoundComponent->GetIsCockpitMixerOn() ? "On" : "Off";
-	//	GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("Client: CockpitSnd ") + isCockpitMexOn);
-	//}
-
 	if (HasAuthority())
 	{
 		Mesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Block);
@@ -109,6 +101,11 @@ void AFighter::BeginPlay()
 		Mesh->OnComponentHit.AddDynamic(this, &ThisClass::OnFighterHit);
 
 		OnTakeAnyDamage.AddDynamic(this, &ThisClass::ReceiveDamage);
+
+		if (MissileComponent)
+		{
+			MissileComponent->SpawnMissileAtBegin(RootComponent);
+		}
 	}
 }
 
@@ -171,6 +168,8 @@ void AFighter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction(TEXT("WheelRetreat"), EInputEvent::IE_Pressed, this, &ThisClass::WheelRetreatBttnPressed);
 	PlayerInputComponent->BindAction(TEXT("AutoCannon"), EInputEvent::IE_Pressed, this, &ThisClass::AutoCannonBttnPressed);
 	PlayerInputComponent->BindAction(TEXT("AutoCannon"), EInputEvent::IE_Released, this, &ThisClass::AutoCannonBttnReleased);
+	PlayerInputComponent->BindAction(TEXT("ChangeMissile"), EInputEvent::IE_Pressed, this, &ThisClass::ChangeMissileBttnPressed);
+	PlayerInputComponent->BindAction(TEXT("FireMissile"), EInputEvent::IE_Pressed, this, &ThisClass::FireMissileBttnPressed);
 }
 
 void AFighter::Elim_Implementation()
@@ -178,6 +177,12 @@ void AFighter::Elim_Implementation()
 	if (AutoCannon)
 	{
 		AutoCannon->FireEnd();
+		AutoCannon->Destroy();
+	}
+
+	if (MissileComponent)
+	{
+		MissileComponent->DestroyMissileRemain();
 	}
 
 	ASkyPlayerController* OnwingController = Cast<ASkyPlayerController>(Controller);
@@ -291,6 +296,16 @@ void AFighter::AutoCannonBttnReleased()
 	}
 }
 
+void AFighter::ChangeMissileBttnPressed()
+{
+	ServerChangeMissileBttnPressed();
+}
+
+void AFighter::FireMissileBttnPressed()
+{
+	ServerFireMissileBttnPressed();
+}
+
 void AFighter::ServerThrusterInput_Implementation(float Value)
 {
 	AeroPhysicsComponent->SetAddThruster(Value);
@@ -341,6 +356,19 @@ void AFighter::ServerAutoCannonBttnReleased_Implementation()
 		AutoCannon->FireEnd();
 	}
 }
+
+void AFighter::ServerChangeMissileBttnPressed_Implementation()
+{
+	if (MissileComponent)
+	{
+		MissileComponent->ChangeSelectMissile();
+	}
+}
+
+void AFighter::ServerFireMissileBttnPressed_Implementation()
+{
+}
+
 
 void AFighter::HandleRudderInput(float DeltaTime)
 {
@@ -484,6 +512,7 @@ void AFighter::SetMarkWidgetVisble(bool bIsVisible)
 {
 	MarkWidget->SetVisibility(bIsVisible);
 }
+
 
 void AFighter::ReceiveDamage(AActor* DamageActor, float Damage, const UDamageType* DamageType, AController* InvestigatorController, AActor* DamageCauser)
 {
