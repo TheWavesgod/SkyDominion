@@ -44,6 +44,9 @@ protected:
 	/** Use for calculate missile movement */
 	FVector MissileVelocity;
 
+	FVector CurrentFrameLocation;
+	FVector LastFrameLocation;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
 	float MaxThrusterForce = 10.0f;
 
