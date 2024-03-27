@@ -14,7 +14,7 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION()
+	UFUNCTION(NetMulticast, Reliable)
 	virtual void Fire();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
@@ -29,14 +29,26 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	class UStaticMeshComponent* MissileMesh;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "General Settings")
 	class UNiagaraComponent* ThrusterFX;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
 	class USoundCue* FireSound;
+
+	UPROPERTY()
+	class AFighter* FighterOnwer;
+
+	/** Missile State */
+	bool bHasFired = false;
 
 	/** Use for calculate missile movement */
 	FVector MissileVelocity;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
+	float MaxThrusterForce = 10.0f;
+
+private:
+	void UpdateMissileMovement(float DeltaTime);
 
 public:	
 
