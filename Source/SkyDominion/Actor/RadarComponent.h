@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "SkyEnum.h"
+
 #include "RadarComponent.generated.h"
 
 class AFighter;
@@ -17,12 +19,21 @@ class SKYDOMINION_API URadarComponent : public UActorComponent
 public:	
 	URadarComponent();
 
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+
 	/** Settings for Radar */
 	// unit meter
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
-	float RadarSearchRadius = 50000.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Radar Config")
+	float MaximumRadarSearchRadius = 50000.0f;
 
-	TArray<AActor*> DetectedTargetsInMemory;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Radar Config")
+	float RWSScaningPeriod = 5.0f; 
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Radar Config")
+	float VTModeScanAngle = 42.0f;
 
 protected:
 	virtual void BeginPlay() override;
@@ -33,23 +44,34 @@ protected:
 	UFUNCTION()
 	void OnDetectCollsionEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
-	UPROPERTY(Replicated)
-	TArray<AActor*> DetectedTargets;
-
-	void ServerUpdateTargetsList(AActor* Target, bool bIsNewTarget);
-
-	void LocalUpdateTargetsList();
 	void LocalNewTargetDetected(AActor* Target);
 	void LocalNewTargetLost(AActor* Target);
-	void LoaclTargetsInfoUpdate(AActor* Target);
+
+	void SetFighterMarkState(AFighter* target, ETargetMarkState MarkState, float distance = 0.0f);
+
+	/** RadarMode */
+	ERadarMode CurrentRadarMode = ERadarMode::RWS;
+
+private:	
+	/** Determine collision actor can be search by Radar */
+	void CheckCollisionList();
+	float CheckListFrequency = 1 / 60.0f;
+
+	bool CheckCollisionBetweenTargetAndSelf(const AActor* target);
+
+	void DetectFighterOnRWSMode(AFighter* target);
+
+	void DetectFighterOnVTMode(AFighter* target);
+
+	void DetectFighterOnSTTMode(AFighter* target);
 
 public:	
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
 	AFighter* OwnerFighter;
 
 	USphereComponent* DetectCollision;
-		
+
+	FString GetCurrentRadarMode() const;
+	FORCEINLINE ERadarMode GetRadarModeEnum() const { return CurrentRadarMode; }
+
+	void ChangeRadarMode();
 };

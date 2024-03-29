@@ -56,9 +56,19 @@ void AGM_SkyDominion::PostLogin(APlayerController* NewPlayer)
             GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("NewPlayer ID: ") + PlayerId->ToString() + FString(" Choose ") + JetType);
         }
 
+        int playerNum = GameState->PlayerArray.Num();
+        if (playerNum % 2 != 1)
+        {
+            NewPlayerState->bInRedTeam = false;
+        }
+        if (playerNum > 2)
+        {
+            NewPlayerState->TeamIndex = 1;
+        }
+
 
         //FString TeamType = NewPlayerState->bInRedTeam ? FString("Red") : FString("Blue");
-        //GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString::Printf(TEXT("NewLogin Id: %d Choose Team: "), PlayerId) + TeamType);
+        //GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString::Printf(TEXT("NewLogin Id: %d Choose Team: "), playerNum) + TeamType);
     }
 }
 

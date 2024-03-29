@@ -41,7 +41,7 @@ AFighter::AFighter()
 
 	MarkWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("MarkWidget"));
 	MarkWidget->SetupAttachment(RootComponent);
-	MarkWidget->SetVisibility(false);
+	//MarkWidget->SetVisibility(false);
 
 	SoundComponent = CreateDefaultSubobject<USounds_F35>(TEXT("SoundComponent"));
 
@@ -59,6 +59,8 @@ AFighter::AFighter()
 	LowAltitudeHandle = CreateDefaultSubobject<UAudioComponent>(TEXT("LowAltitudeHandle"));
 	LowAltitudeHandle->bAutoActivate = false;
 	LowAltitudeHandle->bStopWhenOwnerDestroyed = true;
+
+	Tags.AddUnique(FName("Fighter"));
 }
 
 void AFighter::BeginPlay()
@@ -96,7 +98,6 @@ void AFighter::BeginPlay()
 	if (HasAuthority())
 	{
 		Mesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Block);
-		Mesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 		Mesh->SetNotifyRigidBodyCollision(true);
 		Mesh->OnComponentHit.AddDynamic(this, &ThisClass::OnFighterHit);
 
@@ -108,11 +109,20 @@ void AFighter::BeginPlay()
 			SyncMissileInfo();
 		}
 	}
+	else
+	{
+		Mesh->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		Mesh->SetCollisionObjectType(ECollisionChannel::ECC_Vehicle);
+		Mesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
+		Mesh->SetGenerateOverlapEvents(true);
+	}
 }
 
 void AFighter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	CheckPlayerStateInfo();
 
 	SynchroMovement(DeltaTime);
 
@@ -123,6 +133,8 @@ void AFighter::Tick(float DeltaTime)
 	VisionUpdate(DeltaTime);
 
 	SoundComponentUpdate(DeltaTime);
+
+	RWSDetectTimer = FMath::Clamp(RWSDetectTimer - DeltaTime, 0.0f, 20.0f);
 }
 
 void AFighter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -135,6 +147,18 @@ void AFighter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 	DOREPLIFETIME(AFighter, CurrentHealth);
 	DOREPLIFETIME(AFighter, MissileName);
 	DOREPLIFETIME(AFighter, MissileNum);
+}
+
+void AFighter::CheckPlayerStateInfo()
+{
+	SkyPlayerState = SkyPlayerState == nullptr ? GetPlayerState<ASkyPlayerState>() : SkyPlayerState;
+
+	if (SkyPlayerState)
+	{
+		/*FString team = SkyPlayerState->bInRedTeam ? "Red" : "Blue";
+		GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Green, GetName() + FString(" in ") + team);*/
+		bInRedTeam = SkyPlayerState->bInRedTeam;
+	}
 }
 
 void AFighter::SynchroMovement(float DeltaTime)
@@ -173,6 +197,7 @@ void AFighter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction(TEXT("AutoCannon"), EInputEvent::IE_Released, this, &ThisClass::AutoCannonBttnReleased);
 	PlayerInputComponent->BindAction(TEXT("ChangeMissile"), EInputEvent::IE_Pressed, this, &ThisClass::ChangeMissileBttnPressed);
 	PlayerInputComponent->BindAction(TEXT("FireMissile"), EInputEvent::IE_Pressed, this, &ThisClass::FireMissileBttnPressed);
+	PlayerInputComponent->BindAction(TEXT("ChangeRadarMode"), EInputEvent::IE_Pressed, this, &ThisClass::ChangeRadarModeBttnPressed);
 }
 
 void AFighter::Elim_Implementation()
@@ -307,6 +332,11 @@ void AFighter::ChangeMissileBttnPressed()
 void AFighter::FireMissileBttnPressed()
 {
 	ServerFireMissileBttnPressed();
+}
+
+void AFighter::ChangeRadarModeBttnPressed()
+{
+	RadarComponent->ChangeRadarMode();
 }
 
 void AFighter::ServerThrusterInput_Implementation(float Value)

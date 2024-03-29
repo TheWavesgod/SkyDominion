@@ -6,6 +6,7 @@
 #include "SkyDominion/Pawn/Fighter.h"
 #include "Sound/SoundCue.h"
 #include "Kismet/GameplayStatics.h"
+#include "TimerManager.h"
 
 AMissile::AMissile()
 {
@@ -63,12 +64,19 @@ void AMissile::UpdateMissileMovement(float DeltaTime)
 	SetActorLocation(GetActorLocation() + MissileVelocity * 100.0f * DeltaTime, true);
 }
 
+
 void AMissile::Fire_Implementation()
 {
 	FighterOnwer = FighterOnwer == nullptr ? GetOwner<AFighter>() : FighterOnwer;
 
 	if (!FighterOnwer) return;
 
+	FTimerHandle LauchDelayHandle;
+	GetWorld()->GetTimerManager().SetTimer(LauchDelayHandle, this, &ThisClass::LaunchMissile, LaunchDelayTime, false);
+}
+
+void AMissile::LaunchMissile()
+{
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 
 	ThrusterFX->Activate(true);
@@ -90,6 +98,6 @@ void AMissile::Fire_Implementation()
 
 		SetReplicatedMovement(FRepMovement());
 	}
-	
+
 }
 

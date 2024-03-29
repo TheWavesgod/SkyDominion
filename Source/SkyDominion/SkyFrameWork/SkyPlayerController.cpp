@@ -32,11 +32,6 @@ void ASkyPlayerController::OnPossess(APawn* aPawn)
 	AFighter* fighter = Cast<AFighter>(aPawn);
 	if (fighter)
 	{
-		if (HasAuthority())
-		{
-			fighter->bInRedTeam = GetPlayerState<ASkyPlayerState>()->bInRedTeam;
-		}
-
 		AddPlayerOverlay();
 	}
 }

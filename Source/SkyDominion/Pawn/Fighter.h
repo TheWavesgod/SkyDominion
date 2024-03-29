@@ -67,6 +67,9 @@ public:
 	FName AutoCannonSocketName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Config")
+	FName FighterDisplayName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Config")
 	int MaxHealth = 100;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Config")
@@ -87,6 +90,8 @@ public:
 
 	virtual void Destroyed() override;
 
+	/** Timer for Radar RWS Mode */
+	float RWSDetectTimer = 0.0f;
 protected:
 	virtual void BeginPlay() override;
 
@@ -135,6 +140,7 @@ protected:
 	void AutoCannonBttnReleased();
 	void ChangeMissileBttnPressed();
 	void FireMissileBttnPressed();
+	void ChangeRadarModeBttnPressed();
 
 	UFUNCTION(Server, Unreliable)
 	void ServerThrusterInput(float Value);
@@ -177,6 +183,11 @@ protected:
 	void OnFighterHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 private:
+	UPROPERTY()
+	class ASkyPlayerState* SkyPlayerState;
+
+	void CheckPlayerStateInfo();
+
 	/** Replicated Fighter Movement */
 	UPROPERTY(Replicated)
 	FVector TargetLocation;

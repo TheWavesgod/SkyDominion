@@ -20,6 +20,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
 	FName MissileDisplayName;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
+	float LaunchDelayTime = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
+	float MaxThrusterForce = 10.0f;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -47,11 +53,11 @@ protected:
 	FVector CurrentFrameLocation;
 	FVector LastFrameLocation;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	float MaxThrusterForce = 10.0f;
-
 private:
 	void UpdateMissileMovement(float DeltaTime);
+
+	UFUNCTION()
+	void LaunchMissile();
 
 public:	
 

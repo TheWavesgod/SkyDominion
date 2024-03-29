@@ -78,6 +78,9 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	int32 MissileNum;
 
+	UPROPERTY(BlueprintReadOnly)
+	FString RadarMode;
+
 	UFUNCTION(BlueprintImplementableEvent, Category = "Event")
 	void ShowBulletRunoutAlert();
 

@@ -38,6 +38,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Cross Hair")
 	UTexture2D* Crosshair;
 
+	UPROPERTY(EditAnywhere, Category = "Radar HUD")
+	UTexture2D* VTScanLine;
+
 	UPROPERTY(EditAnywhere, Category = "Mark Pointer")
 	UTexture2D* MarkPointer;
 
@@ -62,6 +65,8 @@ protected:
 	void DrawTargetMarkPointer();
 	
 	void GetMarkPointerDrawPos(FVector2D& DrawPos, float& RotDegree, float RelativeX, float RelativeY, FVector2D ScreenCenter, FVector2D TextureSize);
+
+	void DrawRadarVTScanRange();
 
 public:
 	void AddPlayerOverlay();

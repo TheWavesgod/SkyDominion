@@ -10,6 +10,7 @@
 #include "SkyDominion/Actor/AutoCannon.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/Canvas.h"
+#include "SkyDominion/Actor/SkyEnum.h"
 
 void ASkyDominionHUD::BeginPlay()
 {
@@ -32,8 +33,9 @@ void ASkyDominionHUD::DrawHUD()
 	Super::DrawHUD();
 
 	CheckOwnerFighterStateAndPlayerOverlay();
-	DrawTargetMarkPointer();
+	//DrawTargetMarkPointer();
 	DrawCrosshair();
+	DrawRadarVTScanRange();
 }
 
 void ASkyDominionHUD::DrawCrosshair()
@@ -64,7 +66,7 @@ void ASkyDominionHUD::DrawTargetMarkPointer()
 		FVector2D ScreenCenter = FVector2D(Canvas->SizeX / 2, Canvas->SizeY / 2);
 		FVector2D TextureSize = FVector2D(MarkPointer->GetSizeX(), MarkPointer->GetSizeY()) * 1.2f * Canvas->SizeX / 2560;
 
-		TArray<AActor*> TargetList = OwnerFighter->GetRadarComponent()->DetectedTargetsInMemory;
+		TArray<AActor*> TargetList;
 		for (const AActor* target : TargetList)
 		{
 			if (!target) { continue; }
@@ -133,6 +135,40 @@ void ASkyDominionHUD::GetMarkPointerDrawPos(FVector2D& DrawPos, float& RotDegree
 
 	FVector2D TextureDrawOffset = TextureSize * 0.5f;
 	DrawPos = DrawCenter - TextureDrawOffset + ScreenCenter;
+}
+
+void ASkyDominionHUD::DrawRadarVTScanRange()
+{
+	if (!OwnerFighter) return;
+	if (OwnerFighter->GetRadarComponent()->GetRadarModeEnum() != ERadarMode::VT) return;
+	if (!VTScanLine) return;
+
+	FVector2D TextureSize = FVector2D(VTScanLine->GetSizeX(), VTScanLine->GetSizeY()) * Canvas->SizeX / 1920;
+
+	float MaxDis = OwnerFighter->GetRadarComponent()->MaximumRadarSearchRadius;
+	float ScanAngle = OwnerFighter->GetRadarComponent()->VTModeScanAngle;
+
+	float YRatio = FMath::Tan(FMath::DegreesToRadians(ScanAngle * 0.5f));
+
+	FVector RangeDirectionRight = OwnerFighter->GetTransform().TransformVector(FVector(1.0f, YRatio, 0.0f).GetSafeNormal());
+	FVector RangeDirectionLeft = OwnerFighter->GetTransform().TransformVector(FVector(1.0f, -YRatio, 0.0f).GetSafeNormal());
+
+	FVector RangePosRight = OwnerFighter->GetActorLocation() + RangeDirectionRight * MaxDis * 100.0f;
+	FVector RangePosLeft = OwnerFighter->GetActorLocation() + RangeDirectionLeft * MaxDis * 100.0f;
+
+	FVector2D  RangeScreenPosRight;
+	if (UGameplayStatics::ProjectWorldToScreen(GetOwningPlayerController(), RangePosRight, RangeScreenPosRight))
+	{
+		FVector2D DrawPos = RangeScreenPosRight - TextureSize * 0.5f;
+		DrawTexture(VTScanLine, DrawPos.X, DrawPos.Y, TextureSize.X, TextureSize.Y, 0.0f, 0.0f, 1.0f, 1.0f, FLinearColor::Green, BLEND_Translucent);
+	}
+
+	FVector2D  RangeScreenPosLeft;
+	if (UGameplayStatics::ProjectWorldToScreen(GetOwningPlayerController(), RangePosLeft, RangeScreenPosLeft))
+	{
+		FVector2D DrawPos = RangeScreenPosLeft - TextureSize * 0.5f;
+		DrawTexture(VTScanLine, DrawPos.X, DrawPos.Y, TextureSize.X, TextureSize.Y, 0.0f, 0.0f, 1.0f, 1.0f, FLinearColor::Green, BLEND_Translucent);
+	}
 }
 
 void ASkyDominionHUD::AddPlayerOverlay()

@@ -4,20 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "SkyDominion/Actor/SkyEnum.h"
+
 #include "MarkWidget.generated.h"
 
 class UTextBlock;
 class UImage;
-
-UENUM()
-enum class ETargetMarkState : uint8
-{
-	TeamMate UMETA(DisplayName = "Team Mate"),
-	Enemy UMETA(DisplayName = "Enemy"),
-	Locked  UMETA(DisplayName = "Enemy"),
-
-	TargetMarkStateMax UMETA(DisplayName = "TargetMarkStateMax")
-};
 
 /**
  * 
@@ -48,6 +40,11 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void UpdateDistanceText();
+
+	virtual void NativeConstruct() override;
+
+	void SetRWSModeDisplay();
+	void SetRWSModeDisplayOff();
 
 private:
 	UPROPERTY(meta = (BindWidget))

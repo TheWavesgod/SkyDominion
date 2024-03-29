@@ -6,6 +6,7 @@
 #include "SkyDominion/SkyFrameWork/SkyPlayerState.h"
 #include "AerodynamicPhysics/public/AeroPhysicsComponent.h"
 #include "SkyDominion/SkyFrameWork/SkyGameState.h"
+#include "SkyDominion/Actor/RadarComponent.h"
 
 //#include "Sound/SoundCue.h"
 //#include "Components/AudioComponent.h"
@@ -62,6 +63,8 @@ void UPlayerOverlay::UpdateParameter()
 	MissileName = fighter->GetCurrentMissileName();
 
 	MissileNum = fighter->GetCurrentMissileNum();
+
+	RadarMode = fighter->GetRadarComponent()->GetCurrentRadarMode();
 
 	/** Player State Info */
 	SkyPlayerState = SkyPlayerState == nullptr ? GetOwningLocalPlayer()->GetPlayerController(GetWorld())->GetPlayerState<ASkyPlayerState>() : SkyPlayerState;
