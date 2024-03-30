@@ -38,6 +38,15 @@ struct FAlertSoundConfig
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound Config")
 	USoundCue* LowAltitudeAlert;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound Config")
+	USoundCue* RWSBeScanedAlert;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound Config")
+	USoundCue* TargetLockingAlert;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound Config")
+	USoundCue* TargetLockedAlert;
 };
 
 /**
@@ -85,6 +94,17 @@ public:
 
 	void ActivateAlertSoundLowAltitude(bool bActivated);
 
+	void ActiveTargetLockingSound();
+
+	void ActiveTargetLockedSound();
+
+	void ShutDownRadarLockSound();
+
+	UFUNCTION(Server, Reliable)
+	void ActivateTargetRwsBeScanedAlert(AFighter* target);
+	UFUNCTION(Client, Reliable)
+	void ActivateRwsBeScanedAlert();
+
 	UFUNCTION(NetMulticast, Reliable, BlueprintCallable)
 	void Elim();
 
@@ -92,6 +112,7 @@ public:
 
 	/** Timer for Radar RWS Mode */
 	float RWSDetectTimer = 0.0f;
+	float RWSDisapearTimer = 0.0f;
 protected:
 	virtual void BeginPlay() override;
 
@@ -141,6 +162,7 @@ protected:
 	void ChangeMissileBttnPressed();
 	void FireMissileBttnPressed();
 	void ChangeRadarModeBttnPressed();
+	void LockBttnPressed();
 
 	UFUNCTION(Server, Unreliable)
 	void ServerThrusterInput(float Value);
@@ -222,6 +244,7 @@ private:
 
 	/** Alert Sound Component */
 	class UAudioComponent* LowAltitudeHandle;
+	UAudioComponent* RadarLockHandle;
 
 	/** HUD */
 	class UPlayerOverlay* PlayerOverlay;

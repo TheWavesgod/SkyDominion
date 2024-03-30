@@ -12,12 +12,17 @@
 
 URadarComponent::URadarComponent()
 {
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
 	
 	OwnerFighter = GetOwner<AFighter>();
 	if (OwnerFighter)
 	{
 		DetectCollision = OwnerFighter->GetRadarDetectCollision();
+	}
+
+	for (int i = 0; i < 2; ++i)
+	{
+		EnemyFightersDetected.Emplace(nullptr);
 	}
 }
 
@@ -50,19 +55,21 @@ void URadarComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (OwnerFighter->IsLocallyControlled())
-	{
-		TSet<AActor*> otherActors;
-		DetectCollision->GetOverlappingActors(otherActors);
-		if (OwnerFighter->HasAuthority())
-		{
-			GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Red, FString::Printf(TEXT("Sever: Detect Actor Num: %d"), otherActors.Num()));
-		}
-		else
-		{
-			GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Red, FString::Printf(TEXT("Client: Detect Actor Num: %d"), otherActors.Num()));
-		}
-	}
+	//if (OwnerFighter->IsLocallyControlled())
+	//{
+	//	TSet<AActor*> otherActors;
+	//	DetectCollision->GetOverlappingActors(otherActors);
+	//	if (OwnerFighter->HasAuthority())
+	//	{
+	//		GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Red, FString::Printf(TEXT("Sever: Detect Actor Num: %d"), otherActors.Num()));
+	//	}
+	//	else
+	//	{
+	//		GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Red, FString::Printf(TEXT("Client: Detect Actor Num: %d"), otherActors.Num()));
+	//	}
+	//}
+
+	CheckLockState(DeltaTime);
 }
 
 void URadarComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -82,9 +89,11 @@ void URadarComponent::OnDetectCollsionEndOverlap(UPrimitiveComponent* Overlapped
 	LocalNewTargetLost(OtherActor);
 }
 
+
 void URadarComponent::LocalNewTargetDetected(AActor* Target)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Target detected"));
+	//UE_LOG(LogTemp, Warning, TEXT("Target detected"));
+	
 	// Check if is Fighter
 	if (Target->ActorHasTag(FName("Fighter")))
 	{
@@ -109,10 +118,16 @@ void URadarComponent::LocalNewTargetDetected(AActor* Target)
 					break;
 
 				case ERadarMode::STT:
+					DetectFighterOnSTTMode(FighterTarget);
 					break;
 				}
 			}
 		}
+	}
+
+	if (Target->ActorHasTag(FName("Missile")))
+	{
+
 	}
 }
 
@@ -131,8 +146,13 @@ void URadarComponent::SetFighterMarkState(AFighter* target, ETargetMarkState Mar
 	if (MarkWidget) {
 		MarkWidget->SetMarkState(MarkState);
 		MarkWidget->Distance = distance;
+		MarkWidget->Name = target->FighterDisplayName.ToString();
 	}
+
+	if (MarkState == ETargetMarkState::Enemy) AddDetectedEnemy(target);
+	if (MarkState == ETargetMarkState::Lost) DetectedEnemyLost(target);
 }
+
 
 void URadarComponent::CheckCollisionList()
 {
@@ -167,19 +187,28 @@ void URadarComponent::DetectFighterOnRWSMode(AFighter* target)
 {
 	if (target->RWSDetectTimer <= 0.0f)
 	{
+		ActiveTargetRWSScanedAlert(target);
 		target->RWSDetectTimer = RWSScaningPeriod;
+		target->RWSDisapearTimer = 2.0f;
 		SetFighterMarkState(target, ETargetMarkState::RWSEnemy);
+		FTimerHandle MarkVisibleTimer;
+	}
+
+	if (target->RWSDisapearTimer <= 0.0f)
+	{
+		SetFighterMarkState(target, ETargetMarkState::Lost);
 	}
 }
 
 void URadarComponent::DetectFighterOnVTMode(AFighter* target)
 {
 	FVector TargetPos = target->GetActorLocation();
-	FVector TargetRelativePos = OwnerFighter->GetTransform().InverseTransformPosition(TargetRelativePos);
+	FVector TargetRelativePos = OwnerFighter->GetTransform().InverseTransformPosition(TargetPos);
+
 	bool InVTScanRange = false;
 	if (TargetRelativePos.X > 0)
 	{
-		float HAngle = FMath::Abs(FMath::RadiansToDegrees(FMath::Atan2(TargetRelativePos.Y, TargetRelativePos.X)));
+		float HAngle = FMath::RadiansToDegrees(FMath::Atan(FMath::Abs(TargetRelativePos.Y) / FMath::Abs(TargetRelativePos.X)));
 		UE_LOG(LogTemp, Warning, TEXT("HAngle: %f"), HAngle);
 		if (HAngle < VTModeScanAngle * 0.5f)
 		{
@@ -205,7 +234,61 @@ void URadarComponent::DetectFighterOnVTMode(AFighter* target)
 
 void URadarComponent::DetectFighterOnSTTMode(AFighter* target)
 {
+	if (target != TargetBeingLocked)
+	{
+		SetFighterMarkState(target, ETargetMarkState::Lost);
+		return;
+	}
 
+	FVector TargetPos = target->GetActorLocation();
+	FVector TargetRelativePos = OwnerFighter->GetTransform().InverseTransformPosition(TargetPos);
+
+	bool InSTTScanRange = false;
+	if (TargetRelativePos.X > 0)
+	{
+		float Ytan = FVector(0.0f, TargetRelativePos.Y, TargetRelativePos.Z).Size();
+		float CAngle = FMath::RadiansToDegrees(FMath::Atan(FMath::Abs(Ytan) / FMath::Abs(TargetRelativePos.X)));
+		if (CAngle < STTModeScanAngle * 0.5f)
+		{
+			InSTTScanRange = true;
+		}
+	}
+		
+	if (InSTTScanRange)
+	{
+		SetFighterMarkState(target, ETargetMarkState::Locked, FMath::Abs((target->GetActorLocation() - OwnerFighter->GetActorLocation()).Size() / 100.0f));
+	}
+	else
+	{
+		SetFighterMarkState(target, ETargetMarkState::Lost);
+		OwnerFighter->ShutDownRadarLockSound();
+		CurrentRadarMode = ERadarMode::VT;
+		TargetBeingLocked = nullptr;
+	}
+}
+
+void URadarComponent::AddDetectedEnemy(AFighter* Target)
+{
+	if (EnemyFightersDetected.Find(Target) != INDEX_NONE) return;
+	 
+	for (auto &i : EnemyFightersDetected)
+	{
+		if (i == nullptr)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("Add New Target in %d"), i));
+			i = Target;
+			break;
+		}
+	}
+}
+
+void URadarComponent::DetectedEnemyLost(AFighter* Target)
+{
+	int32 index = EnemyFightersDetected.Find(Target);
+
+	if (index == INDEX_NONE) return;
+	
+	EnemyFightersDetected[index] = nullptr;
 }
 
 FString URadarComponent::GetCurrentRadarMode() const
@@ -234,7 +317,57 @@ void URadarComponent::ChangeRadarMode()
 		ERadarMode::VT : ERadarMode::RWS;
 }
 
+void URadarComponent::StartLockTarget()
+{
+	LockTargetIndex = LockTargetIndex == 0 ? 1 : 0;
+	
+	if (EnemyFightersDetected[LockTargetIndex] == nullptr)
+	{
+		LockTargetIndex = LockTargetIndex == 0 ? 1 : 0;
+		if (EnemyFightersDetected[LockTargetIndex] == nullptr)
+		{
+			// Send NO Target Signal
+			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString("No target!"));
+			return;
+		}
+	}
 
+	LockingTimeHandle = TimeToLocked;
+	OwnerFighter->ActiveTargetLockingSound();
+	//GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString("Start Locking!") + EnemyFightersDetected[LockTargetIndex]->GetName());
+}
+
+void URadarComponent::CheckLockState(float DeltaTime)
+{
+	if (LockingTimeHandle == 0.0f) return;
+
+	LockingTimeHandle = FMath::Clamp(LockingTimeHandle - DeltaTime, 0.0f, TimeToLocked);
+
+	if (EnemyFightersDetected[LockTargetIndex] == nullptr)
+	{
+		// Target lost
+		LockingTimeHandle = 0.0f;
+	}
+	else
+	{
+		if (LockingTimeHandle == 0.0f)
+		{
+			SetFighterMarkState(EnemyFightersDetected[LockTargetIndex], ETargetMarkState::Locked, FMath::Abs((EnemyFightersDetected[LockTargetIndex]->GetActorLocation() - OwnerFighter->GetActorLocation()).Size() / 100.0f));
+			TargetBeingLocked = EnemyFightersDetected[LockTargetIndex];
+			CurrentRadarMode = ERadarMode::STT;
+			OwnerFighter->ActiveTargetLockedSound();
+		}
+		else
+		{
+			SetFighterMarkState(EnemyFightersDetected[LockTargetIndex], ETargetMarkState::Locking, FMath::Abs((EnemyFightersDetected[LockTargetIndex]->GetActorLocation() - OwnerFighter->GetActorLocation()).Size() / 100.0f));
+		}
+	}
+}
+
+void URadarComponent::ActiveTargetRWSScanedAlert_Implementation(AFighter* target)
+{
+	target->ActivateRwsBeScanedAlert();
+}
 
 
 

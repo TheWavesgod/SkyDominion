@@ -21,6 +21,7 @@
 #include "SkyDominion/SkyFrameWork/SkyPlayerState.h"
 #include "SkyDominion/HUD/SkyDominionHUD.h"
 #include "SkyDominion/Actor/MissileComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 AFighter::AFighter()
 {
@@ -59,6 +60,10 @@ AFighter::AFighter()
 	LowAltitudeHandle = CreateDefaultSubobject<UAudioComponent>(TEXT("LowAltitudeHandle"));
 	LowAltitudeHandle->bAutoActivate = false;
 	LowAltitudeHandle->bStopWhenOwnerDestroyed = true;
+
+	RadarLockHandle = CreateDefaultSubobject<UAudioComponent>(TEXT("RadarLockHandle"));
+	RadarLockHandle->bAutoActivate = false;
+	RadarLockHandle->bStopWhenOwnerDestroyed = true;
 
 	Tags.AddUnique(FName("Fighter"));
 }
@@ -135,6 +140,7 @@ void AFighter::Tick(float DeltaTime)
 	SoundComponentUpdate(DeltaTime);
 
 	RWSDetectTimer = FMath::Clamp(RWSDetectTimer - DeltaTime, 0.0f, 20.0f);
+	RWSDisapearTimer = FMath::Clamp(RWSDisapearTimer - DeltaTime, 0.0f, 20.0f);
 }
 
 void AFighter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -198,6 +204,7 @@ void AFighter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction(TEXT("ChangeMissile"), EInputEvent::IE_Pressed, this, &ThisClass::ChangeMissileBttnPressed);
 	PlayerInputComponent->BindAction(TEXT("FireMissile"), EInputEvent::IE_Pressed, this, &ThisClass::FireMissileBttnPressed);
 	PlayerInputComponent->BindAction(TEXT("ChangeRadarMode"), EInputEvent::IE_Pressed, this, &ThisClass::ChangeRadarModeBttnPressed);
+	PlayerInputComponent->BindAction(TEXT("Lock"), EInputEvent::IE_Pressed, this, &ThisClass::LockBttnPressed);
 }
 
 void AFighter::Elim_Implementation()
@@ -336,7 +343,14 @@ void AFighter::FireMissileBttnPressed()
 
 void AFighter::ChangeRadarModeBttnPressed()
 {
+	if (!RadarComponent) return;
 	RadarComponent->ChangeRadarMode();
+}
+
+void AFighter::LockBttnPressed()
+{
+	if (!RadarComponent) return;
+	RadarComponent->StartLockTarget();
 }
 
 void AFighter::ServerThrusterInput_Implementation(float Value)
@@ -611,6 +625,47 @@ void AFighter::ActivateAlertSoundLowAltitude(bool bActivated)
 	{
 		LowAltitudeHandle->Stop();
 	}
+}
+
+void AFighter::ActiveTargetLockingSound()
+{
+	if (RadarLockHandle->IsPlaying()) RadarLockHandle->Stop();
+
+	if (AlertSoundConfig.TargetLockingAlert)
+	{
+		RadarLockHandle->SetSound(AlertSoundConfig.TargetLockingAlert);
+		RadarLockHandle->Play();
+	}
+}
+
+void AFighter::ActiveTargetLockedSound()
+{
+	if (RadarLockHandle->IsPlaying()) RadarLockHandle->Stop();
+
+	if (AlertSoundConfig.TargetLockedAlert)
+	{
+		RadarLockHandle->SetSound(AlertSoundConfig.TargetLockedAlert);
+		RadarLockHandle->Play();
+	}
+}
+
+void AFighter::ShutDownRadarLockSound()
+{
+	if (RadarLockHandle->IsPlaying()) RadarLockHandle->Stop();
+}
+
+void AFighter::ActivateTargetRwsBeScanedAlert_Implementation(AFighter* target)
+{
+	target->ActivateRwsBeScanedAlert();
+}
+
+void AFighter::ActivateRwsBeScanedAlert_Implementation()
+{
+	if (!IsLocallyControlled()) return;
+
+	if (!AlertSoundConfig.RWSBeScanedAlert) return;
+
+	UGameplayStatics::PlaySound2D(this, AlertSoundConfig.RWSBeScanedAlert);
 }
 
 void AFighter::SyncMissileInfo()

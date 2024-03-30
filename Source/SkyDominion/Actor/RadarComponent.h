@@ -35,6 +35,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Radar Config")
 	float VTModeScanAngle = 42.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Radar Config")
+	float STTModeScanAngle = 120.0f;
+
+	// How much time needed for lock a target
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Radar Config")
+	float TimeToLocked = 2.0f;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -49,8 +56,28 @@ protected:
 
 	void SetFighterMarkState(AFighter* target, ETargetMarkState MarkState, float distance = 0.0f);
 
+	UFUNCTION(Server, Reliable)
+	void ActiveTargetRWSScanedAlert(AFighter* target);
+
 	/** RadarMode */
 	ERadarMode CurrentRadarMode = ERadarMode::RWS;
+
+	/** Lock Mechanism */
+	UPROPERTY();
+	TArray<AFighter*> EnemyFightersDetected;
+
+	int32 LockTargetIndex = 0;
+
+	float LockingTimeHandle = 0.0f;
+
+	void CheckLockState(float DeltaTime);
+
+	UPROPERTY()
+	AFighter* TargetBeingLocked;
+
+	
+	void AddDetectedEnemy(AFighter* Target);
+	void DetectedEnemyLost(AFighter* Target);
 
 private:	
 	/** Determine collision actor can be search by Radar */
@@ -74,4 +101,6 @@ public:
 	FORCEINLINE ERadarMode GetRadarModeEnum() const { return CurrentRadarMode; }
 
 	void ChangeRadarMode();
+
+	void StartLockTarget();
 };

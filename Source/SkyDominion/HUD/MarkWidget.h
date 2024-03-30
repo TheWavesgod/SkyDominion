@@ -23,6 +23,9 @@ public:
 	void SetMarkState(ETargetMarkState MarkState);
 
 	UPROPERTY(EditAnywhere, Category = "Mark Config")
+	float LockingFlickGap = 0.2f;
+
+	UPROPERTY(EditAnywhere, Category = "Mark Config")
 	FLinearColor TeamateColor;
 
 	UPROPERTY(EditAnywhere, Category = "Mark Config")
@@ -34,17 +37,30 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Info")
 	float Distance = 0.0f;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Info")
+	FString Name;
+
 protected:
+	virtual void NativeConstruct() override;
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+
 	//virtual bool Initialize() override;
 	void SetDisplayColor(FLinearColor color);
 
 	UFUNCTION(BlueprintCallable)
 	void UpdateDistanceText();
 
-	virtual void NativeConstruct() override;
+	UFUNCTION(BlueprintCallable)
+	void UpdateDisplayName();
 
 	void SetRWSModeDisplay();
-	void SetRWSModeDisplayOff();
+
+	void SetLockingModeDisplay();
+	void ToggleImgMarkVisibility();
+	bool bImgMarkCanFlick = false;
+	float MarkImgFlickHandle = 0.0f;
+
+	ETargetMarkState CurrentState = ETargetMarkState::Lost;
 
 private:
 	UPROPERTY(meta = (BindWidget))
@@ -55,5 +71,7 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* Text_Ally;
-	
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* Text_Name;
 };
