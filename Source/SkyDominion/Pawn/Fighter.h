@@ -47,6 +47,18 @@ struct FAlertSoundConfig
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound Config")
 	USoundCue* TargetLockedAlert;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound Config")
+	USoundCue* VTBeScanedAlert;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound Config")
+	USoundCue* STTBeLockedAlert;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound Config")
+	USoundCue* MissileComingAlert;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound Config")
+	USoundCue* UnvalidMoveAlert;
 };
 
 /**
@@ -94,16 +106,25 @@ public:
 
 	void ActivateAlertSoundLowAltitude(bool bActivated);
 
+	void ActiveUnvalidMoveAlertSound();
+
 	void ActiveTargetLockingSound();
 
 	void ActiveTargetLockedSound();
 
 	void ShutDownRadarLockSound();
 
-	UFUNCTION(Server, Reliable)
-	void ActivateTargetRwsBeScanedAlert(AFighter* target);
 	UFUNCTION(Client, Reliable)
 	void ActivateRwsBeScanedAlert();
+
+	UFUNCTION(Client, Reliable)
+	void ActivateVTBeScanedAlert();
+
+	UFUNCTION(Client, Reliable)
+	void ActivateSTTBeLockedAlert();
+
+	UFUNCTION(Client, Reliable)
+	void DeactivateSTTBeLockedAlert();
 
 	UFUNCTION(NetMulticast, Reliable, BlueprintCallable)
 	void Elim();
@@ -245,6 +266,8 @@ private:
 	/** Alert Sound Component */
 	class UAudioComponent* LowAltitudeHandle;
 	UAudioComponent* RadarLockHandle;
+	UAudioComponent* VTBeScanedHandle;
+	UAudioComponent* STTBeLockedHandle;
 
 	/** HUD */
 	class UPlayerOverlay* PlayerOverlay;

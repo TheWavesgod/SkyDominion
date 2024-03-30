@@ -65,6 +65,14 @@ AFighter::AFighter()
 	RadarLockHandle->bAutoActivate = false;
 	RadarLockHandle->bStopWhenOwnerDestroyed = true;
 
+	VTBeScanedHandle = CreateDefaultSubobject<UAudioComponent>(TEXT("VTBeScanedHandle"));
+	VTBeScanedHandle->bAutoActivate = false;
+	VTBeScanedHandle->bStopWhenOwnerDestroyed = true;
+
+	STTBeLockedHandle = CreateDefaultSubobject<UAudioComponent>(TEXT("STTBeLockedHandle"));
+	STTBeLockedHandle->bAutoActivate = false;
+	STTBeLockedHandle->bStopWhenOwnerDestroyed = true;
+
 	Tags.AddUnique(FName("Fighter"));
 }
 
@@ -627,7 +635,17 @@ void AFighter::ActivateAlertSoundLowAltitude(bool bActivated)
 	}
 }
 
-void AFighter::ActiveTargetLockingSound()
+void AFighter::ActiveUnvalidMoveAlertSound()
+{
+	if (!IsLocallyControlled()) return;
+
+	if (AlertSoundConfig.UnvalidMoveAlert)
+	{
+		UGameplayStatics::SpawnSound2D(this, AlertSoundConfig.UnvalidMoveAlert);
+	}
+}
+
+ void AFighter::ActiveTargetLockingSound()
 {
 	if (RadarLockHandle->IsPlaying()) RadarLockHandle->Stop();
 
@@ -654,11 +672,6 @@ void AFighter::ShutDownRadarLockSound()
 	if (RadarLockHandle->IsPlaying()) RadarLockHandle->Stop();
 }
 
-void AFighter::ActivateTargetRwsBeScanedAlert_Implementation(AFighter* target)
-{
-	target->ActivateRwsBeScanedAlert();
-}
-
 void AFighter::ActivateRwsBeScanedAlert_Implementation()
 {
 	if (!IsLocallyControlled()) return;
@@ -666,6 +679,35 @@ void AFighter::ActivateRwsBeScanedAlert_Implementation()
 	if (!AlertSoundConfig.RWSBeScanedAlert) return;
 
 	UGameplayStatics::PlaySound2D(this, AlertSoundConfig.RWSBeScanedAlert);
+}
+
+void AFighter::ActivateVTBeScanedAlert_Implementation()
+{
+	if (!IsLocallyControlled()) return;
+
+	if (!AlertSoundConfig.VTBeScanedAlert) return;
+
+	if (VTBeScanedHandle->IsPlaying()) return;
+
+	VTBeScanedHandle->SetSound(AlertSoundConfig.VTBeScanedAlert);
+	VTBeScanedHandle->Play();
+}
+
+void AFighter::ActivateSTTBeLockedAlert_Implementation()
+{
+	if (!IsLocallyControlled()) return;
+
+	if (!AlertSoundConfig.STTBeLockedAlert) return;
+
+	if (STTBeLockedHandle->IsPlaying()) return;
+
+	STTBeLockedHandle->SetSound(AlertSoundConfig.STTBeLockedAlert);
+	STTBeLockedHandle->Play();
+}
+
+void AFighter::DeactivateSTTBeLockedAlert_Implementation()
+{
+	if (STTBeLockedHandle->IsPlaying()) STTBeLockedHandle->Stop();
 }
 
 void AFighter::SyncMissileInfo()

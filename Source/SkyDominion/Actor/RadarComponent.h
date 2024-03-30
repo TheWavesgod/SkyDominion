@@ -30,7 +30,7 @@ public:
 	float MaximumRadarSearchRadius = 50000.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Radar Config")
-	float RWSScaningPeriod = 5.0f; 
+	float RWSScaningPeriod = 8.0f; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Radar Config")
 	float VTModeScanAngle = 42.0f;
@@ -58,6 +58,15 @@ protected:
 
 	UFUNCTION(Server, Reliable)
 	void ActiveTargetRWSScanedAlert(AFighter* target);
+
+	UFUNCTION(Server, Reliable)
+	void ActiveTargetVTScanedAlert(AFighter* target);
+
+	UFUNCTION(Server, Reliable)
+	void ActiveTargetSTTLockedAlert(AFighter* target);
+
+	UFUNCTION(Server, Reliable)
+	void DeactiveTargetSTTLockedAlert(AFighter* target);
 
 	/** RadarMode */
 	ERadarMode CurrentRadarMode = ERadarMode::RWS;
@@ -92,7 +101,12 @@ private:
 
 	void DetectFighterOnSTTMode(AFighter* target);
 
+
+	bool bRadarBeInitiated = false;
+	void InitiateRadar();
+
 public:	
+
 	AFighter* OwnerFighter;
 
 	USphereComponent* DetectCollision;

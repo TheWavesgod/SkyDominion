@@ -34,40 +34,29 @@ void URadarComponent::BeginPlay()
 	DetectCollision->SetCollisionObjectType(ECC_Visibility);	
 	DetectCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	DetectCollision->IgnoreActorWhenMoving(OwnerFighter, true);
-	if (OwnerFighter->IsLocallyControlled())
-	{
-		DetectCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_Vehicle, ECollisionResponse::ECR_Overlap);
-		DetectCollision->SetGenerateOverlapEvents(true);
-		DetectCollision->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnDetectCollsionBeginOverlap);
-		DetectCollision->OnComponentEndOverlap.AddDynamic(this, &ThisClass::OnDetectCollsionEndOverlap);
-		DetectCollision->SetSphereRadius(MaximumRadarSearchRadius * 100.0f);
-		DetectCollision->bHiddenInGame = true;
-	}
 
-	if (OwnerFighter->IsLocallyControlled())
-	{
-		FTimerHandle RadarInfoUpdate;
-		GetWorld()->GetTimerManager().SetTimer(RadarInfoUpdate, this, &ThisClass::CheckCollisionList, CheckListFrequency, true);
-	}
+	InitiateRadar();
 }
 
 void URadarComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	//if (OwnerFighter->IsLocallyControlled())
-	//{
-	//	TSet<AActor*> otherActors;
-	//	DetectCollision->GetOverlappingActors(otherActors);
-	//	if (OwnerFighter->HasAuthority())
-	//	{
-	//		GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Red, FString::Printf(TEXT("Sever: Detect Actor Num: %d"), otherActors.Num()));
-	//	}
-	//	else
-	//	{
-	//		GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Red, FString::Printf(TEXT("Client: Detect Actor Num: %d"), otherActors.Num()));
-	//	}
-	//}
+	InitiateRadar();
+	//GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Red, FString("Current Mode ") + GetCurrentRadarMode());
+	/*if (OwnerFighter->IsLocallyControlled())
+	{
+		TSet<AActor*> otherActors;
+		DetectCollision->GetOverlappingActors(otherActors);
+		if (OwnerFighter->HasAuthority())
+		{
+			GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Red, FString::Printf(TEXT("Sever: Detect Actor Num: %d"), otherActors.Num()));
+		}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Red, FString::Printf(TEXT("Client: Detect Actor Num: %d"), otherActors.Num()));
+		}
+	}*/
 
 	CheckLockState(DeltaTime);
 }
@@ -77,6 +66,24 @@ void URadarComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	//DOREPLIFETIME_CONDITION(URadarComponent, DetectedTargets, COND_OwnerOnly);
+}
+
+void URadarComponent::InitiateRadar()
+{
+	if (bRadarBeInitiated) return;
+
+	if (!OwnerFighter->IsLocallyControlled()) return;
+
+	bRadarBeInitiated = true;
+	DetectCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_Vehicle, ECollisionResponse::ECR_Overlap);
+	DetectCollision->SetGenerateOverlapEvents(true);
+	DetectCollision->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnDetectCollsionBeginOverlap);
+	DetectCollision->OnComponentEndOverlap.AddDynamic(this, &ThisClass::OnDetectCollsionEndOverlap);
+	DetectCollision->SetSphereRadius(MaximumRadarSearchRadius * 100.0f);
+	DetectCollision->bHiddenInGame = true;
+
+	FTimerHandle RadarInfoUpdate;
+	GetWorld()->GetTimerManager().SetTimer(RadarInfoUpdate, this, &ThisClass::CheckCollisionList, CheckListFrequency, true);
 }
 
 void URadarComponent::OnDetectCollsionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -158,6 +165,18 @@ void URadarComponent::CheckCollisionList()
 {
 	TSet<AActor*> otherActors;
 	DetectCollision->GetOverlappingActors(otherActors);
+
+	if (otherActors.Num() == 0)
+	{
+		if (CurrentRadarMode == ERadarMode::STT)
+		{
+			OwnerFighter->ShutDownRadarLockSound();
+			CurrentRadarMode = ERadarMode::VT;
+			TargetBeingLocked = nullptr;
+		}
+		return;
+	}
+
 	for (auto i : otherActors)
 	{
 		if (!i) continue;
@@ -209,7 +228,7 @@ void URadarComponent::DetectFighterOnVTMode(AFighter* target)
 	if (TargetRelativePos.X > 0)
 	{
 		float HAngle = FMath::RadiansToDegrees(FMath::Atan(FMath::Abs(TargetRelativePos.Y) / FMath::Abs(TargetRelativePos.X)));
-		UE_LOG(LogTemp, Warning, TEXT("HAngle: %f"), HAngle);
+		//UE_LOG(LogTemp, Warning, TEXT("HAngle: %f"), HAngle);
 		if (HAngle < VTModeScanAngle * 0.5f)
 		{
 			InVTScanRange = true;
@@ -225,6 +244,7 @@ void URadarComponent::DetectFighterOnVTMode(AFighter* target)
 	if (InVTScanRange)
 	{
 		SetFighterMarkState(target, ETargetMarkState::Enemy, FMath::Abs((target->GetActorLocation() - OwnerFighter->GetActorLocation()).Size() / 100.0f));
+		ActiveTargetVTScanedAlert(target);
 	}
 	else
 	{
@@ -234,6 +254,14 @@ void URadarComponent::DetectFighterOnVTMode(AFighter* target)
 
 void URadarComponent::DetectFighterOnSTTMode(AFighter* target)
 {
+	if (!IsValid(TargetBeingLocked))
+	{
+		OwnerFighter->ShutDownRadarLockSound();
+		CurrentRadarMode = ERadarMode::VT;
+		TargetBeingLocked = nullptr;
+		return;
+	}
+
 	if (target != TargetBeingLocked)
 	{
 		SetFighterMarkState(target, ETargetMarkState::Lost);
@@ -248,6 +276,7 @@ void URadarComponent::DetectFighterOnSTTMode(AFighter* target)
 	{
 		float Ytan = FVector(0.0f, TargetRelativePos.Y, TargetRelativePos.Z).Size();
 		float CAngle = FMath::RadiansToDegrees(FMath::Atan(FMath::Abs(Ytan) / FMath::Abs(TargetRelativePos.X)));
+		UE_LOG(LogTemp, Warning, TEXT("CAngle: %f"), CAngle);
 		if (CAngle < STTModeScanAngle * 0.5f)
 		{
 			InSTTScanRange = true;
@@ -257,15 +286,18 @@ void URadarComponent::DetectFighterOnSTTMode(AFighter* target)
 	if (InSTTScanRange)
 	{
 		SetFighterMarkState(target, ETargetMarkState::Locked, FMath::Abs((target->GetActorLocation() - OwnerFighter->GetActorLocation()).Size() / 100.0f));
+		ActiveTargetSTTLockedAlert(TargetBeingLocked);
 	}
 	else
 	{
 		SetFighterMarkState(target, ETargetMarkState::Lost);
 		OwnerFighter->ShutDownRadarLockSound();
+		OwnerFighter->ActiveUnvalidMoveAlertSound();
 		CurrentRadarMode = ERadarMode::VT;
 		TargetBeingLocked = nullptr;
 	}
 }
+
 
 void URadarComponent::AddDetectedEnemy(AFighter* Target)
 {
@@ -275,8 +307,8 @@ void URadarComponent::AddDetectedEnemy(AFighter* Target)
 	{
 		if (i == nullptr)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("Add New Target in %d"), i));
 			i = Target;
+			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("Add New Target in %d "), i) + i->GetName());
 			break;
 		}
 	}
@@ -313,6 +345,8 @@ FString URadarComponent::GetCurrentRadarMode() const
 
 void URadarComponent::ChangeRadarMode()
 {
+	if (CurrentRadarMode == ERadarMode::STT) return;
+
 	CurrentRadarMode = CurrentRadarMode == ERadarMode::RWS ?
 		ERadarMode::VT : ERadarMode::RWS;
 }
@@ -327,7 +361,8 @@ void URadarComponent::StartLockTarget()
 		if (EnemyFightersDetected[LockTargetIndex] == nullptr)
 		{
 			// Send NO Target Signal
-			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString("No target!"));
+			OwnerFighter->ActiveUnvalidMoveAlertSound();
+			//GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString("No target!"));
 			return;
 		}
 	}
@@ -346,6 +381,8 @@ void URadarComponent::CheckLockState(float DeltaTime)
 	if (EnemyFightersDetected[LockTargetIndex] == nullptr)
 	{
 		// Target lost
+		OwnerFighter->ShutDownRadarLockSound();
+		OwnerFighter->ActiveUnvalidMoveAlertSound();
 		LockingTimeHandle = 0.0f;
 	}
 	else
@@ -368,6 +405,22 @@ void URadarComponent::ActiveTargetRWSScanedAlert_Implementation(AFighter* target
 {
 	target->ActivateRwsBeScanedAlert();
 }
+
+void URadarComponent::ActiveTargetVTScanedAlert_Implementation(AFighter* target)
+{
+	target->ActivateVTBeScanedAlert();
+}
+
+void URadarComponent::ActiveTargetSTTLockedAlert_Implementation(AFighter* target)
+{
+	target->ActivateSTTBeLockedAlert();
+}
+
+void URadarComponent::DeactiveTargetSTTLockedAlert_Implementation(AFighter* target)
+{
+	target->DeactivateSTTBeLockedAlert();
+}
+
 
 
 
