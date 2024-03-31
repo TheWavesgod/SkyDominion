@@ -90,6 +90,18 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Event")
 	void CheckMissileNum();
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Event")
+	void ShowNoTarget();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Event")
+	void ShowMissileOutofRange();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Event")
+	void ShowTargetLost();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Event")
+	void ShowTargetLocked();
+
 protected:
 	virtual bool Initialize() override;
 

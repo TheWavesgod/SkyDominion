@@ -173,6 +173,7 @@ void URadarComponent::CheckCollisionList()
 			OwnerFighter->ShutDownRadarLockSound();
 			CurrentRadarMode = ERadarMode::VT;
 			TargetBeingLocked = nullptr;
+			SetServerLockedTarget(nullptr);
 		}
 		return;
 	}
@@ -293,12 +294,15 @@ void URadarComponent::DetectFighterOnSTTMode(AFighter* target)
 	{
 		SetFighterMarkState(target, ETargetMarkState::Locked, FMath::Abs((target->GetActorLocation() - OwnerFighter->GetActorLocation()).Size() / 100.0f));
 		ActiveTargetSTTLockedAlert(TargetBeingLocked);
+		OwnerFighter->ShowTargetLocked();
 	}
 	else
 	{
 		SetFighterMarkState(target, ETargetMarkState::Lost);
+		SetServerLockedTarget(nullptr);
 		OwnerFighter->ShutDownRadarLockSound();
 		OwnerFighter->ActiveTargetLostAlertSound();
+		OwnerFighter->ShowTargetLost();
 		CurrentRadarMode = ERadarMode::VT;
 		TargetBeingLocked = nullptr;
 	}
@@ -378,6 +382,7 @@ void URadarComponent::StartLockTarget()
 			// Send NO Target Signal
 			//GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString("No target!"));
 			OwnerFighter->ActiveUnvalidMoveAlertSound();
+			OwnerFighter->ShowNoTargetAlert();
 			return;
 		}
 	}
@@ -386,6 +391,7 @@ void URadarComponent::StartLockTarget()
 	{
 		// Send Missile Out of Range Sound
 		OwnerFighter->ActiveUnvalidMoveAlertSound();
+		OwnerFighter->ShowMissileOutofRange();
 		return;
 	}
 
@@ -405,6 +411,7 @@ void URadarComponent::CheckLockState(float DeltaTime)
 		// Target lost
 		OwnerFighter->ShutDownRadarLockSound();
 		OwnerFighter->ActiveTargetLostAlertSound();
+		OwnerFighter->ShowTargetLost();
 		LockingTimeHandle = 0.0f;
 	}
 	else
@@ -413,6 +420,7 @@ void URadarComponent::CheckLockState(float DeltaTime)
 		{
 			SetFighterMarkState(EnemyFightersDetected[LockTargetIndex], ETargetMarkState::Locked, FMath::Abs((EnemyFightersDetected[LockTargetIndex]->GetActorLocation() - OwnerFighter->GetActorLocation()).Size() / 100.0f));
 			TargetBeingLocked = EnemyFightersDetected[LockTargetIndex];
+			SetServerLockedTarget(EnemyFightersDetected[LockTargetIndex]);
 			CurrentRadarMode = ERadarMode::STT;
 			OwnerFighter->ActiveTargetLockedSound();
 		}
@@ -423,6 +431,7 @@ void URadarComponent::CheckLockState(float DeltaTime)
 				// Send Missile Out of Range Sound
 				OwnerFighter->ShutDownRadarLockSound();
 				OwnerFighter->ActiveTargetLostAlertSound();
+				OwnerFighter->ShowTargetLost();
 				LockingTimeHandle = 0.0f;
 				SetFighterMarkState(EnemyFightersDetected[LockTargetIndex], ETargetMarkState::Lost);
 				return;
@@ -431,6 +440,20 @@ void URadarComponent::CheckLockState(float DeltaTime)
 		}
 	}
 }
+
+AFighter* URadarComponent::GetLockedTarget() const
+{
+	if (IsValid(TargetBeingLocked))
+	{
+		return TargetBeingLocked;
+	}
+	else
+	{
+		return nullptr;
+	}
+}
+
+
 
 void URadarComponent::ActiveTargetRWSScanedAlert_Implementation(AFighter* target)
 {
@@ -450,6 +473,11 @@ void URadarComponent::ActiveTargetSTTLockedAlert_Implementation(AFighter* target
 void URadarComponent::DeactiveTargetSTTLockedAlert_Implementation(AFighter* target)
 {
 	target->DeactivateSTTBeLockedAlert();
+}
+
+void URadarComponent::SetServerLockedTarget_Implementation(AFighter* target)
+{
+	TargetBeingLocked = target;
 }
 
 

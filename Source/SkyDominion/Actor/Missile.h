@@ -4,6 +4,8 @@
 #include "GameFramework/Actor.h"
 #include "Missile.generated.h"
 
+
+
 UCLASS()
 class SKYDOMINION_API AMissile : public AActor
 {
@@ -13,6 +15,8 @@ public:
 	AMissile();
 
 	virtual void Tick(float DeltaTime) override;
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UFUNCTION(NetMulticast, Reliable)
 	virtual void Fire();
@@ -30,8 +34,24 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
 	float LaunchDelayTime = 0.0f;
 
+	// Unit kg
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
-	float MaxThrusterForce = 10.0f;
+	float MissileMass = 85.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
+	float MissileRightArea = 1.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
+	float MissileForwardArea = 0.04f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
+	float ExplosionScale = 3.0f;
+
+	UPROPERTY(Replicated)
+	class AFighter* FighterOnwer;
+
+	UPROPERTY()
+	AActor* TrackTarget;
 
 protected:
 	virtual void BeginPlay() override;
@@ -42,14 +62,24 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	class UStaticMeshComponent* MissileMesh;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	class UProjectileMovementComponent* ProjectileMovementComponent;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "General Settings")
 	class UNiagaraComponent* ThrusterFX;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
 	class USoundCue* FireSound;
 
-	UPROPERTY()
-	class AFighter* FighterOnwer;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
+	class UNiagaraSystem* ExplosionFX;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
+	USoundCue* ExplosionSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
+	USoundAttenuation* ExplosionAttenuation;
+
 
 	/** Missile State */
 	bool bHasFired = false;
@@ -59,6 +89,13 @@ protected:
 
 	FVector CurrentFrameLocation;
 	FVector LastFrameLocation;
+
+	float MaxThrusterForce;
+
+	void CalculateMissileAeroForce(FVector MissileVel, FVector& AeroForce);
+
+	UFUNCTION()
+	virtual void OnSphereCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 private:
 	void UpdateMissileMovement(float DeltaTime);

@@ -11,7 +11,7 @@ public class MultiplayerSessions : ModuleRules
 		
 		PublicIncludePaths.AddRange(
 			new string[] {
-                "Public", Path.Combine(ModuleDirectory, "Public")
+                //"Public", Path.Combine(ModuleDirectory, "Public")
 				// ... add public include paths required here ...
 			}
 			);

@@ -40,11 +40,10 @@ public:
 
 	void FireCurrentMissile();
 
+	class AFighter* OwnerFighter;
+
 protected:
 	virtual void BeginPlay() override;
-
-	UPROPERTY()
-	class AFighter* OwnerFighter;
 
 	UPROPERTY()
 	TArray<class AMissile*> MissilesUnfire;  

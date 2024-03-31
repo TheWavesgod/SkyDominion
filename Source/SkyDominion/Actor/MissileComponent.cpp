@@ -8,7 +8,7 @@ UMissileComponent::UMissileComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 
-	OwnerFighter = GetOwner<AFighter>();
+	//OwnerFighter = GetOwner<AFighter>();
 }
 
 
@@ -39,6 +39,7 @@ void UMissileComponent::SpawnMissileAtBegin(USceneComponent* parent)
 			SpawnMissile->AttachToComponent(parent, FAttachmentTransformRules::SnapToTargetIncludingScale, GetMissileSocketNameByIndex(i));
 			SpawnMissile->SetActorRelativeLocation(MissileConfig[i].AttachOffset);
 			SpawnMissile->SetOwner(OwnerFighter);
+			SpawnMissile->FighterOnwer = OwnerFighter;
 
 			MissilesUnfire[i] = SpawnMissile;
 			MissileType.Find(SpawnMissile->MissileDisplayName) == INDEX_NONE ? MissileType.Add(SpawnMissile->MissileDisplayName) : 0;

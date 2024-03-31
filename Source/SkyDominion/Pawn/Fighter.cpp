@@ -52,6 +52,7 @@ AFighter::AFighter()
 	RadarComponent = CreateDefaultSubobject<URadarComponent>(TEXT("RadarComponent"));
 
 	MissileComponent = CreateDefaultSubobject<UMissileComponent>(TEXT("MissileComponent"));
+	MissileComponent->OwnerFighter = this;
 
 	AutoCannonClass = AAutoCannon::StaticClass();
 
@@ -729,4 +730,28 @@ void AFighter::SyncMissileInfo()
 	MissileName = MissileComponent->GetSelectMissileName();
 	MissileNum = MissileComponent->GetSelectMissileNum();
 	MissileRange = MissileComponent->GetSelectMissileRange();
+}
+
+void AFighter::ShowNoTargetAlert()
+{
+	if (PlayerOverlay)
+		PlayerOverlay->ShowNoTarget();
+}
+
+void AFighter::ShowMissileOutofRange()
+{
+	if (PlayerOverlay)
+		PlayerOverlay->ShowMissileOutofRange();
+}
+
+void AFighter::ShowTargetLost()
+{
+	if (PlayerOverlay)
+		PlayerOverlay->ShowTargetLost();
+}
+
+void AFighter::ShowTargetLocked()
+{
+	if (PlayerOverlay)
+		PlayerOverlay->ShowTargetLocked();
 }

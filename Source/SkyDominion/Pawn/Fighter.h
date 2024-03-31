@@ -107,6 +107,7 @@ public:
 
 	void SetMarkWidgetVisble(bool bIsVisible);
 
+	/** For alert */
 	void ActivateAlertSoundLowAltitude(bool bActivated);
 
 	UFUNCTION(BlueprintCallable)
@@ -131,6 +132,11 @@ public:
 
 	UFUNCTION(Client, Reliable)
 	void DeactivateSTTBeLockedAlert();
+
+	void ShowNoTargetAlert();
+	void ShowMissileOutofRange();
+	void ShowTargetLost();
+	void ShowTargetLocked();
 
 	UFUNCTION(NetMulticast, Reliable, BlueprintCallable)
 	void Elim();

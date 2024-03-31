@@ -68,6 +68,9 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void DeactiveTargetSTTLockedAlert(AFighter* target);
 
+	UFUNCTION(Server, Reliable)
+	void SetServerLockedTarget(AFighter* target);
+
 	/** RadarMode */
 	ERadarMode CurrentRadarMode = ERadarMode::RWS;
 
@@ -107,7 +110,6 @@ private:
 	void InitiateRadar();
 
 public:	
-
 	AFighter* OwnerFighter;
 
 	USphereComponent* DetectCollision;
@@ -118,4 +120,6 @@ public:
 	void ChangeRadarMode();
 
 	void StartLockTarget();
+
+	AFighter* GetLockedTarget() const;
 };
