@@ -36,6 +36,7 @@ void ASkyDominionHUD::DrawHUD()
 	//DrawTargetMarkPointer();
 	DrawCrosshair();
 	DrawRadarVTScanRange();
+	//DrawRadarSTTScanRange();
 }
 
 void ASkyDominionHUD::DrawCrosshair()
@@ -169,6 +170,13 @@ void ASkyDominionHUD::DrawRadarVTScanRange()
 		FVector2D DrawPos = RangeScreenPosLeft - TextureSize * 0.5f;
 		DrawTexture(VTScanLine, DrawPos.X, DrawPos.Y, TextureSize.X, TextureSize.Y, 0.0f, 0.0f, 1.0f, 1.0f, FLinearColor::Green, BLEND_Translucent);
 	}
+}
+
+void ASkyDominionHUD::DrawRadarSTTScanRange()
+{
+	if (!OwnerFighter) return;
+	if (OwnerFighter->GetRadarComponent()->GetRadarModeEnum() != ERadarMode::STT) return;
+	if (!STTScanLine) return;
 }
 
 void ASkyDominionHUD::AddPlayerOverlay()

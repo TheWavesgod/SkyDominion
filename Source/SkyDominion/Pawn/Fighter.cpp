@@ -348,6 +348,9 @@ void AFighter::ChangeMissileBttnPressed()
 void AFighter::FireMissileBttnPressed()
 {
 	ServerFireMissileBttnPressed();
+
+	if(PlayerOverlay)
+		PlayerOverlay->CheckMissileNum();
 }
 
 void AFighter::ChangeRadarModeBttnPressed()
@@ -643,6 +646,16 @@ void AFighter::ActiveUnvalidMoveAlertSound()
 	if (AlertSoundConfig.UnvalidMoveAlert)
 	{
 		UGameplayStatics::SpawnSound2D(this, AlertSoundConfig.UnvalidMoveAlert);
+	}
+}
+
+void AFighter::ActiveTargetLostAlertSound()
+{
+	if (!IsLocallyControlled()) return;
+
+	if (AlertSoundConfig.TargetLostAlert)
+	{
+		UGameplayStatics::SpawnSound2D(this, AlertSoundConfig.TargetLostAlert);
 	}
 }
 

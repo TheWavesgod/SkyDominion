@@ -88,6 +88,8 @@ protected:
 	void AddDetectedEnemy(AFighter* Target);
 	void DetectedEnemyLost(AFighter* Target);
 
+	bool CheckTargetInRange(AActor* Target, float DetectRange);
+
 private:	
 	/** Determine collision actor can be search by Radar */
 	void CheckCollisionList();
@@ -100,7 +102,6 @@ private:
 	void DetectFighterOnVTMode(AFighter* target);
 
 	void DetectFighterOnSTTMode(AFighter* target);
-
 
 	bool bRadarBeInitiated = false;
 	void InitiateRadar();

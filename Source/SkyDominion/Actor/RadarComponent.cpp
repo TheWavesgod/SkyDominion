@@ -282,6 +282,12 @@ void URadarComponent::DetectFighterOnSTTMode(AFighter* target)
 			InSTTScanRange = true;
 		}
 	}
+
+	if (!CheckTargetInRange(EnemyFightersDetected[LockTargetIndex], OwnerFighter->GetCurrentMissileRange() * 1000.0f))
+	{
+		InSTTScanRange = false;
+	}
+
 		
 	if (InSTTScanRange)
 	{
@@ -292,7 +298,7 @@ void URadarComponent::DetectFighterOnSTTMode(AFighter* target)
 	{
 		SetFighterMarkState(target, ETargetMarkState::Lost);
 		OwnerFighter->ShutDownRadarLockSound();
-		OwnerFighter->ActiveUnvalidMoveAlertSound();
+		OwnerFighter->ActiveTargetLostAlertSound();
 		CurrentRadarMode = ERadarMode::VT;
 		TargetBeingLocked = nullptr;
 	}
@@ -321,6 +327,15 @@ void URadarComponent::DetectedEnemyLost(AFighter* Target)
 	if (index == INDEX_NONE) return;
 	
 	EnemyFightersDetected[index] = nullptr;
+}
+
+bool URadarComponent::CheckTargetInRange(AActor* Target, float DetectRange)
+{
+	if (!OwnerFighter || !Target) return false;
+
+	float distance = FMath::Abs((Target->GetActorLocation() - OwnerFighter->GetActorLocation()).Size() / 100.0f);
+
+	return distance < DetectRange;
 }
 
 FString URadarComponent::GetCurrentRadarMode() const
@@ -361,10 +376,17 @@ void URadarComponent::StartLockTarget()
 		if (EnemyFightersDetected[LockTargetIndex] == nullptr)
 		{
 			// Send NO Target Signal
-			OwnerFighter->ActiveUnvalidMoveAlertSound();
 			//GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString("No target!"));
+			OwnerFighter->ActiveUnvalidMoveAlertSound();
 			return;
 		}
+	}
+
+	if (!CheckTargetInRange(EnemyFightersDetected[LockTargetIndex], OwnerFighter->GetCurrentMissileRange() * 1000.0f))
+	{
+		// Send Missile Out of Range Sound
+		OwnerFighter->ActiveUnvalidMoveAlertSound();
+		return;
 	}
 
 	LockingTimeHandle = TimeToLocked;
@@ -382,7 +404,7 @@ void URadarComponent::CheckLockState(float DeltaTime)
 	{
 		// Target lost
 		OwnerFighter->ShutDownRadarLockSound();
-		OwnerFighter->ActiveUnvalidMoveAlertSound();
+		OwnerFighter->ActiveTargetLostAlertSound();
 		LockingTimeHandle = 0.0f;
 	}
 	else
@@ -396,6 +418,15 @@ void URadarComponent::CheckLockState(float DeltaTime)
 		}
 		else
 		{
+			if (!CheckTargetInRange(EnemyFightersDetected[LockTargetIndex], OwnerFighter->GetCurrentMissileRange() * 1000.0f))
+			{
+				// Send Missile Out of Range Sound
+				OwnerFighter->ShutDownRadarLockSound();
+				OwnerFighter->ActiveTargetLostAlertSound();
+				LockingTimeHandle = 0.0f;
+				SetFighterMarkState(EnemyFightersDetected[LockTargetIndex], ETargetMarkState::Lost);
+				return;
+			}
 			SetFighterMarkState(EnemyFightersDetected[LockTargetIndex], ETargetMarkState::Locking, FMath::Abs((EnemyFightersDetected[LockTargetIndex]->GetActorLocation() - OwnerFighter->GetActorLocation()).Size() / 100.0f));
 		}
 	}

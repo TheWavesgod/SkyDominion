@@ -59,6 +59,9 @@ struct FAlertSoundConfig
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound Config")
 	USoundCue* UnvalidMoveAlert;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound Config")
+	USoundCue* TargetLostAlert;
 };
 
 /**
@@ -106,7 +109,10 @@ public:
 
 	void ActivateAlertSoundLowAltitude(bool bActivated);
 
+	UFUNCTION(BlueprintCallable)
 	void ActiveUnvalidMoveAlertSound();
+
+	void ActiveTargetLostAlertSound();
 
 	void ActiveTargetLockingSound();
 

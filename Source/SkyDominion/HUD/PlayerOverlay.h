@@ -87,6 +87,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ActivateLowAltitudeAlertSound(bool bActivated);
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Event")
+	void CheckMissileNum();
+
 protected:
 	virtual bool Initialize() override;
 
