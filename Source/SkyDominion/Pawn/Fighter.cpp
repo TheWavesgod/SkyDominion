@@ -161,6 +161,7 @@ void AFighter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 	DOREPLIFETIME(AFighter, CurrentHealth);
 	DOREPLIFETIME(AFighter, MissileName);
 	DOREPLIFETIME(AFighter, MissileNum);
+	DOREPLIFETIME(AFighter, MissileRange);
 }
 
 void AFighter::CheckPlayerStateInfo()
@@ -714,4 +715,5 @@ void AFighter::SyncMissileInfo()
 {
 	MissileName = MissileComponent->GetSelectMissileName();
 	MissileNum = MissileComponent->GetSelectMissileNum();
+	MissileRange = MissileComponent->GetSelectMissileRange();
 }

@@ -132,3 +132,10 @@ int UMissileComponent::GetSelectMissileNum() const
 	return CurrentMissileNum.Find(GetSelectMissileName()) ? *CurrentMissileNum.Find(GetSelectMissileName()) : 0;
 }
 
+float UMissileComponent::GetSelectMissileRange() const
+{
+	if (!CurrentSelectMissile) return 0.0f;
+
+	return CurrentSelectMissile->MaxShootingRange;
+}
+

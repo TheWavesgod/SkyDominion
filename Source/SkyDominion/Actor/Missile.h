@@ -20,6 +20,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
 	FName MissileDisplayName;
 
+	// Unit km
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
+	float MaxShootingRange = 10.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
+	float MaxSpeedInMach = 2.5f;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
 	float LaunchDelayTime = 0.0f;
 

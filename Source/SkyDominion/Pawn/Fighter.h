@@ -279,6 +279,9 @@ private:
 	UPROPERTY(Replicated)
 	int32 MissileNum;
 
+	UPROPERTY(Replicated)
+	float MissileRange;
+
 	void SyncMissileInfo();
 
 public:
@@ -291,6 +294,7 @@ public:
 	FORCEINLINE float GetCurrentHealthPercent() const { return CurrentHealth / MaxHealth; }
 	FORCEINLINE FName GetCurrentMissileName() const { return MissileName; }
 	FORCEINLINE int32 GetCurrentMissileNum() const { return MissileNum; }
+	FORCEINLINE float GetCurrentMissileRange() const { return MissileRange; }
 	int GetAutoCannonBulletLeft() const;
 	void SetPlayerOverlay(UPlayerOverlay* val) { PlayerOverlay = val; }
 };

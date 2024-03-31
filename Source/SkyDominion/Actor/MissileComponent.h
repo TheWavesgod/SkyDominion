@@ -69,4 +69,5 @@ private:
 public:
 	FName GetSelectMissileName() const;
 	int GetSelectMissileNum() const;
+	float GetSelectMissileRange() const;
 };
