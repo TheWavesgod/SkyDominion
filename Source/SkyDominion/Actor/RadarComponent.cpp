@@ -2,6 +2,7 @@
 
 #include "RadarComponent.h"
 #include "SkyDominion/Pawn/Fighter.h"
+#include "SkyDominion/Actor/Missile.h"
 #include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
@@ -131,19 +132,48 @@ void URadarComponent::LocalNewTargetDetected(AActor* Target)
 			}
 		}
 	}
-
-	if (Target->ActorHasTag(FName("Missile")))
+	else if (Target->ActorHasTag(FName("Missile")))
 	{
-
+		AMissile* MissileTarget = static_cast<AMissile*>(Target);
+		if (MissileTarget)
+		{
+			if (MissileTarget->GetMissileHasFired())
+			{
+				if (MissileTarget->bInRedTeam == OwnerFighter->bInRedTeam)
+				{
+					MissileTarget->SetMissileMarkVisbility(true, true);
+				}
+				else
+				{
+					if ((MissileTarget->GetActorLocation() - OwnerFighter->GetActorLocation()).Size() * 0.01f < 15000.0f)
+					{
+						MissileTarget->SetMissileMarkVisbility(true, false);
+					}
+				}
+			}
+		}
 	}
 }
 
 void URadarComponent::LocalNewTargetLost(AActor* Target)
 {
-	AFighter* FighterTarget = Cast<AFighter>(Target);
-	if (FighterTarget)
+	// Check if is Fighter
+	if (Target->ActorHasTag(FName("Fighter")))
 	{
-		SetFighterMarkState(FighterTarget, ETargetMarkState::Lost);
+		AFighter* FighterTarget = static_cast<AFighter*>(Target);
+		if (FighterTarget)
+		{
+			SetFighterMarkState(FighterTarget, ETargetMarkState::Lost);
+		}
+	}
+	
+	if (Target->ActorHasTag(FName("Missile")))
+	{
+		AMissile* MissileTarget = static_cast<AMissile*>(Target);
+		if (MissileTarget)
+		{
+			MissileTarget->SetMissileMarkVisbility(false, true);
+		}
 	}
 }
 
@@ -166,16 +196,24 @@ void URadarComponent::CheckCollisionList()
 	TSet<AActor*> otherActors;
 	DetectCollision->GetOverlappingActors(otherActors);
 
-	if (otherActors.Num() == 0)
+	if (CurrentRadarMode == ERadarMode::STT)
 	{
-		if (CurrentRadarMode == ERadarMode::STT)
+		if (otherActors.Num() == 0)
+		{
+			OwnerFighter->ShutDownRadarLockSound();
+			CurrentRadarMode = ERadarMode::VT;
+			TargetBeingLocked = nullptr;
+			SetServerLockedTarget(nullptr);
+			return;
+		}
+
+		if (!IsValid(TargetBeingLocked))
 		{
 			OwnerFighter->ShutDownRadarLockSound();
 			CurrentRadarMode = ERadarMode::VT;
 			TargetBeingLocked = nullptr;
 			SetServerLockedTarget(nullptr);
 		}
-		return;
 	}
 
 	for (auto i : otherActors)

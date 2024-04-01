@@ -79,6 +79,9 @@ public:
 	int32 MissileNum;
 
 	UPROPERTY(BlueprintReadOnly)
+	float MissileRange;
+
+	UPROPERTY(BlueprintReadOnly)
 	FString RadarMode;
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Event")
@@ -101,6 +104,9 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Event")
 	void ShowTargetLocked();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Event")
+	void ShowMissileComingAlert();
 
 protected:
 	virtual bool Initialize() override;

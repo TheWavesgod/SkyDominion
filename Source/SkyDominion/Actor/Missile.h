@@ -21,6 +21,9 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	virtual void Fire();
 
+	UFUNCTION(NetMulticast, Reliable)
+	virtual void SpawnExplosionFX(FVector Location);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
 	FName MissileDisplayName;
 
@@ -53,6 +56,8 @@ public:
 	UPROPERTY()
 	AActor* TrackTarget;
 
+	bool bInRedTeam = true;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -64,6 +69,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	class UProjectileMovementComponent* ProjectileMovementComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Components")
+	class UWidgetComponent* MarkWidgetComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "General Settings")
 	class UNiagaraComponent* ThrusterFX;
@@ -80,12 +88,17 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
 	USoundAttenuation* ExplosionAttenuation;
 
+	UPROPERTY()
+	class UMarkWidget* MarkWidget;
+
+	AController* OwnerController;
 
 	/** Missile State */
 	bool bHasFired = false;
 
 	/** Use for calculate missile movement */
 	FVector MissileVelocity;
+	FRotator TargetRotator;
 
 	FVector CurrentFrameLocation;
 	FVector LastFrameLocation;
@@ -94,15 +107,26 @@ protected:
 
 	void CalculateMissileAeroForce(FVector MissileVel, FVector& AeroForce);
 
+	/** Use for send track target missile Warning */
+	const float WarningTimeGap = 0.3f;
+	float WarningTimeHandle = 0.0f;
+
 	UFUNCTION()
 	virtual void OnSphereCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 private:
 	void UpdateMissileMovement(float DeltaTime);
 
+	void CaculateRotationToTrackTarget(float DeltaTime);
+
+	void SendWarningToTarget(float DeltaTime);
+
 	UFUNCTION()
 	void LaunchMissile();
 
 public:	
+	void SetMissileMarkVisbility(bool bVisible, bool bIsSameTeam);
+
+	FORCEINLINE bool GetMissileHasFired() const { return bHasFired; }
 
 };

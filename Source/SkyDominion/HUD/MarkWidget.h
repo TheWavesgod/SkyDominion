@@ -21,6 +21,7 @@ class SKYDOMINION_API UMarkWidget : public UUserWidget
 
 public:
 	void SetMarkState(ETargetMarkState MarkState);
+	void SetMissileMarkState(bool bInSameTeam);
 
 	UPROPERTY(EditAnywhere, Category = "Mark Config")
 	float LockingFlickGap = 0.2f;

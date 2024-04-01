@@ -2,6 +2,8 @@
 
 #include "CoreMinimal.h"
 #include "AerodynamicPhysics/Public/Airplane.h"
+#include "SkyDominion/Interface/RadarInterface.h"
+
 #include "Fighter.generated.h"
 
 class USoundCue;
@@ -58,6 +60,9 @@ struct FAlertSoundConfig
 	USoundCue* MissileComingAlert;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound Config")
+	USoundCue* MissileComingCloseAlert;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound Config")
 	USoundCue* UnvalidMoveAlert;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound Config")
@@ -68,7 +73,7 @@ struct FAlertSoundConfig
  * 
  */
 UCLASS()
-class SKYDOMINION_API AFighter : public AAirplane
+class SKYDOMINION_API AFighter : public AAirplane, public IRadarInterface
 {
 	GENERATED_BODY()
 
@@ -120,6 +125,11 @@ public:
 	void ActiveTargetLockedSound();
 
 	void ShutDownRadarLockSound();
+
+	virtual void MissileComingWarning(bool bIsClose) override;
+
+	UFUNCTION(Client, Reliable)
+	void ClientMissileComingAlert(bool bIsClose);
 
 	UFUNCTION(Client, Reliable)
 	void ActivateRwsBeScanedAlert();
@@ -280,6 +290,7 @@ private:
 	UAudioComponent* RadarLockHandle;
 	UAudioComponent* VTBeScanedHandle;
 	UAudioComponent* STTBeLockedHandle;
+	UAudioComponent* MissileComingHandle;
 
 	/** HUD */
 	class UPlayerOverlay* PlayerOverlay;
@@ -295,6 +306,16 @@ private:
 	float MissileRange;
 
 	void SyncMissileInfo();
+
+	/** Update Alert */
+	void UpdateAlertState(float DeltaTime);
+
+	const float MissileComingAlertTimeGap = 0.5f;
+	float MissileComingAlertHandle = 0.0f;
+	bool bIsMissileClose = false;
+
+	const float MissileNotCloseWarningTimeGap = 1.8f;
+	float MissileNotCloseWarningTimeHandle = 0.0f;
 
 public:
 	FORCEINLINE USounds_F35* GetSoundComponent() const { return SoundComponent; }

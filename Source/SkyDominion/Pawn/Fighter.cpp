@@ -74,6 +74,10 @@ AFighter::AFighter()
 	STTBeLockedHandle->bAutoActivate = false;
 	STTBeLockedHandle->bStopWhenOwnerDestroyed = true;
 
+	MissileComingHandle = CreateDefaultSubobject<UAudioComponent>(TEXT("MissileComingHandle"));
+	MissileComingHandle->bAutoActivate = false;
+	MissileComingHandle->bStopWhenOwnerDestroyed = true;
+
 	Tags.AddUnique(FName("Fighter"));
 }
 
@@ -147,6 +151,8 @@ void AFighter::Tick(float DeltaTime)
 	VisionUpdate(DeltaTime);
 
 	SoundComponentUpdate(DeltaTime);
+
+	UpdateAlertState(DeltaTime);
 
 	RWSDetectTimer = FMath::Clamp(RWSDetectTimer - DeltaTime, 0.0f, 20.0f);
 	RWSDisapearTimer = FMath::Clamp(RWSDisapearTimer - DeltaTime, 0.0f, 20.0f);
@@ -574,6 +580,37 @@ void AFighter::SoundComponentUpdate(float DeltaTime)
 		SoundComponent->UpdateFlybyPlaneSounds(SoundComponent->SoundParams);*/
 }
 
+void AFighter::UpdateAlertState(float DeltaTime)
+{
+	/** Missile Comming Alert */
+	MissileComingAlertHandle = FMath::Clamp(MissileComingAlertHandle - DeltaTime, 0.0f, MissileComingAlertTimeGap);
+	MissileNotCloseWarningTimeHandle = FMath::Clamp(MissileNotCloseWarningTimeHandle - DeltaTime, 0.0f, MissileNotCloseWarningTimeGap);
+
+	if (MissileComingAlertHandle > 0.0f)
+	{
+		if (AlertSoundConfig.MissileComingAlert && MissileNotCloseWarningTimeHandle == 0.0f)
+		{
+			MissileNotCloseWarningTimeHandle = MissileNotCloseWarningTimeGap;
+			UGameplayStatics::SpawnSound2D(this, AlertSoundConfig.MissileComingAlert);
+		}
+
+		if (bIsMissileClose && !MissileComingHandle->IsPlaying() && AlertSoundConfig.MissileComingCloseAlert)
+		{
+			MissileComingHandle->SetSound(AlertSoundConfig.MissileComingCloseAlert); 
+			MissileComingHandle->Play();
+		}
+
+
+	}
+	else
+	{
+		if (MissileComingHandle->IsPlaying())
+		{
+			MissileComingHandle->Stop();
+		}
+	}
+}
+
 void AFighter::SetMarkWidgetVisble(bool bIsVisible)
 {
 	MarkWidget->SetVisibility(bIsVisible);
@@ -687,6 +724,11 @@ void AFighter::ShutDownRadarLockSound()
 	if (RadarLockHandle->IsPlaying()) RadarLockHandle->Stop();
 }
 
+void AFighter::MissileComingWarning(bool bIsClose)
+{
+	ClientMissileComingAlert(bIsClose);
+}
+
 void AFighter::ActivateRwsBeScanedAlert_Implementation()
 {
 	if (!IsLocallyControlled()) return;
@@ -724,6 +766,15 @@ void AFighter::DeactivateSTTBeLockedAlert_Implementation()
 {
 	if (STTBeLockedHandle->IsPlaying()) STTBeLockedHandle->Stop();
 }
+
+void AFighter::ClientMissileComingAlert_Implementation(bool bIsClose)
+{
+	MissileComingAlertHandle = MissileComingAlertTimeGap;
+	bIsMissileClose = bIsClose;
+	if (PlayerOverlay) { PlayerOverlay->ShowMissileComingAlert(); }
+}
+
+
 
 void AFighter::SyncMissileInfo()
 {

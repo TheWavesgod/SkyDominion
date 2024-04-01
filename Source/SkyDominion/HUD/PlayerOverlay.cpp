@@ -64,6 +64,8 @@ void UPlayerOverlay::UpdateParameter()
 
 	MissileNum = fighter->GetCurrentMissileNum();
 
+	MissileRange = fighter->GetCurrentMissileRange();
+
 	RadarMode = fighter->GetRadarComponent()->GetCurrentRadarMode();
 
 	/** Player State Info */

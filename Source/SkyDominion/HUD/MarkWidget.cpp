@@ -81,6 +81,21 @@ void UMarkWidget::SetMarkState(ETargetMarkState MarkState)
 	}
 }
 
+void UMarkWidget::SetMissileMarkState(bool bInSameTeam)
+{
+	SetDisplayColor(bInSameTeam ? TeamateColor : LockColor);
+	SetVisibility(ESlateVisibility::Visible);
+	Img_Mark->SetVisibility(ESlateVisibility::Visible);
+	Text_Ally->SetVisibility(ESlateVisibility::Hidden);
+	Text_Distance->SetVisibility(ESlateVisibility::Hidden);
+	Text_Name->SetVisibility(ESlateVisibility::Visible);
+	if (!bInSameTeam)
+	{
+		Name = FString("Missile");
+	}
+	UpdateDisplayName();
+}
+
 void UMarkWidget::SetDisplayColor(FLinearColor color)
 {
 	Img_Mark->SetColorAndOpacity(color);
