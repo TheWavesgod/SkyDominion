@@ -40,6 +40,11 @@ AFighter::AFighter()
 	ThrusterFXLeft->SetupAttachment(RootComponent);
 	ThrusterFXRight->SetupAttachment(RootComponent);
 
+	TailFXLeft = CreateDefaultSubobject<UNiagaraComponent>(TEXT("TailFXLeft"));
+	TailFXRight = CreateDefaultSubobject<UNiagaraComponent>(TEXT("TailFXRight"));
+	TailFXLeft->SetupAttachment(RootComponent);
+	TailFXRight->SetupAttachment(RootComponent);
+
 	MarkWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("MarkWidget"));
 	MarkWidget->SetupAttachment(RootComponent);
 	//MarkWidget->SetVisibility(false);
@@ -147,6 +152,8 @@ void AFighter::Tick(float DeltaTime)
 	HandleRudderInput(DeltaTime);
 
 	UpdateThrusterFX(DeltaTime);
+
+	UpdateTailFX(DeltaTime);
 
 	VisionUpdate(DeltaTime);
 
@@ -523,6 +530,20 @@ void AFighter::UpdateThrusterFX(float DeltaTime)
 		ThrusterFXRight->SetFloatParameter(FName("RingOpacity"), RingOpacity);
 		ThrusterFXRight->SetColorParameter(FName("EmissiveOuter"), OutEmissive);
 		ThrusterFXRight->SetColorParameter(FName("EmissiveIner"), InerEmissive);
+	}
+}
+
+void AFighter::UpdateTailFX(float DeltaTime)
+{
+	if (AeroPhysicsComponent->GetCurrentGroundSpeed() > 200.0f && GetActorLocation().Z > 30000.0f)
+	{
+		TailFXLeft->SetActive(true);
+		TailFXRight->SetActive(true);
+	}
+	else
+	{
+		TailFXLeft->SetActive(false);
+		TailFXRight->SetActive(false);
 	}
 }
 

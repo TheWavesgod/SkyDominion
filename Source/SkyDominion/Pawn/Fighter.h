@@ -172,6 +172,12 @@ protected:
 	class UNiagaraComponent* ThrusterFXRight;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	class UNiagaraComponent* TailFXLeft;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	class UNiagaraComponent* TailFXRight;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	class USounds_F35* SoundComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Components")
@@ -273,6 +279,8 @@ private:
 
 	float ThrusterFXTrasition = 0.0f;
 	void UpdateThrusterFX(float DeltaTime);
+
+	void UpdateTailFX(float DeltaTime);
 
 	/** Fighter Vision Update */
 	void VisionUpdate(float DeltaTime);
