@@ -67,6 +67,9 @@ struct FAlertSoundConfig
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound Config")
 	USoundCue* TargetLostAlert;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound Config")
+	USoundCue* FlareFireSound;
 };
 
 /**
@@ -94,6 +97,18 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Config")
 	FName AutoCannonSocketName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Config")
+	int MaximumFlareNum = 100;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Config")
+	float FlareFireTimeGap = 1.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Config")
+	FName FlareSocketName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Config")
+	TSubclassOf<class AFlare> FlareClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Config")
 	FName FighterDisplayName;
@@ -212,6 +227,8 @@ protected:
 	void FireMissileBttnPressed();
 	void ChangeRadarModeBttnPressed();
 	void LockBttnPressed();
+	void FireDecoyPressed();
+	void FireDecoyReleased();
 
 	UFUNCTION(Server, Unreliable)
 	void ServerThrusterInput(float Value);
@@ -246,6 +263,8 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void ServerFireMissileBttnPressed();
 
+	UFUNCTION(NetMulticast, Reliable)
+	void ServerFireDecoy(bool bFire);
 
 	UFUNCTION()
 	void ReceiveDamage(AActor* DamageActor, float Damage, const UDamageType* DamageType, class AController* InvestigatorController, AActor* DamageCauser);
@@ -325,6 +344,11 @@ private:
 	const float MissileNotCloseWarningTimeGap = 1.8f;
 	float MissileNotCloseWarningTimeHandle = 0.0f;
 
+	/** Flare */
+	void UpdateFlareState(float DeltaTime);
+	bool bFireFlare = false;
+	float FlareFireTimeHandle = 0.0f;
+
 public:
 	FORCEINLINE USounds_F35* GetSoundComponent() const { return SoundComponent; }
 	FORCEINLINE UCameraComponent* GetMainCamera() const { return MainCamera; }
@@ -338,4 +362,5 @@ public:
 	FORCEINLINE float GetCurrentMissileRange() const { return MissileRange; }
 	int GetAutoCannonBulletLeft() const;
 	void SetPlayerOverlay(UPlayerOverlay* val) { PlayerOverlay = val; }
+	float GetHeatIndex() const override;
 };

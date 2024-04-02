@@ -21,6 +21,7 @@
 #include "SkyDominion/SkyFrameWork/SkyPlayerState.h"
 #include "SkyDominion/HUD/SkyDominionHUD.h"
 #include "SkyDominion/Actor/MissileComponent.h"
+#include "SkyDominion/Actor/Flare.h"
 #include "Kismet/GameplayStatics.h"
 
 AFighter::AFighter()
@@ -161,6 +162,8 @@ void AFighter::Tick(float DeltaTime)
 
 	UpdateAlertState(DeltaTime);
 
+	UpdateFlareState(DeltaTime);
+
 	RWSDetectTimer = FMath::Clamp(RWSDetectTimer - DeltaTime, 0.0f, 20.0f);
 	RWSDisapearTimer = FMath::Clamp(RWSDisapearTimer - DeltaTime, 0.0f, 20.0f);
 }
@@ -213,6 +216,8 @@ void AFighter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &ThisClass::LookUpDown);
 	PlayerInputComponent->BindAxis(TEXT("TurnRight"), this, &ThisClass::LookRightLeft);
+	/*PlayerInputComponent->BindAxis(TEXT("LookUpMouse"), this, &ThisClass::LookUpDown);
+	PlayerInputComponent->BindAxis(TEXT("TurnRightMouse"), this, &ThisClass::LookRightLeft);*/
 
 	PlayerInputComponent->BindAxis(TEXT("Thruster"), this, &ThisClass::ThrusterInput);
 	PlayerInputComponent->BindAxis(TEXT("Pitch"), this, &ThisClass::PitchInput);
@@ -228,6 +233,8 @@ void AFighter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction(TEXT("FireMissile"), EInputEvent::IE_Pressed, this, &ThisClass::FireMissileBttnPressed);
 	PlayerInputComponent->BindAction(TEXT("ChangeRadarMode"), EInputEvent::IE_Pressed, this, &ThisClass::ChangeRadarModeBttnPressed);
 	PlayerInputComponent->BindAction(TEXT("Lock"), EInputEvent::IE_Pressed, this, &ThisClass::LockBttnPressed);
+	PlayerInputComponent->BindAction(TEXT("FireDecoy"), EInputEvent::IE_Pressed, this, &ThisClass::FireDecoyPressed);
+	PlayerInputComponent->BindAction(TEXT("FireDecoy"), EInputEvent::IE_Released, this, &ThisClass::FireDecoyReleased);
 }
 
 void AFighter::Elim_Implementation()
@@ -379,6 +386,16 @@ void AFighter::LockBttnPressed()
 	RadarComponent->StartLockTarget();
 }
 
+void AFighter::FireDecoyPressed()
+{
+	ServerFireDecoy(true);
+}
+
+void AFighter::FireDecoyReleased()
+{
+	ServerFireDecoy(false);
+}
+
 void AFighter::ServerThrusterInput_Implementation(float Value)
 {
 	AeroPhysicsComponent->SetAddThruster(Value);
@@ -446,6 +463,11 @@ void AFighter::ServerFireMissileBttnPressed_Implementation()
 		MissileComponent->FireCurrentMissile();
 		SyncMissileInfo();
 	}
+}
+
+void AFighter::ServerFireDecoy_Implementation(bool bFire)
+{
+	bFireFlare = bFire;
 }
 
 
@@ -632,11 +654,34 @@ void AFighter::UpdateAlertState(float DeltaTime)
 	}
 }
 
+void AFighter::UpdateFlareState(float DeltaTime)
+{
+	FlareFireTimeHandle = FMath::Clamp(FlareFireTimeHandle - DeltaTime, 0.0f, FlareFireTimeGap);
+
+	if (!bFireFlare) return;
+
+	if (FlareFireTimeHandle != 0) return;
+
+	FlareFireTimeHandle = FlareFireTimeGap;
+
+	if (FlareClass)
+	{
+		GetWorld()->SpawnActor<AFlare>(FlareClass, Mesh->GetSocketTransform(FlareSocketName));
+	}
+
+	if (IsLocallyControlled() && AlertSoundConfig.FlareFireSound)
+	{
+		UGameplayStatics::SpawnSound2D(this, AlertSoundConfig.FlareFireSound);
+	}
+	
+}
+
+
+
 void AFighter::SetMarkWidgetVisble(bool bIsVisible)
 {
 	MarkWidget->SetVisibility(bIsVisible);
 }
-
 
 void AFighter::ReceiveDamage(AActor* DamageActor, float Damage, const UDamageType* DamageType, AController* InvestigatorController, AActor* DamageCauser)
 {
@@ -683,6 +728,11 @@ int AFighter::GetAutoCannonBulletLeft() const
 		return AutoCannon->GetCurrentBulletLeft();
 	}
 	return 0;
+}
+
+float AFighter::GetHeatIndex() const
+{
+	return 50.0f;
 }
 
 void AFighter::ActivateAlertSoundLowAltitude(bool bActivated)

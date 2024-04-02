@@ -12,7 +12,7 @@
 #include "SkyDominion/Actor/RadarComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "SkyDominion/Interface/RadarInterface.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "Components/WidgetComponent.h"
 #include "SkyDominion/HUD/MarkWidget.h"
 
@@ -81,6 +81,7 @@ void AMissile::Tick(float DeltaTime)
 
 	if (HasAuthority())
 	{
+		CheckTrackTarget(DeltaTime);
 		SendWarningToTarget(DeltaTime);
 		CaculateRotationToTrackTarget(DeltaTime);
 		UpdateMissileMovement(DeltaTime);
@@ -94,6 +95,123 @@ void AMissile::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 	DOREPLIFETIME(AMissile, FighterOnwer);
 }
 
+
+void AMissile::CheckTrackTarget(float DeltaTime)
+{
+	TrackCheckHandle = FMath::Clamp(TrackCheckHandle - DeltaTime, 0.0f, TrackCheckGap);
+	if (TrackCheckHandle != 0.0f) return;
+
+	TrackCheckHandle = TrackCheckGap;
+
+	if (bUseInfraredTrack)
+	{
+		InfraredCheck();
+	}
+	else
+	{
+		SemiActiveCheck();
+	}
+}
+
+void AMissile::InfraredCheck()
+{
+	if (IsValid(TrackTarget))
+	{
+		float TargetDis = (TrackTarget->GetActorLocation() - GetActorLocation()).Size() * 0.01;
+		if (TargetDis > InfaredSearchRadius)
+		{
+			return;
+		}
+	}
+
+	TArray<AActor*> OverlappedActors;
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;	
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Vehicle));
+	TArray<AActor*> IgnoreActors;
+	IgnoreActors.Add(this);
+	if (IsValid(FighterOnwer)) { IgnoreActors.Add(FighterOnwer); }
+	UKismetSystemLibrary::SphereOverlapActors(this, GetActorLocation(), InfaredSearchRadius * 100.0f, ObjectTypes, nullptr, IgnoreActors, OverlappedActors);
+
+	if (OverlappedActors.IsEmpty()) { return; }
+
+	GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("Missile find Target num : ") + FString::FromInt(OverlappedActors.Num()));
+	/*Algo::Sort(OverlappedActors,
+		[&](const AActor* A, const AActor* B)
+		{
+			const IRadarInterface* IA = Cast<IRadarInterface>(A);
+			const IRadarInterface* IB = Cast<IRadarInterface>(B);
+
+			if (IA && IB)
+			{
+				return (IA->GetHeatIndex() > IB->GetHeatIndex());
+			}
+
+			return (IA != nullptr);
+		}
+	);*/
+	AActor* NewTarget = nullptr;
+	float HighestHeatIndex = 0.0f;
+	for (auto i : OverlappedActors)
+	{
+		IRadarInterface* Ii = Cast<IRadarInterface>(i);
+		if (!Ii) continue;
+		if (!CheckTargetInInfaredSearchRange(i)) continue;
+		if (Ii->GetHeatIndex() > HighestHeatIndex)
+		{
+			HighestHeatIndex = Ii->GetHeatIndex();
+			NewTarget = i;
+		}
+	}
+
+	if (NewTarget == nullptr || HighestHeatIndex == 0.0f) return;
+
+	//GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("Highest ") + TrackTarget->GetName());
+
+	if (!IsValid(TrackTarget))
+	{
+		TrackTarget = NewTarget;
+		return;
+	}
+
+	float CurrentTrackTragetHeatIndex = 0.0f;
+	IRadarInterface* TrackTargetIF = Cast<IRadarInterface>(TrackTarget);
+	if (TrackTargetIF)
+	{
+		CurrentTrackTragetHeatIndex = TrackTargetIF->GetHeatIndex();
+	}
+
+	float TargetChooseRandRatio = FMath::FRand();
+
+	float CurrentTrackTragetRatio = CurrentTrackTragetHeatIndex / (CurrentTrackTragetHeatIndex + HighestHeatIndex);
+
+	if (TargetChooseRandRatio > CurrentTrackTragetRatio)
+	{
+		TrackTarget = NewTarget;
+	}
+	GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("Missile track: ") + TrackTarget->GetName());	
+}
+
+void AMissile::SemiActiveCheck()
+{
+	AActor* RadarTarget = FighterOnwer->GetRadarComponent()->GetLockedTarget();
+
+	if (!IsValid(RadarTarget))
+	{
+		RadarTargetLostHandle = FMath::Clamp(RadarTargetLostHandle - TrackCheckGap, 0.0f, RadarTargetLostGap);
+		if (RadarTargetLostHandle == 0.0f)
+		{
+			TrackTarget = nullptr;
+		}
+		return;
+	}
+
+	TrackTarget = RadarTarget;
+
+	RadarTargetLostHandle = RadarTargetLostGap;
+
+	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString("Missile track: ") + TrackTarget->GetName());
+
+}
 
 void AMissile::CalculateMissileAeroForce(FVector MissileVel, FVector& AeroForce)
 {
@@ -184,8 +302,7 @@ void AMissile::UpdateMissileMovement(float DeltaTime)
 	MissileVelocity += CurrentFrameForce / MissileMass * DeltaTime;
 
 	ProjectileMovementComponent->Velocity = MissileVelocity * 100.0f;
-
-	GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Yellow, FString::Printf(TEXT("Missile Speed: %d kmh"),FMath::RoundToInt(FMath::Abs(MissileVelocity.Size() * 3.6))));
+	//GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Yellow, FString::Printf(TEXT("Missile Speed: %d kmh"),FMath::RoundToInt(FMath::Abs(MissileVelocity.Size() * 3.6))));
 }
 
 
@@ -216,8 +333,9 @@ void AMissile::LaunchMissile()
 
 	ThrusterFX->Activate(true);
 
-	ProjectileMovementComponent->SetActive(true);
+	HeatIndex = 50.0f + (MaxSpeedInMach - 3.5) / 3.5 * 10.0f;
 
+	ProjectileMovementComponent->SetActive(true);
 
 	CollisionShape->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	CollisionShape->SetGenerateOverlapEvents(true);
@@ -228,7 +346,7 @@ void AMissile::LaunchMissile()
 		if (IsValid(RadarTarget))
 		{
 			TrackTarget = FighterOnwer->GetRadarComponent()->GetLockedTarget();
-			GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("Missile track: ") + TrackTarget->GetName());
+			//GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("Missile track: ") + TrackTarget->GetName());
 		}
 
 		MissileVelocity += GetActorForwardVector() * MaxThrusterForce / MissileMass * 0.1f;
@@ -237,6 +355,8 @@ void AMissile::LaunchMissile()
 		CollisionShape->SetCollisionResponseToChannel(ECC_Vehicle, ECR_Overlap);
 		CollisionShape->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Overlap);
 		CollisionShape->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnSphereCollisionBeginOverlap);
+
+		SetLifeSpan(60.0f);
 	}
 
 	bHasFired = true;
@@ -283,4 +403,19 @@ void AMissile::SetMissileMarkVisbility(bool bVisible, bool bIsSameTeam)
 			MarkWidget->Name = MissileDisplayName.ToString();
 		}
 	}
+}
+
+bool AMissile::CheckTargetInInfaredSearchRange(const AActor* target)
+{
+	if (!target) return false;
+
+	FVector targetDir = (target->GetActorLocation() - GetActorLocation()).GetSafeNormal();
+	float sinTargetDir = targetDir.Dot(GetActorForwardVector());
+
+	return sinTargetDir < 0.866f;
+}
+
+float AMissile::GetHeatIndex() const
+{
+	return HeatIndex;
 }

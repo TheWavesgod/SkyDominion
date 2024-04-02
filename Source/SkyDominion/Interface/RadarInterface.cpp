@@ -9,3 +9,8 @@ void IRadarInterface::MissileComingWarning(bool bIsClose)
 {
 
 }
+
+float IRadarInterface::GetHeatIndex() const
+{
+    return 0.0f;
+}

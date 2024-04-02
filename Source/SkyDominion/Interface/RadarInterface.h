@@ -23,4 +23,7 @@ class SKYDOMINION_API IRadarInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	virtual void MissileComingWarning(bool bIsClose);
+
+	// between 0 ~ 100
+	virtual float GetHeatIndex() const;
 };

@@ -2,12 +2,14 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "SkyDominion/Interface/RadarInterface.h"
+
 #include "Missile.generated.h"
 
 
 
 UCLASS()
-class SKYDOMINION_API AMissile : public AActor
+class SKYDOMINION_API AMissile : public AActor, public IRadarInterface
 {
 	GENERATED_BODY()
 	
@@ -26,6 +28,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
 	FName MissileDisplayName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
+	bool bUseInfraredTrack = false;
 
 	// Unit km
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General Settings")
@@ -111,10 +116,27 @@ protected:
 	const float WarningTimeGap = 0.3f;
 	float WarningTimeHandle = 0.0f;
 
+	/** Use for track target Check */
+	const float TrackCheckGap = 0.2f;
+	float TrackCheckHandle = 0.0f;
+
+	// Infrared Missile Check
+	void InfraredCheck();
+	bool CheckTargetInInfaredSearchRange(const AActor* target);
+	float InfaredSearchRadius = 3000.0f; // unit m
+	float HeatIndex = 0.0f;
+
+	// Semi-active radar Mode
+	void SemiActiveCheck();
+	const float RadarTargetLostGap = 0.8f;
+	float RadarTargetLostHandle = 0.0f;
+
 	UFUNCTION()
 	virtual void OnSphereCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 private:
+	void CheckTrackTarget(float DeltaTime);
+
 	void UpdateMissileMovement(float DeltaTime);
 
 	void CaculateRotationToTrackTarget(float DeltaTime);
@@ -128,5 +150,7 @@ public:
 	void SetMissileMarkVisbility(bool bVisible, bool bIsSameTeam);
 
 	FORCEINLINE bool GetMissileHasFired() const { return bHasFired; }
+
+	virtual float GetHeatIndex() const override;
 
 };
