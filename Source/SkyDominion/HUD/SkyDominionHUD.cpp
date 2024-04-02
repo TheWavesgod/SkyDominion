@@ -5,6 +5,7 @@
 #include "PlayerOverlay.h"
 #include "SpectatorOverlay.h"
 #include "PauseMenu.h"
+#include "KillMessageOverlay.h"
 #include "SkyDominion/Pawn/Fighter.h"
 #include "SkyDominion/Actor/RadarComponent.h"
 #include "SkyDominion/Actor/AutoCannon.h"
@@ -246,5 +247,28 @@ void ASkyDominionHUD::RemovePauseMenu()
 	if (PauseMenu)
 	{
 		PauseMenu->RemoveFromViewport();
+	}
+}
+
+void ASkyDominionHUD::AddKillMessageOverlay(bool bIsKillMessage, const FString& PlayerName)
+{
+	APlayerController* PlayerController = GetOwningPlayerController();
+	if (PlayerController && KillMessageClass)
+	{
+		KillMessageOverlay = KillMessageOverlay == nullptr ? CreateWidget<UKillMessageOverlay>(PlayerController, KillMessageClass) : KillMessageOverlay;
+		KillMessageOverlay->Init(bIsKillMessage, PlayerName);
+		KillMessageOverlay->AddToViewport();
+
+		FTimerHandle RemoveHandle;
+		GetWorld()->GetTimerManager().SetTimer(RemoveHandle, this, &ThisClass::RemoveKillMessageOverlay, 4.5f, false);
+	}
+}
+
+void ASkyDominionHUD::RemoveKillMessageOverlay()
+{
+
+	if (KillMessageOverlay)
+	{
+		KillMessageOverlay->RemoveFromParent();
 	}
 }

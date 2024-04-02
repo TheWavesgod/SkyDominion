@@ -214,6 +214,8 @@ protected:
 	/** PlayerInput Bind Function */
 	void LookUpDown(float Value);
 	void LookRightLeft(float Value);
+	void LookUpDownMouse(float Value);
+	void LookRightLeftMouse(float Value);
 	void ThrusterInput(float Value);
 	void PitchInput(float Value);
 	void RollInput(float Value);
@@ -308,6 +310,7 @@ private:
 	FQuat SpringArmQuat;
 	float MainCameraPitchRatio = 0.0f;
 	float OriginalSpringArmLength;
+	float MouseControlTimeHandle = 0.0f;
 
 	/** Fighter Sound Update */
 	void SoundComponentUpdate(float DeltaTime);
@@ -349,6 +352,9 @@ private:
 	bool bFireFlare = false;
 	float FlareFireTimeHandle = 0.0f;
 
+	UPROPERTY(Replicated)
+	int CurrentFlareNum;
+
 public:
 	FORCEINLINE USounds_F35* GetSoundComponent() const { return SoundComponent; }
 	FORCEINLINE UCameraComponent* GetMainCamera() const { return MainCamera; }
@@ -360,6 +366,7 @@ public:
 	FORCEINLINE FName GetCurrentMissileName() const { return MissileName; }
 	FORCEINLINE int32 GetCurrentMissileNum() const { return MissileNum; }
 	FORCEINLINE float GetCurrentMissileRange() const { return MissileRange; }
+	FORCEINLINE int GetCurrentFlareNum() const { return CurrentFlareNum; }
 	int GetAutoCannonBulletLeft() const;
 	void SetPlayerOverlay(UPlayerOverlay* val) { PlayerOverlay = val; }
 	float GetHeatIndex() const override;

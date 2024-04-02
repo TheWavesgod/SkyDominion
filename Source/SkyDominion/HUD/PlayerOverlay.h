@@ -84,8 +84,14 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	FString RadarMode;
 
+	UPROPERTY(BlueprintReadOnly)
+	int FlareNum;
+
 	UFUNCTION(BlueprintImplementableEvent, Category = "Event")
 	void ShowBulletRunoutAlert();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Event")
+	void ShowFlareRunoutAlert();
 
 	UFUNCTION(BlueprintCallable)
 	void ActivateLowAltitudeAlertSound(bool bActivated);

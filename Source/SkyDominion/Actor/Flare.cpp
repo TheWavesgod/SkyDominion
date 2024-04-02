@@ -12,6 +12,7 @@ AFlare::AFlare()
 	SetRootComponent(CollisionShape);
 	CollisionShape->SetCollisionObjectType(ECollisionChannel::ECC_Vehicle);
 	CollisionShape->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	CollisionShape->SetGenerateOverlapEvents(true);
 
 	FlareVisionFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("FlareVisionFX")); 
 	FlareVisionFX->SetupAttachment(RootComponent);

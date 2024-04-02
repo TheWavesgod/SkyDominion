@@ -68,6 +68,8 @@ void UPlayerOverlay::UpdateParameter()
 
 	RadarMode = fighter->GetRadarComponent()->GetCurrentRadarMode();
 
+	FlareNum = fighter->GetCurrentFlareNum();
+				
 	/** Player State Info */
 	SkyPlayerState = SkyPlayerState == nullptr ? GetOwningLocalPlayer()->GetPlayerController(GetWorld())->GetPlayerState<ASkyPlayerState>() : SkyPlayerState;
 	if (!SkyPlayerState) return;

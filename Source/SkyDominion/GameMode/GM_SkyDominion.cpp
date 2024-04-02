@@ -53,18 +53,18 @@ void AGM_SkyDominion::PostLogin(APlayerController* NewPlayer)
                 JetType = TEXT("F18");
                 break;
             }
-            GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("NewPlayer ID: ") + PlayerId->ToString() + FString(" Choose ") + JetType);
+            //GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("NewPlayer ID: ") + PlayerId->ToString() + FString(" Choose ") + JetType);
         }
 
-        int playerNum = GameState->PlayerArray.Num();
-        if (playerNum % 2 != 1)
-        {
-            NewPlayerState->bInRedTeam = false;
-        }
-        if (playerNum > 2)
-        {
-            NewPlayerState->TeamIndex = 1;
-        }
+		/*int playerNum = GameState->PlayerArray.Num();
+		if (playerNum % 2 != 1)
+		{
+			NewPlayerState->bInRedTeam = false;
+		}
+		if (playerNum > 2)
+		{
+			NewPlayerState->TeamIndex = 1;
+		}*/
 
 
         //FString TeamType = NewPlayerState->bInRedTeam ? FString("Red") : FString("Blue");
@@ -78,26 +78,30 @@ AActor* AGM_SkyDominion::ChoosePlayerStart_Implementation(AController* Player)
     UGameplayStatics::GetAllActorsOfClass(this, APlayerStart::StaticClass(), PlayerStarts);
    
     
-    int index = 0;
-    ASkyPlayerState* PlayerState = Player->GetPlayerState<ASkyPlayerState>();
-    APlayerState* originPlayerState = Player->GetPlayerState<APlayerState>();
+	int index = 0;
+	ASkyPlayerState* PlayerState = Player->GetPlayerState<ASkyPlayerState>();
+	//APlayerState* originPlayerState = Player->GetPlayerState<APlayerState>();
 
-    for (int i = 0; i < GameState->PlayerArray.Num(); ++i)
-    {
-        if (originPlayerState == GameState->PlayerArray[i].Get())
-        {
-            index = i;
-        }
-    }
-
-	/*if (PlayerState)
+	/*for (int i = 0; i < GameState->PlayerArray.Num(); ++i)
 	{
-		if (!PlayerState->bInRedTeam)
+		if (originPlayerState == GameState->PlayerArray[i].Get())
 		{
-			index += 2;
+			index = i;
 		}
-		index += PlayerState->TeamIndex;
 	}*/
+    USkyGameInstance* GameInstance = GetGameInstance<USkyGameInstance>();
+
+    TSharedPtr<const FUniqueNetId> PlayerId = PlayerState->GetUniqueId().GetUniqueNetId();
+
+    if (GameInstance->PlayersInfoList.Find(PlayerId))
+    {
+        FPlayersInfo Info = *(GameInstance->PlayersInfoList.Find(PlayerId));
+
+        index += Info.bInRedTeam ? 0 : 1;
+
+        index += Info.TeamIndex * 2;
+    }
+	
 
     FName StartTag;
     switch (index)
@@ -147,63 +151,34 @@ UClass* AGM_SkyDominion::GetDefaultPawnClassForController_Implementation(AContro
         }
     }
 #endif
-    int index = 0;
-    APlayerState* originPlayerState = InController->GetPlayerState<APlayerState>();
-
-    for (int i = 0; i < GameState->PlayerArray.Num(); ++i)
-    {
-        if (originPlayerState == GameState->PlayerArray[i].Get())
-        {
-            index = i;
-        }
-    }
-
     ASkyPlayerState* PlayerState = InController->GetPlayerState<ASkyPlayerState>();
     USkyGameInstance* GameInstance = GetGameInstance<USkyGameInstance>();
 
     if (PlayerState && GameInstance)
     {
-        if (PlayerState->ChoosedFighterType == EFighterJetType::E_Max)
-            return DefaultPawnClass;
+        TSharedPtr<const FUniqueNetId> PlayerId = PlayerState->GetUniqueId().GetUniqueNetId();
 
-        UClass* PawnClass = GameInstance->FighterJetClass[static_cast<int>(PlayerState->ChoosedFighterType)];
+        if (GameInstance->PlayersInfoList.Find(PlayerId))
+        {
+            FPlayersInfo Info = *(GameInstance->PlayersInfoList.Find(PlayerId));
 
-        if (PawnClass)
-        {
-            return PawnClass;
-        }
-        else
-        {
-            return DefaultPawnClass;
+            EFighterJetType playerChooseType = static_cast<EFighterJetType>(Info.ChooseJet);
+
+            if (playerChooseType == EFighterJetType::E_Max)
+                return DefaultPawnClass;
+
+            UClass* PawnClass = GameInstance->FighterJetClass[static_cast<int>(playerChooseType)];
+
+            if (PawnClass)
+            {
+                return PawnClass;
+            }
+            else
+            {
+                return DefaultPawnClass;
+            }
         }
     }
-
-	/*if (index % 2 == 1)
-	{
-		PlayerState->bInRedTeam = false;
-	}*/
-
-	/*USkyGameInstance* GameInstance = GetGameInstance<USkyGameInstance>();
-	if (GameInstance->PlayersInfoList.IsEmpty())
-	{
-		return DefaultPawnClass;
-	}
-	if (GameInstance)
-	{
-		int JetIndex = GameInstance->PlayersChooseJetList[index];
-
-		UClass* PawnClass = GameInstance->FighterJetClass[JetIndex];
-		if (PawnClass)
-		{
-			return PawnClass;
-		}
-		else
-		{
-			return DefaultPawnClass;
-		}
-	}*/
-
-
     return DefaultPawnClass;
 }
 
@@ -219,10 +194,17 @@ void AGM_SkyDominion::FighterDestroyed(AFighter* DestroyedFighter, ASkyPlayerCon
         if (VictimPlayerState->bInRedTeam != AttackerPlayerState->bInRedTeam)
         {
             AttackerPlayerState->AddKill();
-            
+            VictimPlayerState->AddDefeat();
             AttackerPlayerState->bInRedTeam ? SkyGameState->AddScore_RedTeam() : SkyGameState->AddScore_BlueTeam();
+
+            AttackerController->SendKillMessage(VictimPlayerState); 
+            VictimController->SendDefeatMessage(AttackerPlayerState);
         }
-        VictimPlayerState->AddDefeat();
+        else
+        {
+            VictimPlayerState->AddDefeat();
+            //VictimController->SendDefeatMessage(nullptr);
+        }
     }
 
     if (DestroyedFighter)

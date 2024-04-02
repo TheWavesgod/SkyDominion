@@ -153,6 +153,10 @@ void URadarComponent::LocalNewTargetDetected(AActor* Target)
 			}
 		}
 	}
+	/*else if (Target->ActorHasTag(FName("Flare")))
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString("Detect Flare!!"));
+	}*/
 }
 
 void URadarComponent::LocalNewTargetLost(AActor* Target)

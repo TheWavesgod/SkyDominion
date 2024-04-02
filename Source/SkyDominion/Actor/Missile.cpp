@@ -77,7 +77,7 @@ void AMissile::Tick(float DeltaTime)
 		return;
 	}
 
-	DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + GetActorForwardVector() * 10000.0f, FColor::Red, true);	
+	//DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + GetActorForwardVector() * 10000.0f, FColor::Red, true);	
 
 	if (HasAuthority())
 	{
@@ -127,10 +127,11 @@ void AMissile::InfraredCheck()
 	TArray<AActor*> OverlappedActors;
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;	
 	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Vehicle));
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Visibility));
 	TArray<AActor*> IgnoreActors;
-	IgnoreActors.Add(this);
+	IgnoreActors.Add(this); 
 	if (IsValid(FighterOnwer)) { IgnoreActors.Add(FighterOnwer); }
-	UKismetSystemLibrary::SphereOverlapActors(this, GetActorLocation(), InfaredSearchRadius * 100.0f, ObjectTypes, nullptr, IgnoreActors, OverlappedActors);
+	UKismetSystemLibrary::SphereOverlapActors(GetWorld(), GetActorLocation(), InfaredSearchRadius * 100.0f, ObjectTypes, nullptr, IgnoreActors, OverlappedActors);
 
 	if (OverlappedActors.IsEmpty()) { return; }
 
@@ -264,7 +265,7 @@ void AMissile::CaculateRotationToTrackTarget(float DeltaTime)
 
 		FVector TrackLoc = TargetLoc + TargetVelocity * TrackTime * 10.0f;
 
-		DrawDebugLine(GetWorld(), TrackLoc, TrackLoc + FVector(0,0,1) * 1000.0f, FColor::Red, false, 1.0f);
+		//DrawDebugLine(GetWorld(), TrackLoc, TrackLoc + FVector(0,0,1) * 1000.0f, FColor::Red, false, 1.0f);
 
 		TargetRotator = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TargetLoc);
 	}

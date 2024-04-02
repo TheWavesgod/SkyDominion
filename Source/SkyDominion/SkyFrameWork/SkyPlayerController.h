@@ -23,6 +23,12 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ClientDisconnect();
 
+	UFUNCTION(Client, Reliable)
+	void SendKillMessage(class ASkyPlayerState* VictimPlayerState);
+
+	UFUNCTION(Client, Reliable)
+	void SendDefeatMessage(ASkyPlayerState* AttackerPlayerState);
+
 	virtual void SetupInputComponent() override;
 
 	void RequestRespawn();

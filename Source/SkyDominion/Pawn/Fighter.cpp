@@ -93,6 +93,8 @@ void AFighter::BeginPlay()
 
 	CurrentHealth = MaxHealth;
 
+	CurrentFlareNum = MaximumFlareNum;
+
 	if (AutoCannonClass)
 	{
 		AutoCannon = GetWorld()->SpawnActor<AAutoCannon>(AutoCannonClass, FVector::ZeroVector, FRotator::ZeroRotator);
@@ -179,6 +181,7 @@ void AFighter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 	DOREPLIFETIME(AFighter, MissileName);
 	DOREPLIFETIME(AFighter, MissileNum);
 	DOREPLIFETIME(AFighter, MissileRange);
+	DOREPLIFETIME(AFighter, CurrentFlareNum);
 }
 
 void AFighter::CheckPlayerStateInfo()
@@ -216,8 +219,8 @@ void AFighter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &ThisClass::LookUpDown);
 	PlayerInputComponent->BindAxis(TEXT("TurnRight"), this, &ThisClass::LookRightLeft);
-	/*PlayerInputComponent->BindAxis(TEXT("LookUpMouse"), this, &ThisClass::LookUpDown);
-	PlayerInputComponent->BindAxis(TEXT("TurnRightMouse"), this, &ThisClass::LookRightLeft);*/
+	PlayerInputComponent->BindAxis(TEXT("LookUpMouse"), this, &ThisClass::LookUpDownMouse);
+	PlayerInputComponent->BindAxis(TEXT("TurnRightMouse"), this, &ThisClass::LookRightLeftMouse);
 
 	PlayerInputComponent->BindAxis(TEXT("Thruster"), this, &ThisClass::ThrusterInput);
 	PlayerInputComponent->BindAxis(TEXT("Pitch"), this, &ThisClass::PitchInput);
@@ -282,13 +285,36 @@ void AFighter::Destroyed()
 
 void AFighter::LookUpDown(float Value)
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Red, FString::Printf(TEXT("LookUp: %f"), Value));
-	VisionInput.Y = Value;
+	if (MouseControlTimeHandle == 0.0f)
+	{
+		VisionInput.Y = Value;
+	}
 }
 
 void AFighter::LookRightLeft(float Value)
 {
-	VisionInput.X = Value;
+	if (MouseControlTimeHandle == 0.0f)
+	{
+		VisionInput.X = Value;
+	}
+}
+
+void AFighter::LookUpDownMouse(float Value)
+{
+	if (FMath::Abs(Value) > 0.05f)
+	{
+		VisionInput.Y = FMath::Clamp(VisionInput.Y + Value * 0.05f, -1.0f, 1.0f);
+		MouseControlTimeHandle = 2.0f;
+	}
+}
+
+void AFighter::LookRightLeftMouse(float Value)
+{
+	if (FMath::Abs(Value) > 0.05f)
+	{
+		VisionInput.X = FMath::Clamp(VisionInput.X + Value * 0.05f, -1.0f, 1.0f);
+		MouseControlTimeHandle = 2.0f;
+	}
 }
 
 void AFighter::ThrusterInput(float Value)
@@ -388,6 +414,15 @@ void AFighter::LockBttnPressed()
 
 void AFighter::FireDecoyPressed()
 {
+	if (CurrentFlareNum == 0)
+	{
+		ActiveUnvalidMoveAlertSound();
+		if (PlayerOverlay)
+		{
+			PlayerOverlay->ShowFlareRunoutAlert();
+		}
+	}
+
 	ServerFireDecoy(true);
 }
 
@@ -571,6 +606,8 @@ void AFighter::UpdateTailFX(float DeltaTime)
 
 void AFighter::VisionUpdate(float DeltaTime)
 {
+	MouseControlTimeHandle = FMath::Clamp(MouseControlTimeHandle - DeltaTime, 0.0f, 3.0f);
+
 	FQuat UpDown = FQuat(FVector(0, 1, 0), FMath::DegreesToRadians(VisionInput.Y * 80.0f));
 	FQuat RightLeft = FQuat(FVector(0, 0, 1), FMath::DegreesToRadians(VisionInput.X * 170.0f)); 
 
@@ -660,6 +697,8 @@ void AFighter::UpdateFlareState(float DeltaTime)
 
 	if (!bFireFlare) return;
 
+	if (CurrentFlareNum == 0) return;
+
 	if (FlareFireTimeHandle != 0) return;
 
 	FlareFireTimeHandle = FlareFireTimeGap;
@@ -667,6 +706,10 @@ void AFighter::UpdateFlareState(float DeltaTime)
 	if (FlareClass)
 	{
 		GetWorld()->SpawnActor<AFlare>(FlareClass, Mesh->GetSocketTransform(FlareSocketName));
+		if (HasAuthority())
+		{
+			CurrentFlareNum = FMath::Clamp(CurrentFlareNum - 1, 0, MaximumFlareNum);
+		}
 	}
 
 	if (IsLocallyControlled() && AlertSoundConfig.FlareFireSound)

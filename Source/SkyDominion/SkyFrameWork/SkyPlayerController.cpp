@@ -54,6 +54,26 @@ void ASkyPlayerController::ClientDisconnect_Implementation()
 	ConsoleCommand(TEXT("disconnect"));
 }
 
+void ASkyPlayerController::SendKillMessage_Implementation(ASkyPlayerState* VictimPlayerState)
+{
+	if (!SkyHUD || !VictimPlayerState) return;
+
+	SkyHUD->AddKillMessageOverlay(true, VictimPlayerState->GetPlayerName());
+}
+
+void ASkyPlayerController::SendDefeatMessage_Implementation(ASkyPlayerState* AttackerPlayerState)
+{
+	if (!SkyHUD) return;
+
+	if (AttackerPlayerState == nullptr)
+	{
+		SkyHUD->AddKillMessageOverlay(false, FString("Yourself"));
+		return;
+	}
+
+	SkyHUD->AddKillMessageOverlay(false, AttackerPlayerState->GetPlayerName());
+}
+
 void ASkyPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();

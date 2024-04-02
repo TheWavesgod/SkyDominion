@@ -26,6 +26,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Overlay Settings")
 	TSubclassOf<class UUserWidget> PauseMenuClass;
 
+	UPROPERTY(EditAnywhere, Category = "Overlay Settings")
+	TSubclassOf<class UUserWidget> KillMessageClass;
+
 	UPROPERTY()
 	class UPlayerOverlay* PlayerOverlay;
 
@@ -34,6 +37,9 @@ public:
 
 	UPROPERTY()
 	class UPauseMenu* PauseMenu;
+
+	UPROPERTY()
+	class UKillMessageOverlay* KillMessageOverlay;
 
 	UPROPERTY(EditAnywhere, Category = "HUD Settings")
 	UTexture2D* Crosshair;
@@ -82,4 +88,7 @@ public:
 
 	void AddPauseMenu();
 	void RemovePauseMenu();
+
+	void AddKillMessageOverlay(bool bIsKillMessage, const FString& PlayerName);
+	void RemoveKillMessageOverlay();
 };
