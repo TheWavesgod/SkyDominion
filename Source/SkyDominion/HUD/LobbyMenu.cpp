@@ -78,6 +78,9 @@ void ULobbyMenu::NativeConstruct()
 		Bttn_StartGame->SetIsEnabled(false);
 		Text_StarttGameBttn->SetText(FText::FromString("Waiting for Server"));
 	}
+
+	FTimerHandle PlayerListHandle;
+	GetWorld()->GetTimerManager().SetTimer(PlayerListHandle, &ThisClass::UpdatePlayerListLocal);
 }
 
 void ULobbyMenu::MainMenuBttnClicked()
@@ -114,7 +117,7 @@ void ULobbyMenu::StartGameBttnClicked()
 
 void ULobbyMenu::FighterJetSelected(FString SelectedItem, ESelectInfo::Type SelectionType)
 {
-	ASkyPlayerState* OwningPlayerState = UGameplayStatics::GetPlayerController(this, 0)->GetPlayerState<ASkyPlayerState>();
+	ASkyPlayerState* OwningPlayerState = GEngine->GetFirstLocalPlayerController(GetWorld())->GetPlayerState<ASkyPlayerState>(); 
 	if (OwningPlayerState)
 	{
 		OwningPlayerState->ServerChangeChoosedFighterType(ComboBox_FighterJet->GetSelectedIndex());
@@ -148,6 +151,8 @@ void ULobbyMenu::UpdatePlayersList_Implementation()
 
 void ULobbyMenu::UpdatePlayerListLocal()
 {
+	if(GetWorld()->GetNetMode() == ENetMode::NM_Client) GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("Current players num : ") + FString::FromInt(GetWorld()->GetGameState()->PlayerArray.Num()));
+
 	UWorld* World = GetWorld();
 	if (World && World->GetGameState())
 	{
