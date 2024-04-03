@@ -35,7 +35,7 @@ public:
 	int32 TeamIndex = 0;
 
 	UPROPERTY(Replicated)
-	EFighterJetType ChoosedFighterType = EFighterJetType::E_Max;
+	EFighterJetType ChoosedFighterType = EFighterJetType::E_F15E;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 

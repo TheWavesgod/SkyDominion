@@ -80,7 +80,7 @@ void ULobbyMenu::NativeConstruct()
 	}
 
 	FTimerHandle PlayerListHandle;
-	GetWorld()->GetTimerManager().SetTimer(PlayerListHandle, &ThisClass::UpdatePlayerListLocal);
+	GetWorld()->GetTimerManager().SetTimer(PlayerListHandle, this, &ThisClass::UpdatePlayerListLocal, 0.2f, true);
 }
 
 void ULobbyMenu::MainMenuBttnClicked()
@@ -151,14 +151,20 @@ void ULobbyMenu::UpdatePlayersList_Implementation()
 
 void ULobbyMenu::UpdatePlayerListLocal()
 {
-	if(GetWorld()->GetNetMode() == ENetMode::NM_Client) GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("Current players num : ") + FString::FromInt(GetWorld()->GetGameState()->PlayerArray.Num()));
-
 	UWorld* World = GetWorld();
-	if (World && World->GetGameState())
+
+	if (!World) return;
+
+	AGameStateBase* GameState = World->GetGameState();
+
+	if (!GameState) return;
+
+	for (int i = 0; i < 4; ++i)
 	{
-		for (int i = 0; i < 4; ++i)
+		UTextBlock* TargetTextBlock = nullptr;
+
+		if (i >= GameState->PlayerArray.Num())
 		{
-			UTextBlock* TargetTextBlock = nullptr;
 			switch (i)
 			{
 			case 0:
@@ -177,19 +183,46 @@ void ULobbyMenu::UpdatePlayerListLocal()
 				TargetTextBlock = Text_Blue_2;
 				break;
 			}
-			if (TargetTextBlock)
-			{
-				if (i >= World->GetGameState()->PlayerArray.Num())
-				{
-					TargetTextBlock->SetText(FText::FromString("Waiting for players..."));
-				}
-				else
-				{
-					TargetTextBlock->SetText(FText::FromString(World->GetGameState()->PlayerArray[i]->GetPlayerName()));
-				}
-			}
+
+			if (TargetTextBlock) TargetTextBlock->SetText(FText::FromString("Waiting for players..."));
+
+			continue;
+		}
+
+		ASkyPlayerState* SkyPlayerState = Cast<ASkyPlayerState>(GameState->PlayerArray[i]);
+
+		if (!SkyPlayerState) continue;
+		
+		int index = SkyPlayerState->bInRedTeam ? 0 : 1;
+
+		index += SkyPlayerState->TeamIndex * 2;
+
+		switch (index)
+		{
+		case 0:
+			TargetTextBlock = Text_Red_1;
+			break;
+
+		case 1:
+			TargetTextBlock = Text_Blue_1;
+			break;
+
+		case 2:
+			TargetTextBlock = Text_Red_2;
+			break;
+
+		case 3:
+			TargetTextBlock = Text_Blue_2;
+			break;
+		}
+
+		if (TargetTextBlock)
+		{
+			TargetTextBlock->SetText(FText::FromString(World->GetGameState()->PlayerArray[i]->GetPlayerName()));
 		}
 	}
+
+	UpdatePlayersFighterTypeLocal();
 }
 
 void ULobbyMenu::UpdatePlayersFighterType_Implementation()
@@ -201,11 +234,18 @@ void ULobbyMenu::UpdatePlayersFighterTypeLocal()
 {
 	UEnum* EnumRef = StaticEnum<EFighterJetType>();
 	UWorld* World = GetWorld();
-	if (World && World->GetGameState())
+
+	if (!World) return;
+
+	AGameStateBase* GameState = World->GetGameState();
+
+	if (!GameState) return;
+
+	for (int i = 0; i < 4; ++i)
 	{
-		for (int i = 0; i < 4; ++i)
+		UTextBlock* TargetTextBlock = nullptr;
+		if (i >= GameState->PlayerArray.Num())
 		{
-			UTextBlock* TargetTextBlock = nullptr;
 			switch (i)
 			{
 			case 0:
@@ -224,23 +264,43 @@ void ULobbyMenu::UpdatePlayersFighterTypeLocal()
 				TargetTextBlock = Text_Blue_2_Fighter;
 				break;
 			}
-			if (TargetTextBlock)
+
+			if (TargetTextBlock) TargetTextBlock->SetText(FText::FromString(""));
+
+			continue;
+		}
+
+		ASkyPlayerState* SkyPlayerState = Cast<ASkyPlayerState>(GameState->PlayerArray[i]);
+
+		if (!SkyPlayerState) continue;
+
+		int index = SkyPlayerState->bInRedTeam ? 0 : 1;
+
+		index += SkyPlayerState->TeamIndex * 2;
+
+		switch (index)
+		{
+		case 0:
+			TargetTextBlock = Text_Red_1_Fighter;
+			break;
+
+		case 1:
+			TargetTextBlock = Text_Blue_1_Fighter;
+			break;
+
+		case 2:
+			TargetTextBlock = Text_Red_2_Fighter;
+			break;
+
+		case 3:
+			TargetTextBlock = Text_Blue_2_Fighter;
+			break;
+		}
+		if (TargetTextBlock)
+		{
+			if (EnumRef)
 			{
-				if (i >= World->GetGameState()->PlayerArray.Num())
-				{
-					TargetTextBlock->SetText(FText::FromString(""));
-				}
-				else
-				{
-					ASkyPlayerState* targetPlayerState = World->GetGameState()->PlayerArray[i]->GetOwningController()->GetPlayerState<ASkyPlayerState>();
-					if (targetPlayerState)
-					{
-						if (EnumRef)
-						{
-							TargetTextBlock->SetText(EnumRef->GetDisplayNameTextByValue(int64(targetPlayerState->ChoosedFighterType)));
-						}
-					}
-				}
+				TargetTextBlock->SetText(EnumRef->GetDisplayNameTextByValue(int64(SkyPlayerState->ChoosedFighterType)));
 			}
 		}
 	}

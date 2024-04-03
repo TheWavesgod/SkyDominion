@@ -28,7 +28,7 @@ void AGM_SkyDominion::PostLogin(APlayerController* NewPlayer)
     {
         USkyGameInstance* GameInstance = GetGameInstance<USkyGameInstance>();
 
-        TSharedPtr<const FUniqueNetId> PlayerId = NewPlayerState->GetUniqueId().GetUniqueNetId();
+        FString PlayerId = NewPlayerState->UniqueId->ToString();
 
         if (GameInstance->PlayersInfoList.Find(PlayerId))
         {
@@ -80,7 +80,7 @@ AActor* AGM_SkyDominion::ChoosePlayerStart_Implementation(AController* Player)
     
 	int index = 0;
 	ASkyPlayerState* PlayerState = Player->GetPlayerState<ASkyPlayerState>();
-	//APlayerState* originPlayerState = Player->GetPlayerState<APlayerState>();
+	APlayerState* originPlayerState = Player->GetPlayerState<APlayerState>();
 
 	/*for (int i = 0; i < GameState->PlayerArray.Num(); ++i)
 	{
@@ -89,18 +89,18 @@ AActor* AGM_SkyDominion::ChoosePlayerStart_Implementation(AController* Player)
 			index = i;
 		}
 	}*/
-    USkyGameInstance* GameInstance = GetGameInstance<USkyGameInstance>();
+	USkyGameInstance* GameInstance = GetGameInstance<USkyGameInstance>();
 
-    TSharedPtr<const FUniqueNetId> PlayerId = PlayerState->GetUniqueId().GetUniqueNetId();
+    FString PlayerId = PlayerState->UniqueId->ToString();
 
-    if (GameInstance->PlayersInfoList.Find(PlayerId))
-    {
-        FPlayersInfo Info = *(GameInstance->PlayersInfoList.Find(PlayerId));
+	if (GameInstance->PlayersInfoList.Find(PlayerId))
+	{
+		FPlayersInfo Info = *(GameInstance->PlayersInfoList.Find(PlayerId));
 
-        index += Info.bInRedTeam ? 0 : 1;
+		index += Info.bInRedTeam ? 0 : 1;
 
-        index += Info.TeamIndex * 2;
-    }
+		index += Info.TeamIndex * 2;
+	}
 	
 
     FName StartTag;
@@ -156,7 +156,7 @@ UClass* AGM_SkyDominion::GetDefaultPawnClassForController_Implementation(AContro
 
     if (PlayerState && GameInstance)
     {
-        TSharedPtr<const FUniqueNetId> PlayerId = PlayerState->GetUniqueId().GetUniqueNetId();
+        FString PlayerId = PlayerState->UniqueId->ToString();
 
         if (GameInstance->PlayersInfoList.Find(PlayerId))
         {

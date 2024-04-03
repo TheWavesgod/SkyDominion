@@ -36,7 +36,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Game Config")
 	TArray<UClass*> FighterJetClass;
 
-	TMap<FUniqueNetIdPtr, FPlayersInfo> PlayersInfoList;
+	TMap<FString, FPlayersInfo> PlayersInfoList;
 
 	void UpdatePlayersInfoList();
 };

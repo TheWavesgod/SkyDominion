@@ -16,9 +16,9 @@ void AGM_MenuSystem::PostLogin(APlayerController* NewPlayer)
 	{
 		if (GameState->PlayerArray.Num() % 2 == 0)
 		{
-			NewPlayerState->bInRedTeam = true;
+			NewPlayerState->bInRedTeam = false;
 		}
-		if ((GameState->PlayerArray.Num()) / 2 != 0)
+		if ((GameState->PlayerArray.Num() - 1) / 2 != 0)
 		{
 			NewPlayerState->TeamIndex = 1;
 		}

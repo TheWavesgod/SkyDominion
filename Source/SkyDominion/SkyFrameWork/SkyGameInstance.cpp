@@ -16,9 +16,9 @@ void USkyGameInstance::UpdatePlayersInfoList()
 			ASkyPlayerState* PlayerState = Cast<ASkyPlayerState>(GameState->PlayerArray[i]);
 			if (PlayerState)
 			{
-				TSharedPtr<const FUniqueNetId> PlayerID = PlayerState->GetUniqueId().GetUniqueNetId();
+				FString PlayerID = PlayerState->UniqueId->ToString();
 
-				if (!PlayerID.IsValid()) continue;
+				//UE_LOG(LogTemp, Warning, TEXT("player %d ID: %s"), i, *PlayerID);
 
 				FPlayersInfo Info;
 				
