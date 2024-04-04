@@ -23,6 +23,9 @@ class SKYDOMINION_API ULobbyMenu : public UUserWidget
 
 public:
 	UFUNCTION(BlueprintCallable)
+	void InitLobby();
+
+	UFUNCTION(BlueprintCallable)
 	void SetUserNameTextBlock();
 
 	UFUNCTION(NetMulticast, Reliable)
@@ -41,6 +44,8 @@ protected:
 	void UpdatePlayerListLocal();
 
 	void UpdatePlayersFighterTypeLocal();
+
+	bool bCanUpdatePlayerList = true;
 
 private:
 	UPROPERTY(meta = (BindWidget))

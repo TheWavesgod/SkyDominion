@@ -70,6 +70,9 @@ struct FAlertSoundConfig
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound Config")
 	USoundCue* FlareFireSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound Config")
+	USoundCue* OperateHindSound;
 };
 
 /**
@@ -138,6 +141,8 @@ public:
 	void ActiveTargetLockingSound();
 
 	void ActiveTargetLockedSound();
+
+	void ActiveOperateHintSound();
 
 	void ShutDownRadarLockSound();
 

@@ -52,4 +52,10 @@ protected:
 
 	UFUNCTION()
 	void PauseBtnPressed();
+
+	UFUNCTION()
+	void ShowRoundStateBtnPressed();
+
+	UFUNCTION()
+	void ShowRoundStateBtnReleased();
 };

@@ -236,7 +236,7 @@ void AMissile::CalculateMissileAeroForce(FVector MissileVel, FVector& AeroForce)
 
 	FVector liftDir = FVector::VectorPlaneProject(GetActorForwardVector(), MissileVel.GetSafeNormal()).GetSafeNormal();
 
-	FVector lift = liftDir * AirdensityEffect * MissileRightArea * FMath::Square(sinAOA) * cosAOA * 10.0f;
+	FVector lift = liftDir * AirdensityEffect * MissileRightArea * FMath::Square(sinAOA) * cosAOA * 30.0f;
 	FVector drag = -MissileVel.GetSafeNormal() * AirdensityEffect * MissileRightArea * FMath::Cube(sinAOA);
 
 	float DragDirRatio = XSpeed > 0.0f ? 1.0f : -1.0f;
@@ -248,22 +248,58 @@ void AMissile::CalculateMissileAeroForce(FVector MissileVel, FVector& AeroForce)
 void AMissile::CaculateRotationToTrackTarget(float DeltaTime)
 {
 	TargetRotator = GetActorRotation();
-
+	
 	if (IsValid(TrackTarget))
 	{
 		FVector TargetLoc = TrackTarget->GetActorLocation();
 		FVector TargetVelocity = TrackTarget->GetVelocity();
 
-		float TargetDis = (TargetLoc - GetActorLocation()).Size();
-		UE_LOG(LogTemp, Warning, TEXT("Missile Target Dis: %f"), TargetDis * 0.01f);
+		FVector TargetDir = TargetLoc - GetActorLocation();
+		
+		float x = 0;
+		if (TargetVelocity.Size() != 0)
+		{
+			float speedRatio = MissileVelocity.Size() / (TargetVelocity * 0.01f).Size();
 
-		float TrackTime = 0.0f;
+			float cosTargetVelTargetDir = TargetLoc.GetSafeNormal().Dot(-TargetDir.GetSafeNormal());
 
-		float DirectSpeed = MissileVelocity.Dot((TargetLoc - GetActorLocation()).GetSafeNormal());
+			float a = speedRatio * speedRatio - 1;
+			float b = 2 * TargetDir.Size() * 0.01f * cosTargetVelTargetDir;
+			float c = -FMath::Square(TargetDir.Size() * 0.01f);
 
-		TrackTime = DirectSpeed > 0 ? TargetDis * 0.01 / DirectSpeed : 0.0f;
+			if (a == 0)
+			{
+				x = cosTargetVelTargetDir > 0 ? TargetDir.Size() * 0.5f / cosTargetVelTargetDir : 0;
+			}
+			else
+			{
+				float discriminant = FMath::Square(b) - 4 * a * c;
 
-		FVector TrackLoc = TargetLoc + TargetVelocity * TrackTime * 10.0f;
+				if (discriminant > 0)
+				{
+					float x1 = (-b + FMath::Sqrt(discriminant)) / (2 * a);
+					float x2 = (-b - FMath::Sqrt(discriminant)) / (2 * a);
+
+					if (cosTargetVelTargetDir > 0) // The Angle between target velocity and distance direction is less than 90 degree
+					{
+						x = x1 > 0 ? x1 : 0;
+					}
+					else if (cosTargetVelTargetDir == 0)
+					{
+						x = a > 0 ? FMath::Sqrt(-c / a) : 0;
+					}
+					else
+					{
+						if (a > 0)
+						{
+							x = x1 > 0 ? x1 : 0;
+						}
+					}
+				}
+			}
+		}
+
+		FVector TrackLoc = TargetLoc + TargetVelocity.GetSafeNormal() * x * 200.0f;
 
 		//DrawDebugLine(GetWorld(), TrackLoc, TrackLoc + FVector(0,0,1) * 1000.0f, FColor::Red, false, 1.0f);
 

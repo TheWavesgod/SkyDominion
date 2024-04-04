@@ -29,6 +29,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Overlay Settings")
 	TSubclassOf<class UUserWidget> KillMessageClass;
 
+	UPROPERTY(EditAnywhere, Category = "Overlay Settings")
+	TSubclassOf<class URoundStateOverlay> RoundStateClass;
+
 	UPROPERTY()
 	class UPlayerOverlay* PlayerOverlay;
 
@@ -40,6 +43,9 @@ public:
 
 	UPROPERTY()
 	class UKillMessageOverlay* KillMessageOverlay;
+
+	UPROPERTY()
+	class URoundStateOverlay* RoundStateOverlay;
 
 	UPROPERTY(EditAnywhere, Category = "HUD Settings")
 	UTexture2D* Crosshair;
@@ -91,4 +97,7 @@ public:
 
 	void AddKillMessageOverlay(bool bIsKillMessage, const FString& PlayerName);
 	void RemoveKillMessageOverlay();
+
+	void AddRoundStateOverlay();
+	void RemoveRoundStateOverlay();
 };

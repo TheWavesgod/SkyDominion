@@ -349,6 +349,7 @@ void AFighter::FlapBttnPressed()
 
 void AFighter::WheelRetreatBttnPressed()
 {
+	ActiveOperateHintSound();
 	ServerWheelRetreatBttnPressed();
 }
 
@@ -389,13 +390,14 @@ void AFighter::AutoCannonBttnReleased()
 
 void AFighter::ChangeMissileBttnPressed()
 {
+	ActiveOperateHintSound();
 	ServerChangeMissileBttnPressed();
 }
 
 void AFighter::FireMissileBttnPressed()
 {
 	ServerFireMissileBttnPressed();
-
+	ActiveOperateHintSound();
 	if(PlayerOverlay)
 		PlayerOverlay->CheckMissileNum();
 }
@@ -404,6 +406,7 @@ void AFighter::ChangeRadarModeBttnPressed()
 {
 	if (!RadarComponent) return;
 	RadarComponent->ChangeRadarMode();
+	ActiveOperateHintSound();
 }
 
 void AFighter::LockBttnPressed()
@@ -775,7 +778,13 @@ int AFighter::GetAutoCannonBulletLeft() const
 
 float AFighter::GetHeatIndex() const
 {
-	return 50.0f;
+	float thrusterRatio = AeroPhysicsComponent->GetCurrentThrusterRatio();	
+	float AfterBurnerThreshold = AeroPhysicsComponent->GetAfterBurnerThresholdRatio();
+	if (thrusterRatio < AfterBurnerThreshold)
+	{
+		return 10 + thrusterRatio * 40.0f;
+	}
+	return 10 + AfterBurnerThreshold * 40.0f + (thrusterRatio - AfterBurnerThreshold) * 160.0f;
 }
 
 void AFighter::ActivateAlertSoundLowAltitude(bool bActivated)
@@ -833,6 +842,16 @@ void AFighter::ActiveTargetLockedSound()
 	}
 }
 
+void AFighter::ActiveOperateHintSound()
+{
+	if (!IsLocallyControlled()) return;
+
+	if (AlertSoundConfig.OperateHindSound)
+	{
+		UGameplayStatics::SpawnSound2D(this, AlertSoundConfig.OperateHindSound);
+	}
+}
+
 void AFighter::ShutDownRadarLockSound()
 {
 	if (RadarLockHandle->IsPlaying()) RadarLockHandle->Stop();
@@ -863,6 +882,7 @@ void AFighter::ActivateVTBeScanedAlert_Implementation()
 	VTBeScanedHandle->SetSound(AlertSoundConfig.VTBeScanedAlert);
 	VTBeScanedHandle->Play();
 }
+
 
 void AFighter::ActivateSTTBeLockedAlert_Implementation()
 {

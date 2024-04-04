@@ -6,6 +6,7 @@
 #include "SpectatorOverlay.h"
 #include "PauseMenu.h"
 #include "KillMessageOverlay.h"
+#include "RoundStateOverlay.h"
 #include "SkyDominion/Pawn/Fighter.h"
 #include "SkyDominion/Actor/RadarComponent.h"
 #include "SkyDominion/Actor/AutoCannon.h"
@@ -266,9 +267,29 @@ void ASkyDominionHUD::AddKillMessageOverlay(bool bIsKillMessage, const FString& 
 
 void ASkyDominionHUD::RemoveKillMessageOverlay()
 {
-
 	if (KillMessageOverlay)
 	{
 		KillMessageOverlay->RemoveFromParent();
+	}
+}
+
+void ASkyDominionHUD::AddRoundStateOverlay()
+{
+	APlayerController* PlayerController = GetOwningPlayerController();
+	if (PlayerController && RoundStateClass)
+	{
+		RoundStateOverlay = RoundStateOverlay == nullptr ? CreateWidget<URoundStateOverlay>(PlayerController, RoundStateClass) : RoundStateOverlay; 
+		RoundStateOverlay->bCanUpdate = true;
+		RoundStateOverlay->UpdatePlayerList();
+		RoundStateOverlay->AddToViewport(2);
+	}
+}
+
+void ASkyDominionHUD::RemoveRoundStateOverlay()
+{
+	if (RoundStateOverlay)
+	{
+		RoundStateOverlay->bCanUpdate = false;
+		RoundStateOverlay->RemoveFromParent();
 	}
 }

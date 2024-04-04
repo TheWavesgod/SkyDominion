@@ -83,6 +83,18 @@ void ULobbyMenu::NativeConstruct()
 	GetWorld()->GetTimerManager().SetTimer(PlayerListHandle, this, &ThisClass::UpdatePlayerListLocal, 0.2f, true);
 }
 
+void ULobbyMenu::InitLobby()
+{
+	bCanUpdatePlayerList = true;
+
+	if (GetWorld()->GetNetMode() == ENetMode::NM_ListenServer)
+	{
+		Bttn_StartGame->bIsEnabled = true;
+
+		Text_StarttGameBttn->SetText(FText::FromString("Start Game"));
+	}
+}
+
 void ULobbyMenu::MainMenuBttnClicked()
 {
 	UWorld* World = GetWorld();
@@ -102,6 +114,12 @@ void ULobbyMenu::MainMenuBttnClicked()
 
 void ULobbyMenu::StartGameBttnClicked()
 {
+	bCanUpdatePlayerList = false;
+
+	Bttn_StartGame->bIsEnabled = false;
+
+	Text_StarttGameBttn->SetText(FText::FromString("Starting..."));
+
 	USkyGameInstance* GameInstance = GetGameInstance<USkyGameInstance>();
 	if (GameInstance)
 	{
@@ -151,6 +169,8 @@ void ULobbyMenu::UpdatePlayersList_Implementation()
 
 void ULobbyMenu::UpdatePlayerListLocal()
 {
+	if (!bCanUpdatePlayerList) return;
+
 	UWorld* World = GetWorld();
 
 	if (!World) return;

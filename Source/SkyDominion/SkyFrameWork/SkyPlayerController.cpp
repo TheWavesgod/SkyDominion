@@ -79,7 +79,8 @@ void ASkyPlayerController::SetupInputComponent()
 	Super::SetupInputComponent();
 
 	InputComponent->BindAction(TEXT("Pause"), EInputEvent::IE_Pressed, this, &ThisClass::PauseBtnPressed);
-
+	InputComponent->BindAction(TEXT("ShowRoundState"), EInputEvent::IE_Pressed, this, &ThisClass::ShowRoundStateBtnPressed);
+	InputComponent->BindAction(TEXT("ShowRoundState"), EInputEvent::IE_Released, this, &ThisClass::ShowRoundStateBtnReleased);
 }
 
 void ASkyPlayerController::RequestRespawn()
@@ -139,4 +140,20 @@ void ASkyPlayerController::ResumeGame()
 		SkyDominionHUD->AddSpectatorOverlay();
 
 	SkyDominionHUD->RemovePauseMenu();
+}
+
+void ASkyPlayerController::ShowRoundStateBtnPressed()
+{
+	ASkyDominionHUD* SkyDominionHUD = GetHUD<ASkyDominionHUD>();
+	if (!SkyDominionHUD) return;
+
+	SkyDominionHUD->AddRoundStateOverlay();
+}
+
+void ASkyPlayerController::ShowRoundStateBtnReleased()
+{
+	ASkyDominionHUD* SkyDominionHUD = GetHUD<ASkyDominionHUD>();
+	if (!SkyDominionHUD) return;
+
+	SkyDominionHUD->RemoveRoundStateOverlay();
 }
