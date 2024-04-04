@@ -33,6 +33,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Widgets")
 	class ULobbyMenu* LobbyMenu;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Widgets")
+	class USoloGameMenu* SoloGameMenu;
+
 	UPROPERTY(EditAnywhere, Category = "Game Config")
 	TArray<UClass*> FighterJetClass;
 

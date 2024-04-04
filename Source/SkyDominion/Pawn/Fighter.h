@@ -270,8 +270,11 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void ServerFireMissileBttnPressed();
 
-	UFUNCTION(NetMulticast, Reliable)
+	UFUNCTION(Server, Reliable)
 	void ServerFireDecoy(bool bFire);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void EveryOneFireDecoy(bool bFire);
 
 	UFUNCTION()
 	void ReceiveDamage(AActor* DamageActor, float Damage, const UDamageType* DamageType, class AController* InvestigatorController, AActor* DamageCauser);

@@ -4,6 +4,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "NiagaraComponent.h"
 #include "SkyDominion/Pawn/Fighter.h"
+#include "Flare.h"
 #include "Sound/SoundCue.h"
 #include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
@@ -15,6 +16,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Components/WidgetComponent.h"
 #include "SkyDominion/HUD/MarkWidget.h"
+#include "Engine.h"
 
 
 AMissile::AMissile()
@@ -124,10 +126,21 @@ void AMissile::InfraredCheck()
 		}
 	}
 
+	//int FlareNum = 0;
+	//for (TActorIterator<AFlare> FlareItr(GetWorld()); FlareItr; ++FlareItr)
+	//{
+	//	FVector FlareLoc = FlareItr->GetActorLocation();
+	//	float DistSqaured = FVector::DistSquared(FlareLoc, GetActorLocation());
+	//	if (/*DistSqaured < FMath::Square(InfaredSearchRadius * 100.0f)*/1)
+	//	{
+	//		++FlareNum;
+	//	}
+	//}
+	//UE_LOG(LogTemp, Warning, TEXT("Flare Num: %d"), FlareNum);
+
 	TArray<AActor*> OverlappedActors;
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;	
 	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Vehicle));
-	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Visibility));
 	TArray<AActor*> IgnoreActors;
 	IgnoreActors.Add(this); 
 	if (IsValid(FighterOnwer)) { IgnoreActors.Add(FighterOnwer); }
@@ -135,7 +148,6 @@ void AMissile::InfraredCheck()
 
 	if (OverlappedActors.IsEmpty()) { return; }
 
-	GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("Missile find Target num : ") + FString::FromInt(OverlappedActors.Num()));
 	/*Algo::Sort(OverlappedActors,
 		[&](const AActor* A, const AActor* B)
 		{

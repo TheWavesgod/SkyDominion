@@ -239,8 +239,8 @@ bool URadarComponent::CheckCollisionBetweenTargetAndSelf(const AActor* target)
 	QueryParams.AddIgnoredActor(target);
 	GetWorld()->LineTraceSingleByChannel(HitResult, DetectCollision->GetComponentLocation(), target->GetActorLocation() + target->GetActorUpVector() * 300.0f, ECC_WorldStatic, QueryParams);
 
-	if(HitResult.bBlockingHit)
-		UE_LOG(LogTemp, Warning, TEXT("Target block"));
+	/*if(HitResult.bBlockingHit)
+		UE_LOG(LogTemp, Warning, TEXT("Target block"));*/
 
 	return HitResult.bBlockingHit;
 }
@@ -319,7 +319,7 @@ void URadarComponent::DetectFighterOnSTTMode(AFighter* target)
 	{
 		float Ytan = FVector(0.0f, TargetRelativePos.Y, TargetRelativePos.Z).Size();
 		float CAngle = FMath::RadiansToDegrees(FMath::Atan(FMath::Abs(Ytan) / FMath::Abs(TargetRelativePos.X)));
-		UE_LOG(LogTemp, Warning, TEXT("CAngle: %f"), CAngle);
+		//UE_LOG(LogTemp, Warning, TEXT("CAngle: %f"), CAngle);
 		if (CAngle < STTModeScanAngle * 0.5f)
 		{
 			InSTTScanRange = true;

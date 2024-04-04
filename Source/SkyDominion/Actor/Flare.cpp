@@ -11,7 +11,7 @@ AFlare::AFlare()
 	CollisionShape = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionShape"));
 	SetRootComponent(CollisionShape);
 	CollisionShape->SetCollisionObjectType(ECollisionChannel::ECC_Vehicle);
-	CollisionShape->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	CollisionShape->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	CollisionShape->SetGenerateOverlapEvents(true);
 
 	FlareVisionFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("FlareVisionFX")); 
@@ -28,15 +28,16 @@ void AFlare::BeginPlay()
 
 	HeatIndex = 45 + FMath::FRand() * 10.0f;
 
+	CollisionShape->SetCollisionObjectType(ECollisionChannel::ECC_Vehicle);
+	CollisionShape->SetCollisionResponseToChannel(ECC_Vehicle, ECR_Overlap);
+	CollisionShape->SetCollisionResponseToChannel(ECC_Visibility, ECR_Overlap);
+	CollisionShape->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 	if (HasAuthority())
 	{
 		//GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("Initial Flare On Server"));
-		CollisionShape->SetCollisionObjectType(ECollisionChannel::ECC_Vehicle);
+		CollisionShape->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnSphereCollisionBeginOverlap);
 		CollisionShape->SetGenerateOverlapEvents(true);
-		CollisionShape->SetCollisionResponseToChannel(ECC_Vehicle, ECR_Overlap);
-		CollisionShape->SetCollisionResponseToChannel(ECC_Visibility, ECR_Overlap);
 	}
-
 	SetLifeSpan(8.0f);
 }
 
@@ -44,6 +45,11 @@ void AFlare::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void AFlare::OnSphereCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	
 }
 
 float AFlare::GetHeatIndex() const

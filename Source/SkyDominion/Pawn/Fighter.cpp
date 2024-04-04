@@ -505,9 +505,13 @@ void AFighter::ServerFireMissileBttnPressed_Implementation()
 
 void AFighter::ServerFireDecoy_Implementation(bool bFire)
 {
-	bFireFlare = bFire;
+	EveryOneFireDecoy(bFire);
 }
 
+void AFighter::EveryOneFireDecoy_Implementation(bool bFire)
+{
+	bFireFlare = bFire;
+}
 
 void AFighter::HandleRudderInput(float DeltaTime)
 {
@@ -721,8 +725,6 @@ void AFighter::UpdateFlareState(float DeltaTime)
 	}
 	
 }
-
-
 
 void AFighter::SetMarkWidgetVisble(bool bIsVisible)
 {
