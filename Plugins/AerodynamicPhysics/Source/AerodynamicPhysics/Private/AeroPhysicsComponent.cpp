@@ -549,10 +549,12 @@ void UAeroPhysicsComponent::CalculateFlyControl(float DeltaTime)
 
 	float TargetPitchControlLimitRatio = 1.0f;
 	float TargetRollControlLimitRatio = 1.0f;
+	float TargetYawControlLimitRatio = 1.0f;
 	if (Speed != 0)
 	{
 		TargetPitchControlLimitRatio = FMath::Clamp(PitchControlLimitRatio / GSpeedIndex, 0.0f, 1.0f);
-		TargetRollControlLimitRatio = FMath::Clamp(RollControlLimitRatio / SpeedIndex, 0.0f, 1.0f);
+		TargetRollControlLimitRatio = FMath::Clamp(RollControlLimitRatio / SpeedIndex, 0.0f, 1.0f); 
+		TargetYawControlLimitRatio = FMath::Clamp(YawControlLimitRatio / SpeedIndex, 0.0f, 1.0f);
 	}
 
 	// Pitch And GForce Control
@@ -601,7 +603,8 @@ void UAeroPhysicsComponent::CalculateFlyControl(float DeltaTime)
 		RollControl = FMath::FInterpTo(RollControl, TargetRollControl, DeltaTime, 5.0f);
 	}
 
-	YawControl = FMath::FInterpTo(YawControl, YawInput, DeltaTime, 5.0f);
+	TargetYawControl = YawInput * TargetYawControlLimitRatio;
+	YawControl = FMath::FInterpTo(YawControl, TargetYawControl, DeltaTime, 5.0f);
 
 	// Flap Control
 	TargetFlapControl = FlapInput;

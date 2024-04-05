@@ -353,6 +353,9 @@ private:
 	float RollControlLimitRatio = 20.0f;
 
 	UPROPERTY(EditAnywhere, Category = "AeroControl Parameters")
+	float YawControlLimitRatio = 20.0f;
+
+	UPROPERTY(EditAnywhere, Category = "AeroControl Parameters")
 	FVector2D FlapControlSpeedThreshold = FVector2D(150.0f, 300.0f);
 
 	/** Air brake */
