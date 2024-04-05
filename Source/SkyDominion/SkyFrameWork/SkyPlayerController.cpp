@@ -74,6 +74,20 @@ void ASkyPlayerController::SendDefeatMessage_Implementation(ASkyPlayerState* Att
 	SkyHUD->AddKillMessageOverlay(false, AttackerPlayerState->GetPlayerName());
 }
 
+void ASkyPlayerController::ShowRoundOverMessage_Implementation()
+{
+	FInputModeUIOnly InputModeUIOnly;
+	SetInputMode(InputModeUIOnly);
+	bShowMouseCursor = true;
+
+	if (!SkyHUD) return;
+
+	SkyHUD->SetPlayerOverlayVisibility(false);
+	SkyHUD->RemoveSpectatorOverlay();
+	SkyHUD->AddRoundStateOverlay();
+	SkyHUD->AddRoundOverOverlay();
+}
+
 void ASkyPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();

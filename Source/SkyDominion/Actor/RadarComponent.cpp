@@ -414,6 +414,20 @@ void URadarComponent::ChangeRadarMode()
 
 void URadarComponent::StartLockTarget()
 {
+	if (CurrentRadarMode == ERadarMode::STT)
+	{
+		OwnerFighter->ShutDownRadarLockSound();
+		CurrentRadarMode = ERadarMode::VT;
+		TargetBeingLocked = nullptr;
+		SetServerLockedTarget(nullptr);
+		return;
+	}
+
+	if (EnemyFightersDetected[0] != nullptr && EnemyFightersDetected[1] != nullptr)
+	{
+		SetFighterMarkState(EnemyFightersDetected[LockTargetIndex], ETargetMarkState::Lost);
+	}
+
 	LockTargetIndex = LockTargetIndex == 0 ? 1 : 0;
 	
 	if (EnemyFightersDetected[LockTargetIndex] == nullptr)

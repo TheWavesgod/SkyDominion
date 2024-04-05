@@ -291,45 +291,47 @@ void UAeroPhysicsComponent::WheelsForceCalculation(float DeltaTime)
 			WheelRightDir = WheelRightDir.RotateAngleAxis(WheelSteeringDegree, -SuspensionWorldAxis);
 		}
 		WheelForwardDir = FVector::VectorPlaneProject(WheelForwardDir, WheelCalculationVariblesCache[i].Normal);
-		WheelForwardDir = WheelForwardDir.Normalize() ? WheelForwardDir : FVector::ZeroVector;
+		WheelForwardDir = WheelForwardDir.GetSafeNormal();
 		WheelRightDir = FVector::VectorPlaneProject(WheelRightDir, WheelCalculationVariblesCache[i].Normal);
-		WheelRightDir = WheelRightDir.Normalize() ? WheelRightDir : FVector::ZeroVector;
+		WheelRightDir = WheelRightDir.GetSafeNormal();
 
 		FVector WheelRightVelocity = WheelPlaneVelocity.ProjectOnTo(WheelRightDir);
 		FVector WheelForwardVelocity = WheelPlaneVelocity.ProjectOnTo(WheelForwardDir);
 
 		FVector WheelFrictionForce;
-		FVector RightSuspensionForce = PlaneSuspensionForce.ProjectOnTo(WheelRightDir);
-		FVector ForwardSuspensionForce = PlaneSuspensionForce.ProjectOnTo(WheelForwardDir);
+		/*FVector RightSuspensionForce = PlaneSuspensionForce.ProjectOnTo(WheelRightDir);
+		FVector ForwardSuspensionForce = PlaneSuspensionForce.ProjectOnTo(WheelForwardDir);*/
 
 		if (WheelPlaneVelocity.Size() > WheelStaticThreshold)
 		{
-			float MaxStaticFriction = NormalSuspensionForce.Size() * StaticFrictionRatio * 100.0f;
+			float MaxStaticFriction = NormalSuspensionForce.Size() * StaticFrictionRatio;
 
-			float TargetRightFriction = WheelRightVelocity.Size() * NormalSuspensionForce.Size() / (9.8f * WheelTurnFrictionRatio);
-			FVector TargetRightFrictionForce = -WheelRightVelocity / WheelRightVelocity.Size() * TargetRightFriction;
+			float TargetRightFriction =/* WheelRightVelocity.Size() / DeltaTime * NormalSuspensionForce.Size() / 9.8f * 0.008f*/  NormalSuspensionForce.Size() * FrictionRatio;
+
+			FVector TargetRightFrictionForce = -WheelRightVelocity.GetSafeNormal() * TargetRightFriction;
+
 			float WheelDrag = NormalSuspensionForce.Size() * Tyres[i].WheelSettings.WheelDragRatio;
 			FVector WheelDragForce = -WheelForwardVelocity / WheelForwardVelocity.Size() * WheelDrag;
 			FVector TargetWheelFricion = TargetRightFrictionForce + WheelDragForce + PlaneSuspensionForce;
 
 			/*AddDebugMessageOnScreen(DeltaTime, FColor::Red, FString::Printf(TEXT("Wheel %d TargetRightFriction: %f"), i, TargetRightFriction));*/
 
-			if (TargetWheelFricion.Size() > MaxStaticFriction)
+			if (TargetRightFriction > MaxStaticFriction)
 			{
-				WheelFrictionForce = WheelPlaneVelocity / WheelPlaneVelocity.Size() * NormalSuspensionForce.Size() * FrictionRatio;
-				/*AddDebugMessageOnScreen(DeltaTime, FColor::Cyan, FString::Printf(TEXT("Wheel %d: sliding"), i));*/
+				WheelFrictionForce = -WheelPlaneVelocity.GetSafeNormal() * NormalSuspensionForce.Size() * FrictionRatio + PlaneSuspensionForce;
+				AddDebugMessageOnScreen(DeltaTime, FColor::Cyan, FString::Printf(TEXT("Wheel %d: sliding"), i));
 			}
 			else
 			{
 				float BrakeForce = 0.0;
 				if (Tyres[i].WheelSettings.bAffectedByBrake && BrakeForceRatio > 0.0f)
 				{
-					float MaxBrakeForce = MaxStaticFriction - TargetWheelFricion.Size();
-					BrakeForce = MaxBrakeForce * BrakeForceRatio;
+					/*float MaxBrakeForce = MaxStaticFriction - TargetWheelFricion.Size();*/
+					BrakeForce = MaxStaticFriction * BrakeForceRatio * 0.5f;
 				}
-				float TargetForwardFriction = WheelForwardVelocity.Size() * NormalSuspensionForce.Size() / (9.8f * WheelTurnFrictionRatio);
+				float TargetForwardFriction = WheelForwardVelocity.Size() * 0.008f / DeltaTime * NormalSuspensionForce.Size() / 9.8f;
 				float ActualForwardFriction = TargetForwardFriction < (BrakeForce + WheelDrag) ? TargetForwardFriction : (BrakeForce + WheelDrag);
-				FVector ForwardFrictionForce = -WheelForwardVelocity / WheelForwardVelocity.Size() * ActualForwardFriction;
+				FVector ForwardFrictionForce = -WheelForwardVelocity.GetSafeNormal() * ActualForwardFriction;
 
 				WheelFrictionForce = ForwardFrictionForce + TargetRightFrictionForce + PlaneSuspensionForce ;
 
@@ -558,19 +560,20 @@ void UAeroPhysicsComponent::CalculateFlyControl(float DeltaTime)
 	}
 
 	// Pitch And GForce Control
-	if (/*FMath::Abs(GroundSpeed) > 50.0f && FMath::Abs(PitchInput) < 0.005*/ false)
+	if (FMath::Abs(GroundSpeed) > 50.0f && FMath::Abs(PitchInput) < 0.005)
 	{
-		TargetPitchControl = 0.0f;
-		if (FMath::Abs(GForce) > 0.01f)
+		FlyControlTimeHandler -= DeltaTime;
+		if (FlyControlTimeHandler < 0.0f)
 		{
-			float StableControl = FMath::GetMappedRangeValueClamped(FVector2D(-3.0f, 3.0f), FVector2D(-1.0f, 1.0f), GForce);
-			TargetPitchControl = StableControl * TargetPitchControlLimitRatio;
-			if (StableControl > 0.0f)
+			FlyControlTimeHandler += FlyControlSystemTick;
+
+			TargetPitchControl = PitchControl;
+			if (FMath::Abs(GForce) > 0.01f)
 			{
-				TargetPitchControl *= 0.3f;
+				float AjustVal = GForce * 0.1f * TargetPitchControlLimitRatio;
+				TargetPitchControl = FMath::Clamp(TargetPitchControl + AjustVal, -1.0f, 1.0f);
 			}
 		}
-		PitchControl = FMath::FInterpTo(PitchControl, TargetPitchControl, DeltaTime, 5.0f);
 	}
 	else
 	{
@@ -579,8 +582,8 @@ void UAeroPhysicsComponent::CalculateFlyControl(float DeltaTime)
 		{
 			TargetPitchControl *= 0.3f;
 		}
-		PitchControl = FMath::FInterpTo(PitchControl, TargetPitchControl, DeltaTime, 5.0f);
 	}
+	PitchControl = FMath::FInterpTo(PitchControl, TargetPitchControl, DeltaTime, 5.0f);
 
 	// Roll And Roll Control
 	if (FMath::Abs(GroundSpeed) > 50.0f && FMath::Abs(RollInput) < 0.005)

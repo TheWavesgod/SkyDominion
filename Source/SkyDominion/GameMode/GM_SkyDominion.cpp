@@ -16,7 +16,7 @@ void AGM_SkyDominion::StartPlay()
 {
     Super::StartPlay();
 
-    StartRoundTimer(60 * 20);
+    StartRoundTimer(/*60 * 20*/ 20);
 }
 
 void AGM_SkyDominion::PostLogin(APlayerController* NewPlayer)
@@ -266,6 +266,19 @@ void AGM_SkyDominion::CountdownTick()
     if (LeftRoundTime <= 0)
     {
         GetWorld()->GetTimerManager().ClearTimer(CountdownTimerHandle);
+        RoundOver();
+    }
+}
+
+void AGM_SkyDominion::RoundOver()
+{
+    for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
+    {
+        ASkyPlayerController* SkyPlayerController = Cast<ASkyPlayerController>(Iterator->Get());
+        if (SkyPlayerController)
+        {
+            SkyPlayerController->ShowRoundOverMessage();
+        }
     }
 }
 

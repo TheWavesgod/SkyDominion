@@ -37,4 +37,6 @@ protected:
 	FTimerHandle CountdownTimerHandle;
 	void CountdownTick();
 	int LeftRoundTime;
+
+	void RoundOver();
 };

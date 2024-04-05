@@ -201,7 +201,7 @@ void AMissile::InfraredCheck()
 	{
 		TrackTarget = NewTarget;
 	}
-	GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("Missile track: ") + TrackTarget->GetName());	
+	//GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("Missile track: ") + TrackTarget->GetName());	
 }
 
 void AMissile::SemiActiveCheck()
@@ -418,7 +418,15 @@ void AMissile::OnSphereCollisionBeginOverlap(UPrimitiveComponent* OverlappedComp
 		if (OtherActor == FighterOnwer) return;
 	}
 
-	GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Cyan, FString("Missile hit ") + OtherActor->GetName());
+	if (OtherActor->ActorHasTag("Flare"))
+	{
+		if (OtherActor != TrackTarget)
+		{
+			return;
+		}
+	}
+
+	//GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Cyan, FString("Missile hit ") + OtherActor->GetName());
 
 	SpawnExplosionFX(SweepResult.Location);
 
@@ -459,9 +467,9 @@ bool AMissile::CheckTargetInInfaredSearchRange(const AActor* target)
 	if (!target) return false;
 
 	FVector targetDir = (target->GetActorLocation() - GetActorLocation()).GetSafeNormal();
-	float sinTargetDir = targetDir.Dot(GetActorForwardVector());
+	float cosTargetDir = targetDir.Dot(GetActorForwardVector());
 
-	return sinTargetDir < 0.866f;
+	return cosTargetDir < 0.5f;
 }
 
 float AMissile::GetHeatIndex() const

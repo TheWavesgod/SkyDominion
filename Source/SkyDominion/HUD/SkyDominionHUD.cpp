@@ -7,6 +7,7 @@
 #include "PauseMenu.h"
 #include "KillMessageOverlay.h"
 #include "RoundStateOverlay.h"
+#include "RoundOverOverlay.h"
 #include "SkyDominion/Pawn/Fighter.h"
 #include "SkyDominion/Actor/RadarComponent.h"
 #include "SkyDominion/Actor/AutoCannon.h"
@@ -291,5 +292,16 @@ void ASkyDominionHUD::RemoveRoundStateOverlay()
 	{
 		RoundStateOverlay->bCanUpdate = false;
 		RoundStateOverlay->RemoveFromParent();
+	}
+}
+
+void ASkyDominionHUD::AddRoundOverOverlay()
+{
+	APlayerController* PlayerController = GetOwningPlayerController();
+	if (PlayerController && RoundOverOverlayClass)
+	{
+		RoundOverOverlay = RoundOverOverlay == nullptr ? CreateWidget<URoundOverOverlay>(PlayerController, RoundOverOverlayClass) : RoundOverOverlay;
+		RoundOverOverlay->InitRoundOverOverlay();
+		RoundOverOverlay->AddToViewport(2);
 	}
 }

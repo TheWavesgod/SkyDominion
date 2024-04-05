@@ -32,6 +32,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Overlay Settings")
 	TSubclassOf<class URoundStateOverlay> RoundStateClass;
 
+	UPROPERTY(EditAnywhere, Category = "Overlay Settings")
+	TSubclassOf<class URoundOverOverlay> RoundOverOverlayClass;
+
 	UPROPERTY()
 	class UPlayerOverlay* PlayerOverlay;
 
@@ -46,6 +49,9 @@ public:
 
 	UPROPERTY()
 	class URoundStateOverlay* RoundStateOverlay;
+
+	UPROPERTY()
+	class URoundOverOverlay* RoundOverOverlay;
 
 	UPROPERTY(EditAnywhere, Category = "HUD Settings")
 	UTexture2D* Crosshair;
@@ -100,4 +106,6 @@ public:
 
 	void AddRoundStateOverlay();
 	void RemoveRoundStateOverlay();
+
+	void AddRoundOverOverlay();
 };

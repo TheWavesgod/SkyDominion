@@ -340,6 +340,9 @@ private:
 	float YawInput = 0.0f;
 	float FlapInput = 0.0f;
 
+	const float FlyControlSystemTick = 0.1f;
+	float FlyControlTimeHandler = 0.0f;
+
 	UPROPERTY(EditAnywhere, Category = "Debug Parameters")
 	bool bShowAeroSufaceDubugBox = false;
 

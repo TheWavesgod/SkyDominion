@@ -29,6 +29,9 @@ public:
 	UFUNCTION(Client, Reliable)
 	void SendDefeatMessage(ASkyPlayerState* AttackerPlayerState);
 
+	UFUNCTION(Client, Reliable)
+	void ShowRoundOverMessage();
+
 	virtual void SetupInputComponent() override;
 
 	void RequestRespawn();
