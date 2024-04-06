@@ -306,7 +306,7 @@ void UAeroPhysicsComponent::WheelsForceCalculation(float DeltaTime)
 		{
 			float MaxStaticFriction = NormalSuspensionForce.Size() * StaticFrictionRatio;
 
-			float TargetRightFriction =/* WheelRightVelocity.Size() / DeltaTime * NormalSuspensionForce.Size() / 9.8f * 0.008f*/  NormalSuspensionForce.Size() * FrictionRatio;
+			float TargetRightFriction = WheelRightVelocity.Size() / DeltaTime * NormalSuspensionForce.Size() / 9.8f * 0.008f;
 
 			FVector TargetRightFrictionForce = -WheelRightVelocity.GetSafeNormal() * TargetRightFriction;
 
