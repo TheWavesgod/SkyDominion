@@ -16,7 +16,7 @@ void AGM_SkyDominion::StartPlay()
 {
     Super::StartPlay();
 
-    StartRoundTimer(/*60 * 20*/ 20);
+    StartRoundTimer(60 * 20);
 }
 
 void AGM_SkyDominion::PostLogin(APlayerController* NewPlayer)

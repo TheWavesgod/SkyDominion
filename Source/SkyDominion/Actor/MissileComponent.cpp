@@ -82,7 +82,7 @@ void UMissileComponent::FireCurrentMissile()
 {
 	if (!CurrentSelectMissile) return;
 
-	GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("Fire ") + CurrentSelectMissile->GetName());
+	//GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor::Red, FString("Fire ") + CurrentSelectMissile->GetName());
 
 	CurrentSelectMissile->Fire();
 

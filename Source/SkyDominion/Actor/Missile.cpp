@@ -222,7 +222,7 @@ void AMissile::SemiActiveCheck()
 
 	RadarTargetLostHandle = RadarTargetLostGap;
 
-	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString("Missile track: ") + TrackTarget->GetName());
+	//GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString("Missile track: ") + TrackTarget->GetName());
 
 }
 
