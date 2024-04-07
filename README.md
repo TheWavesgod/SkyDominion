@@ -72,8 +72,11 @@ This project did not focus on graphics, utilizing mostly UE's default settings a
 | Gamepad Face Button Top or Keyboard F | Press to start to lock target or change the lock target |
 | Gamepad Face Button Right or Keyboard Space Bar | Press to fire the current selected missile |
 | Gamepad Right Thumbstick Button or Right Mouse Button | Hold to fire the countermeasures |
-
-
+| Gamepad D-pad Down or Keyboard G | Press to retract or extend the landing gear |
+| Gamepad D-pad Up or Keyboard C | Press to toggle the state of automatic flap |
+| Gamepad D-pad Left or Keyboard X | Press to toggle the state of fly control system |
+| Gamepad Special Right or Keyboard Esc | Press to show the pause menu |
+| Gamepad Special Left or Keyboard Tab | Hold to display the current performance detail table |
 
  
 
