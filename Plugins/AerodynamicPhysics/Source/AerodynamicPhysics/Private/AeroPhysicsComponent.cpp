@@ -329,7 +329,7 @@ void UAeroPhysicsComponent::WheelsForceCalculation(float DeltaTime)
 				if (Tyres[i].WheelSettings.bAffectedByBrake && BrakeForceRatio > 0.0f)
 				{
 					/*float MaxBrakeForce = MaxStaticFriction - TargetWheelFricion.Size();*/
-					BrakeForce = MaxStaticFriction * BrakeForceRatio * 0.5f;
+					BrakeForce = MaxStaticFriction * BrakeForceRatio * 0.01f;
 				}
 				float TargetForwardFriction = WheelForwardVelocity.Size() * 0.008f / DeltaTime * NormalSuspensionForce.Size() / 9.8f;
 				float ActualForwardFriction = TargetForwardFriction < (BrakeForce + WheelDrag) ? TargetForwardFriction : (BrakeForce + WheelDrag);
