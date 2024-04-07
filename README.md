@@ -44,3 +44,16 @@ Attacks from cannons or missiles that result in enemy aircraft crashing can add 
 
 ### HUD
 The HUD in this game provides players with detailed information necessary for piloting a fighter jet. This includes a pitch indicator, direction compass, ground speed and altitude display, throttle position indicator, the angle of attack and G-force values in the bottom left corner, Mach number, the landing gear status in the top right corner, the integrity of the aircraft, which represents the health points, and in the bottom right corner, the number of bullets, types of missiles, their quantity, and range indicators, radar mode, and the number of decoy flares. In addition to the previously mentioned enemy and missile markers, various warning alerts, it also includes match information such as kills, deaths, team scores, and match time.
+
+### Networking and UI
+The network utilizes a listen server model, with one player playing on the server, and the majority of game logic being calculated on the server side and then synchronized to each client player. The Online Subsystem Steam from UE was used to implement the Matchmaking feature. A simple game menu facilitates the functionality of a multiplayer game lobby, where players can select the fighter jet they wish to pilot. Teams are divided into red and blue based on the order of joining the room, and the game is started by the server-side player.
+
+### Controls
+The game supports both controller and keyboard inputs, but playing with a controller is recommended for a better gaming experience.
+
+### Graphics and Sound
+This project did not focus on graphics, utilizing mostly UE's default settings and simple level design, with plans to develop more interesting levels in the future. The fighter jet models are free assets from Unreal Marketplace's Vigilante, with visual effects from the model pack’s Niagara particle system customized for this project's requirements. Sound effects are partly from the Unreal Marketplace and partly from free resources online. A list of credits is provided at the end. 
+<br>
+
+## How to Play
+### Controls
