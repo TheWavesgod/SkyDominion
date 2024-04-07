@@ -238,6 +238,7 @@ void AFighter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction(TEXT("Lock"), EInputEvent::IE_Pressed, this, &ThisClass::LockBttnPressed);
 	PlayerInputComponent->BindAction(TEXT("FireDecoy"), EInputEvent::IE_Pressed, this, &ThisClass::FireDecoyPressed);
 	PlayerInputComponent->BindAction(TEXT("FireDecoy"), EInputEvent::IE_Released, this, &ThisClass::FireDecoyReleased);
+	PlayerInputComponent->BindAction(TEXT("FlyControlSystem"), EInputEvent::IE_Pressed, this, &ThisClass::FlyControlBttnPressed);
 }
 
 void AFighter::Elim_Implementation()
@@ -344,6 +345,7 @@ void AFighter::LeftRudderInput(float Value)
 
 void AFighter::FlapBttnPressed()
 {
+	ActiveOperateHintSound();
 	ServerFlapBttnPressed();
 }
 
@@ -434,6 +436,12 @@ void AFighter::FireDecoyReleased()
 	ServerFireDecoy(false);
 }
 
+void AFighter::FlyControlBttnPressed()
+{
+	ActiveOperateHintSound();
+	ServerFlyControlBttnPreesed();
+}
+
 void AFighter::ServerThrusterInput_Implementation(float Value)
 {
 	AeroPhysicsComponent->SetAddThruster(Value);
@@ -511,6 +519,11 @@ void AFighter::ServerFireDecoy_Implementation(bool bFire)
 void AFighter::EveryOneFireDecoy_Implementation(bool bFire)
 {
 	bFireFlare = bFire;
+}
+
+void AFighter::ServerFlyControlBttnPreesed_Implementation()
+{
+	AeroPhysicsComponent->SetFlyControlSystemActivated(!AeroPhysicsComponent->GetFlyControlSystemActivated());
 }
 
 void AFighter::HandleRudderInput(float DeltaTime)
@@ -730,6 +743,7 @@ void AFighter::SetMarkWidgetVisble(bool bIsVisible)
 {
 	MarkWidget->SetVisibility(bIsVisible);
 }
+
 
 void AFighter::ReceiveDamage(AActor* DamageActor, float Damage, const UDamageType* DamageType, AController* InvestigatorController, AActor* DamageCauser)
 {

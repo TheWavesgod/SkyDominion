@@ -208,6 +208,9 @@ public:
 	void SetAeroFlapControl(float AxisValue);
 
 	UFUNCTION(BlueprintCallable)
+	void SetFlyControlSystemActivated(bool bActivate);
+
+	UFUNCTION(BlueprintCallable)
 	void SetAeroFlapActivated(bool bActivate);
 
 	/** Axis form 0 ~ 1 */
@@ -340,14 +343,13 @@ private:
 	float YawInput = 0.0f;
 	float FlapInput = 0.0f;
 
-	const float FlyControlSystemTick = 0.1f;
 	float FlyControlTimeHandler = 0.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Debug Parameters")
 	bool bShowAeroSufaceDubugBox = false;
 
 	UPROPERTY(EditAnywhere, Category = "AeroControl Parameters")
-	float PitchControlInterpSpeed = 5.0f;
+	float ControlInterpSpeed = 5.0f;
 
 	UPROPERTY(EditAnywhere, Category = "AeroControl Parameters")
 	float PitchControlLimitRatio = 300.0f;
@@ -360,6 +362,12 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "AeroControl Parameters")
 	FVector2D FlapControlSpeedThreshold = FVector2D(150.0f, 300.0f);
+
+	UPROPERTY(EditAnywhere, Category = "AeroControl Parameters")
+	float FlyControlSystemTick = 0.1f;
+
+	UPROPERTY(EditAnywhere, Category = "AeroControl Parameters")
+	float FlyControlPitchAdjsutIndex = 0.1f;
 
 	/** Air brake */
 	void CalculateAirbrakeForce(float DeltaTime);
@@ -378,6 +386,10 @@ private:
 
 	void InterpAeroControl(float DeltaTime);
 
+	UPROPERTY(Replicated)
+	bool bIsFlyControlSystemActivated = true;
+
+	UPROPERTY(Replicated)
 	bool bIsFlapActivated = true;
 
 public:	
@@ -416,6 +428,9 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE bool GetFlapControlActivated() const { return bIsFlapActivated; }
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE bool GetFlyControlSystemActivated() const { return bIsFlyControlSystemActivated; }
 
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetAirbrakeRatio() const { return AirbrakeRatio; }

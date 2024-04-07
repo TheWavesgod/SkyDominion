@@ -236,6 +236,7 @@ protected:
 	void LockBttnPressed();
 	void FireDecoyPressed();
 	void FireDecoyReleased();
+	void FlyControlBttnPressed();
 
 	UFUNCTION(Server, Unreliable)
 	void ServerThrusterInput(float Value);
@@ -275,6 +276,9 @@ protected:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void EveryOneFireDecoy(bool bFire);
+
+	UFUNCTION(Server, Reliable)
+	void ServerFlyControlBttnPreesed();
 
 	UFUNCTION()
 	void ReceiveDamage(AActor* DamageActor, float Damage, const UDamageType* DamageType, class AController* InvestigatorController, AActor* DamageCauser);

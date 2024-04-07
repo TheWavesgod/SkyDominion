@@ -7,6 +7,7 @@
 #include "Online\OnlineSessionNames.h"
 
 UMultiplayerSessionsSubsystem::UMultiplayerSessionsSubsystem()
+
 {
 	CreateSessionCompleteDelegate  = FOnCreateSessionCompleteDelegate::CreateUObject(this, &ThisClass::OnCreateSessionComplete);
 	FindSessionsCompleteDelegate   = FOnFindSessionsCompleteDelegate::CreateUObject(this, &ThisClass::OnFindSessionsComplete);
@@ -19,7 +20,7 @@ UMultiplayerSessionsSubsystem::UMultiplayerSessionsSubsystem()
 	{ 
 		SessionInterface = Subsystem->GetSessionInterface();
 
-		if (GEngine)
+		/*if (GEngine)
 		{
 			GEngine->AddOnScreenDebugMessage(
 				-1,
@@ -27,7 +28,7 @@ UMultiplayerSessionsSubsystem::UMultiplayerSessionsSubsystem()
 				FColor::Blue,
 				FString::Printf(TEXT("Found subsystem %s"), *Subsystem->GetSubsystemName().ToString())
 			);
-		} 
+		} */
 	}
 }
 

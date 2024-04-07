@@ -168,6 +168,14 @@ void AMissile::InfraredCheck()
 	{
 		IRadarInterface* Ii = Cast<IRadarInterface>(i);
 		if (!Ii) continue;
+		if (i->ActorHasTag("Missile"))
+		{
+			AMissile* missile = StaticCast<AMissile*>(i);
+			if (missile->bInRedTeam == this->bInRedTeam)
+			{
+				continue;
+			}
+		}
 		if (!CheckTargetInInfaredSearchRange(i)) continue;
 		if (Ii->GetHeatIndex() > HighestHeatIndex)
 		{
