@@ -100,14 +100,13 @@ void ULobbyMenu::MainMenuBttnClicked()
 	UWorld* World = GetWorld();
 	if (World)
 	{
-		if (World->GetNetMode() == ENetMode::NM_ListenServer)
+		if (World->GetNetMode() != ENetMode::NM_Client)
 		{
 			MultiplayerSessionsSubsystem->DestroySession();
 		}
 		else
 		{
-			GetOwningPlayer()->ConsoleCommand(TEXT("disconnect"));
-			//if (GetOwningPlayer<ASkyPlayerController>()) GetOwningPlayer<ASkyPlayerController>()->ClientDisconnect();
+			UGameplayStatics::OpenLevel(this, FName("MainMenu"));
 		}
 	}
 }

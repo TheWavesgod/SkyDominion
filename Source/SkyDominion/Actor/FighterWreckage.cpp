@@ -81,6 +81,8 @@ void AFighterWreckage::SynchroMovement(float DeltaTime)
 
 void AFighterWreckage::SetPhysicalVelocity(const FVector& LinearVelocity, const FVector& AngularVelocityInRadians)
 {
+	if (!this) return;
+
 	if (HasAuthority())
 	{
 		WreckageMesh->SetPhysicsLinearVelocity(LinearVelocity);

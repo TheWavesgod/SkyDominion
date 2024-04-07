@@ -304,9 +304,9 @@ void UAeroPhysicsComponent::WheelsForceCalculation(float DeltaTime)
 
 		if (WheelPlaneVelocity.Size() > WheelStaticThreshold)
 		{
-			float MaxStaticFriction = NormalSuspensionForce.Size() * StaticFrictionRatio;
+			float MaxStaticFriction = NormalSuspensionForce.Size() * StaticFrictionRatio * 100.0f;
 
-			float TargetRightFriction = WheelRightVelocity.Size() / DeltaTime * NormalSuspensionForce.Size() / 9.8f * 0.008f;
+			float TargetRightFriction = WheelRightVelocity.Size() * NormalSuspensionForce.Size() / (9.8f * WheelTurnFrictionRatio);
 
 			FVector TargetRightFrictionForce = -WheelRightVelocity.GetSafeNormal() * TargetRightFriction;
 
@@ -319,7 +319,7 @@ void UAeroPhysicsComponent::WheelsForceCalculation(float DeltaTime)
 			if (TargetRightFriction > MaxStaticFriction)
 			{
 				WheelFrictionForce = -WheelPlaneVelocity.GetSafeNormal() * NormalSuspensionForce.Size() * FrictionRatio + PlaneSuspensionForce;
-				AddDebugMessageOnScreen(DeltaTime, FColor::Cyan, FString::Printf(TEXT("Wheel %d: sliding"), i));
+				//AddDebugMessageOnScreen(DeltaTime, FColor::Cyan, FString::Printf(TEXT("Wheel %d: sliding"), i));
 			}
 			else
 			{
