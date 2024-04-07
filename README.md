@@ -57,3 +57,14 @@ This project did not focus on graphics, utilizing mostly UE's default settings a
 
 ## How to Play
 ### Controls
+
+| Key | Function |
+| :--- | :--- |
+| Gamepad Right Thmbstick X-Aixs or Mouse X-Aixs | Control left and right rotation of the camera |
+| Gamepad Right Thmbstick Y-Aixs or Mouse Y-Aixs | Control up and down rotation of the camera |
+| Gamepad Left Thmbstick X-Aixs or Keyboard A and D | Control the fighter jet's control surfaces for roll maneuvers |
+| Gamepad Left Thmbstick Y-Aixs or Keyboard W and S | Control the fighter jet's control surfaces for Pitch maneuvers |
+| Gamepad Left and Right Trigger Aixs or Keyboard E and Q | Control the fighter jet's control surfaces for Yaw maneuvers and the nose wheel steering on the ground. Pressing both button simultaneously controls the wheel brakes on the ground and the airbrakes in the air.|
+
+
+Loading...
