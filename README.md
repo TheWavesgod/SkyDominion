@@ -13,7 +13,19 @@ The maneuvering of the fighter jets is based on a simplified aerodynamics model 
 
 ### Combat 
 The game's fighter jets are equipped with three main components: radar, missiles, and a cannon.
-#### Radar
+> #### Radar
 The implementation of the radar is inspired by real radar principles, with fictional elements added. The radar gameplay includes three modes: 
-##### RWS mode
-which is essentially a wide-area scanning mode. Enemy aircraft scanned by RWS are briefly marked on the screen for a few seconds without specific information about the enemy; you need to use this mode to locate the general position of the enemy. VT mode, or vertical scanning mode, allows you to perform a vertical scan in the direction of the enemy's estimated position once identified. Enemies within the vertical scan range are detailedly marked on the screen, including the model and location, considered as designated targets. Detailedly marked enemies can be locked on; pressing the lock button initiates a two-second locking process, pressing the lock button again can switch the locked target. After locking is completed, the mode switches to STT. STT mode, or single-target tracking mode, continuously locks onto the target, with detailed information about the target displayed on the screen, and no other enemy targets are shown. The tracking range of STT is conical; if the target escapes this range, you lose the target and revert to VT or RWS mode. In STT mode, you can pass the locked target information to the missile, guiding semi-active radar missiles to track the targeted enemy.
+* RWS mode
+which is essentially a wide-area scanning mode. Enemy aircraft scanned by RWS are briefly marked on the screen for a few seconds without specific information about the enemy; you need to use this mode to locate the general position of the enemy.
+* VT mode
+which is vertical scanning mode, allows you to perform a vertical scan in the direction of the enemy's estimated position once identified. Enemies within the vertical scan range are detailedly marked on the screen, including the model and location, considered as designated targets. Detailedly marked enemies can be locked on; pressing the lock button initiates a two-second locking process, pressing the lock button again can switch the locked target. After locking is completed, the mode switches to STT.
+* STT mode
+which is single-target tracking mode, continuously locks onto the target, with detailed information about the target displayed on the screen, and no other enemy targets are shown. The tracking range of STT is conical; if the target escapes this range, you lose the target and revert to VT or RWS mode. In STT mode, you can pass the locked target information to the missile, guiding semi-active radar missiles to track the targeted enemy.
+
+> #### Warning System
+The radar warning system is also inspired by real radar principles, with fictional elements added. Depending on the different modes of enemy radar, i.e., different radar signal volumes, you will receive different warnings, including being scanned by RWS, vertical scanning, STT tracking, missile tracking, and missile approach, each with different alerts. Logic related to low altitude and landing gear deployment/retraction also has corresponding prompts and warnings.
+
+> #### Missiles
+Fighter jets are equipped with one or two types of air-to-air missiles and support switching between them, with a limited number of missiles that reset upon respawn. <br>
+The game mainly implements two types of missiles: the infrared-tracking missile AIM9 and R73, which is an automatic tracking missile based on infrared principles that can automatically track the hottest target based on infrared characteristics. I implemented a relatively simple calculation of infrared characteristics; fighter jets, missiles, and decoy flares all possess infrared characteristics. When tracked by this missile, your best option is to perform evasive maneuvers, release decoy flares, and most importantly, turn off the afterburner to reduce engine temperature.<br>
+Another type of missile is the semi-active radar missile AIM7 and R27, which rely on the fighter jet's own radar for guidance. Compared to infrared-tracking missiles, they have a longer range and can be launched from a great distance, but you need to continuously track the target using STT mode; otherwise, the missile will also lose the target.
