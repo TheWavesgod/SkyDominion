@@ -41,3 +41,6 @@ Damage is based on hit points; hits from bullets and missiles or collisions caus
 
 > #### Scoring
 Attacks from cannons or missiles that result in enemy aircraft crashing can add one point to your team; death neither adds nor subtracts points.
+
+### HUD
+The HUD in this game provides players with detailed information necessary for piloting a fighter jet. This includes a pitch indicator, direction compass, ground speed and altitude display, throttle position indicator, the angle of attack and G-force values in the bottom left corner, Mach number, the landing gear status in the top right corner, the integrity of the aircraft, which represents the health points, and in the bottom right corner, the number of bullets, types of missiles, their quantity, and range indicators, radar mode, and the number of decoy flares. In addition to the previously mentioned enemy and missile markers, various warning alerts, it also includes match information such as kills, deaths, team scores, and match time.
