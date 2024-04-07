@@ -87,6 +87,12 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	int FlareNum;
 
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsFlyControlSystemActivated;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsFlapActivated;
+
 	UFUNCTION(BlueprintImplementableEvent, Category = "Event")
 	void ShowBulletRunoutAlert();
 

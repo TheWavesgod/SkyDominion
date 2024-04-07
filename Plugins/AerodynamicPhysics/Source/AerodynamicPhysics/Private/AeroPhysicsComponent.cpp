@@ -92,6 +92,8 @@ void UAeroPhysicsComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	DOREPLIFETIME(UAeroPhysicsComponent, GForce);
 	DOREPLIFETIME(UAeroPhysicsComponent, AngleOfAttack);
 	DOREPLIFETIME(UAeroPhysicsComponent, AirbrakeRatio);
+	DOREPLIFETIME(UAeroPhysicsComponent, bIsFlyControlSystemActivated);
+	DOREPLIFETIME(UAeroPhysicsComponent, bIsFlapActivated);
 }
 
 void UAeroPhysicsComponent::InitializeArray()
@@ -544,6 +546,12 @@ void UAeroPhysicsComponent::CalculateAirbrakeForce(float DeltaTime)
 
 void UAeroPhysicsComponent::CalculateFlyControl(float DeltaTime)
 {
+	if (!bIsFlyControlSystemActivated)
+	{
+		InterpAeroControl(DeltaTime);
+		return;
+	}
+
 	float Speed = FMath::Abs(FVector::VectorPlaneProject(Mesh->GetPhysicsLinearVelocity(), Mesh->GetRightVector()).Size()) / 10000.0f;
 
 	float SpeedIndex = FMath::Square(Speed);
@@ -570,7 +578,7 @@ void UAeroPhysicsComponent::CalculateFlyControl(float DeltaTime)
 			TargetPitchControl = PitchControl;
 			if (FMath::Abs(GForce) > 0.01f)
 			{
-				float AjustVal = GForce * 0.1f * TargetPitchControlLimitRatio;
+				float AjustVal = GForce * FlyControlPitchAdjsutIndex * TargetPitchControlLimitRatio;
 				TargetPitchControl = FMath::Clamp(TargetPitchControl + AjustVal, -1.0f, 1.0f);
 			}
 		}
@@ -623,7 +631,12 @@ void UAeroPhysicsComponent::InterpAeroControl(float DeltaTime)
 	PitchControl = FMath::FInterpConstantTo(PitchControl, PitchInput, DeltaTime, 5.0f);
 	RollControl = FMath::FInterpConstantTo(RollControl, RollInput, DeltaTime, 5.0f);
 	YawControl = FMath::FInterpConstantTo(YawControl, YawInput, DeltaTime, 5.0f);
-	FlapControl = FMath::FInterpConstantTo(FlapControl, FlapInput, DeltaTime, 5.0f);
+	TargetFlapControl = FlapInput;
+	if (bIsFlapActivated)
+	{
+		TargetFlapControl = 1.0f - FMath::GetMappedRangeValueClamped(FlapControlSpeedThreshold, FVector2D(0.0f, 1.0f), GroundSpeed);
+	}
+	FlapControl = FMath::FInterpTo(FlapControl, TargetFlapControl, DeltaTime, 5.0f);
 }
 
 
@@ -670,6 +683,11 @@ void UAeroPhysicsComponent::SetAeroYawControl(float AxisValue)
 void UAeroPhysicsComponent::SetAeroFlapControl(float AxisValue)
 {
 	FlapInput = FMath::Clamp(AxisValue, -1.0f, 1.0f);
+}
+
+void UAeroPhysicsComponent::SetFlyControlSystemActivated(bool bActivate)
+{
+	bIsFlyControlSystemActivated = bActivate;
 }
 
 void UAeroPhysicsComponent::SetAeroFlapActivated(bool bActivate)
