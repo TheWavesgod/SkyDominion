@@ -78,7 +78,7 @@ This project did not focus on graphics, utilizing mostly UE's default settings a
 | Gamepad Special Right or Keyboard Esc | Press to show the pause menu |
 | Gamepad Special Left or Keyboard Tab | Hold to display the current performance detail table |
 
- 
-
+## Getting Started
+Find the windows build in release.
 
 Loading...
