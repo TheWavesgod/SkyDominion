@@ -52,7 +52,7 @@ The network utilizes a listen server model, with one player playing on the serve
 The game supports both controller and keyboard inputs, but playing with a controller is recommended for a better gaming experience.
 
 ### Graphics and Sound
-This project did not focus on graphics, utilizing mostly UE's default settings and simple level design, with plans to develop more interesting levels in the future. The fighter jet models are free assets from Unreal Marketplace's Vigilante, with visual effects from the model pack’s Niagara particle system customized for this project's requirements. Sound effects are partly from the Unreal Marketplace and partly from free resources online. A list of credits is provided at the end. 
+This project did not focus on graphics, utilizing mostly UE's default settings and simple level design, with plans to develop more interesting levels in the future. The fighter jet models are free assets from Unreal Marketplace's [Vigilante](https://www.unrealengine.com/marketplace/en-US/profile/Vigilante), with visual effects from the model pack’s Niagara particle system customized for this project's requirements. Sound effects are partly from the Unreal Marketplace and partly from free resources online. A list of credits is provided at the end. 
 <br>
 
 ## How to Play
