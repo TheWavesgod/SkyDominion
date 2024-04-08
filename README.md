@@ -79,6 +79,6 @@ This project did not focus on graphics, utilizing mostly UE's default settings a
 | Gamepad Special Left or Keyboard Tab | Hold to display the current performance detail table |
 
 ## Getting Started
-Find the windows build in release.
+Find the windows build in [release](https://github.com/TheWavesgod/SkyDominion/releases/tag/v1.0.0).
 
 Loading...
