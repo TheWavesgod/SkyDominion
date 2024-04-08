@@ -477,7 +477,7 @@ bool AMissile::CheckTargetInInfaredSearchRange(const AActor* target)
 	FVector targetDir = (target->GetActorLocation() - GetActorLocation()).GetSafeNormal();
 	float cosTargetDir = targetDir.Dot(GetActorForwardVector());
 
-	return cosTargetDir < 0.5f;
+	return cosTargetDir > 0.5f;
 }
 
 float AMissile::GetHeatIndex() const

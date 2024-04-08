@@ -360,7 +360,7 @@ void URadarComponent::AddDetectedEnemy(AFighter* Target)
 		if (i == nullptr)
 		{
 			i = Target;
-			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("Add New Target in %d "), i) + i->GetName());
+			//GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("Add New Target in %d "), i) + i->GetName());
 			break;
 		}
 	}
