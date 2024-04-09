@@ -6,8 +6,6 @@
 
 The primary motivation behind creating this game was for job-seeking purposes, to serve as part of my personal portfolio. The majority of the game's functionalities are implemented in C++, with the remainder completed using Blueprints. I chose this theme due to my interest in military action genres and my previous experience working at a military simulation company. This game was crafted based on my basic understanding of fighter jets.<br> 
 
-![MultiLobby](https://github.com/TheWavesgod/SkyDominion/blob/develop/Asset/e3a488bbe53443f397620db5b2a55d0.png)
-
 ## Features
 ### Core Gameplay
 The game currently features only a multiplayer online mode where the Red and Blue teams compete against each other. By linking a Steam account, players can join a match with their companions and use weapons to destroy the opposing team. A match lasts 20 minutes, and the team with the most kills when time runs out wins. Future plans include adding a single-player mode, featuring tutorial levels and AI combat scenarios.<br> 
@@ -70,10 +68,14 @@ Attacks from cannons or missiles that result in enemy aircraft crashing can add 
 ![Scoring](https://github.com/TheWavesgod/SkyDominion/blob/develop/Asset/407caf7a37fd3304d3b420c10573022.png)
 
 ### HUD
-The HUD in this game provides players with detailed information necessary for piloting a fighter jet. This includes a pitch indicator, direction compass, ground speed and altitude display, throttle position indicator, the angle of attack and G-force values in the bottom left corner, Mach number, the landing gear status in the top right corner, the integrity of the aircraft, which represents the health points, and in the bottom right corner, the number of bullets, types of missiles, their quantity, and range indicators, radar mode, and the number of decoy flares. In addition to the previously mentioned enemy and missile markers, various warning alerts, it also includes match information such as kills, deaths, team scores, and match time.
+The HUD in this game provides players with detailed information necessary for piloting a fighter jet. This includes a pitch indicator, direction compass, ground speed and altitude display, throttle position indicator, the angle of attack and G-force values in the bottom left corner, Mach number, the landing gear status in the top right corner, the integrity of the aircraft, which represents the health points, and in the bottom right corner, the number of bullets, types of missiles, their quantity, and range indicators, radar mode, and the number of decoy flares. In addition to the previously mentioned enemy and missile markers, various warning alerts, it also includes match information such as kills, deaths, team scores, and match time. 
+
+![HUD](https://github.com/TheWavesgod/SkyDominion/blob/develop/Asset/862e2381e091251fe601bc79a250b83.png)
 
 ### Networking and UI
-The network utilizes a listen server model, with one player playing on the server, and the majority of game logic being calculated on the server side and then synchronized to each client player. The Online Subsystem Steam from UE was used to implement the Matchmaking feature. A simple game menu facilitates the functionality of a multiplayer game lobby, where players can select the fighter jet they wish to pilot. Teams are divided into red and blue based on the order of joining the room, and the game is started by the server-side player.
+The network utilizes a listen server model, with one player playing on the server, and the majority of game logic being calculated on the server side and then synchronized to each client player. The Online Subsystem Steam from UE was used to implement the Matchmaking feature. A simple game menu facilitates the functionality of a multiplayer game lobby, where players can select the fighter jet they wish to pilot. Teams are divided into red and blue based on the order of joining the room, and the game is started by the server-side player. 
+
+![MultiLobby](https://github.com/TheWavesgod/SkyDominion/blob/develop/Asset/e3a488bbe53443f397620db5b2a55d0.png)
 
 ### Controls
 The game supports both controller and keyboard inputs, but playing with a controller is recommended for a better gaming experience.
