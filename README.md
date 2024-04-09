@@ -21,11 +21,15 @@ The maneuvering of the fighter jets is based on a simplified aerodynamics model 
 
 ### Combat 
 The game's fighter jets are equipped with three main components: radar, missiles, and a cannon. 
+
 ![su33 takeoff](https://github.com/TheWavesgod/SkyDominion/blob/develop/Asset/869036c83a5a4670365ed4d1532874a.png)
 > #### Radar
 The implementation of the radar is inspired by real radar principles, with fictional elements added. The radar gameplay includes three modes: 
 * RWS mode
 which is essentially a wide-area scanning mode. Enemy aircraft scanned by RWS are briefly marked on the screen for a few seconds without specific information about the enemy; you need to use this mode to locate the general position of the enemy.
+
+![RWS](https://github.com/TheWavesgod/SkyDominion/blob/develop/Asset/a515399481e25ef1a69df2b327604ed.png)
+
 * VT mode
 which is vertical scanning mode, allows you to perform a vertical scan in the direction of the enemy's estimated position once identified. Enemies within the vertical scan range are detailedly marked on the screen, including the model and location, considered as designated targets. Detailedly marked enemies can be locked on; pressing the lock button initiates a two-second locking process, pressing the lock button again can switch the locked target. After locking is completed, the mode switches to STT.
 * STT mode
