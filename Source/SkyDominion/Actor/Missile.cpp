@@ -214,6 +214,12 @@ void AMissile::InfraredCheck()
 
 void AMissile::SemiActiveCheck()
 {
+	if (!FighterOnwer) 
+	{
+		TrackTarget = nullptr;
+		return;
+	}
+
 	AActor* RadarTarget = FighterOnwer->GetRadarComponent()->GetLockedTarget();
 
 	if (!IsValid(RadarTarget))
