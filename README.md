@@ -46,13 +46,18 @@ The radar warning system is also inspired by real radar principles, with fiction
 > #### Missiles
 Fighter jets are equipped with one or two types of air-to-air missiles and support switching between them, with a limited number of missiles that reset upon respawn. <br>
 The game mainly implements two types of missiles: the infrared-tracking missile AIM9 and R73, which is an automatic tracking missile based on infrared principles that can automatically track the hottest target based on infrared characteristics. I implemented a relatively simple calculation of infrared characteristics; fighter jets, missiles, and decoy flares all possess infrared characteristics. When tracked by this missile, your best option is to perform evasive maneuvers, release decoy flares, and most importantly, turn off the afterburner to reduce engine temperature.<br>
-Another type of missile is the semi-active radar missile AIM7 and R27, which rely on the fighter jet's own radar for guidance. Compared to infrared-tracking missiles, they have a longer range and can be launched from a great distance, but you need to continuously track the target using STT mode, otherwise, the missile will also lose the target.
+Another type of missile is the semi-active radar missile AIM7 and R27, which rely on the fighter jet's own radar for guidance. Compared to infrared-tracking missiles, they have a longer range and can be launched from a great distance, but you need to continuously track the target using STT mode, otherwise, the missile will also lose the target. 
+![Missile](https://github.com/TheWavesgod/SkyDominion/blob/develop/Asset/23c00839855f1465dc0b09868d23eda.png)
 
 > #### Counter Measures
-To counter infrared-tracking missiles, you can also launch decoy flares to interfere with the locking of infrared-tracking missiles. The temperature of decoy flares is very high, but note that it is generally not higher than the temperature of your aircraft when the afterburner is activated.
+To counter infrared-tracking missiles, you can also launch decoy flares to interfere with the locking of infrared-tracking missiles. The temperature of decoy flares is very high, but note that it is generally not higher than the temperature of your aircraft when the afterburner is activated. 
+
+![Flare](https://github.com/TheWavesgod/SkyDominion/blob/develop/Asset/68366a867f5e106276ce30cfc8600b1.png)
 
 > #### Cannon
-All fighter jets are equipped with a cannon, which has limited ammunition that resets upon respawn. The rate of fire and bullet speed are set according to real data, and tracer rounds are implemented to correct the trajectory.
+All fighter jets are equipped with a cannon, which has limited ammunition that resets upon respawn. The rate of fire and bullet speed are set according to real data, and tracer rounds are implemented to correct the trajectory. 
+
+![Cannon](https://github.com/TheWavesgod/SkyDominion/blob/develop/Asset/0a2ffb7c5ebdace3e87681c04ce2567.png)
 
 > #### Damage
 Damage is based on hit points; hits from bullets and missiles or collisions cause varying degrees of damage.
