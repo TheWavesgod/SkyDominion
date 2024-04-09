@@ -32,8 +32,13 @@ which is essentially a wide-area scanning mode. Enemy aircraft scanned by RWS ar
 
 * VT mode
 which is vertical scanning mode, allows you to perform a vertical scan in the direction of the enemy's estimated position once identified. Enemies within the vertical scan range are detailedly marked on the screen, including the model and location, considered as designated targets. Detailedly marked enemies can be locked on; pressing the lock button initiates a two-second locking process, pressing the lock button again can switch the locked target. After locking is completed, the mode switches to STT.
+
+![VTMode](https://github.com/TheWavesgod/SkyDominion/blob/develop/Asset/7f814f4171d0463217af5ace0c8246d.png)
+
 * STT mode
 which is single-target tracking mode, continuously locks onto the target, with detailed information about the target displayed on the screen, and no other enemy targets are shown. The tracking range of STT is conical; if the target escapes this range, you lose the target and revert to VT or RWS mode. In STT mode, you can pass the locked target information to the missile, guiding semi-active radar missiles to track the targeted enemy.
+
+![STTMode](https://github.com/TheWavesgod/SkyDominion/blob/develop/Asset/bf3e0a962286f0cf91ad571cd06af95.png)
 
 > #### Warning System
 The radar warning system is also inspired by real radar principles, with fictional elements added. Depending on the different modes of enemy radar, i.e., different radar signal volumes, you will receive different warnings, including being scanned by RWS, vertical scanning, STT tracking, missile tracking, and missile approach, each with different alerts. Logic related to low altitude and landing gear deployment/retraction also has corresponding prompts and warnings.
