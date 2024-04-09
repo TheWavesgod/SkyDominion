@@ -20,7 +20,8 @@ The maneuvering of the fighter jets is based on a simplified aerodynamics model 
 ![TakeOff](https://github.com/TheWavesgod/SkyDominion/blob/develop/Asset/dc791d3f9dbbe3c95761e3ba4e16e61.png)
 
 ### Combat 
-The game's fighter jets are equipped with three main components: radar, missiles, and a cannon.
+The game's fighter jets are equipped with three main components: radar, missiles, and a cannon. 
+![su33 takeoff](https://github.com/TheWavesgod/SkyDominion/blob/develop/Asset/869036c83a5a4670365ed4d1532874a.png)
 > #### Radar
 The implementation of the radar is inspired by real radar principles, with fictional elements added. The radar gameplay includes three modes: 
 * RWS mode
