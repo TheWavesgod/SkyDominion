@@ -48,7 +48,7 @@ Another type of missile is the semi-active radar missile AIM7 and R27, which rel
 ![Missile](https://github.com/TheWavesgod/SkyDominion/blob/develop/Asset/23c00839855f1465dc0b09868d23eda.png)
 
 > #### Counter Measures
-To counter infrared-tracking missiles, you can also launch decoy flares to interfere with the locking of infrared-tracking missiles. The temperature of decoy flares is very high, but note that it is generally not higher than the temperature of your aircraft when the afterburner is activated. 
+To counter infrared-tracking missiles, you can also launch decoy flares to interfere with the locking of infrared-tracking missiles. The temperature of decoy flares is very high, but note that it is generally not higher than the temperature of your aircraft when the afterburner is activated. Flares can also disrupt enemy radar lock-ons.
 
 ![Flare](https://github.com/TheWavesgod/SkyDominion/blob/develop/Asset/68366a867f5e106276ce30cfc8600b1.png)
 
