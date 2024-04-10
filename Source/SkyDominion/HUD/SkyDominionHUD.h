@@ -94,6 +94,7 @@ protected:
 public:
 	void AddPlayerOverlay();
 	void SetPlayerOverlayVisibility(bool bIsVisible);
+	bool bIsPlayerOverlayVisible = true;
 
 	void AddSpectatorOverlay();
 	void RemoveSpectatorOverlay();

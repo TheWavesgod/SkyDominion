@@ -61,4 +61,7 @@ protected:
 
 	UFUNCTION()
 	void ShowRoundStateBtnReleased();
+
+	UFUNCTION()
+	void ToggleHUDBttnPressed();
 };

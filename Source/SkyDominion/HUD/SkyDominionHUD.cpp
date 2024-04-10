@@ -205,13 +205,15 @@ void ASkyDominionHUD::SetPlayerOverlayVisibility(bool bIsVisible)
 {
 	if (!PlayerOverlay) return;
 
+	bIsPlayerOverlayVisible = bIsVisible;
+
 	if (bIsVisible)
 	{
 		PlayerOverlay->AddToViewport();
 	}
 	else
 	{
-		PlayerOverlay->RemoveFromViewport();
+		PlayerOverlay->RemoveFromParent();
 	}
 }
 
@@ -230,7 +232,7 @@ void ASkyDominionHUD::RemoveSpectatorOverlay()
 {
 	if (SpectatorOverlay)
 	{
-		SpectatorOverlay->RemoveFromViewport();
+		SpectatorOverlay->RemoveFromParent();
 	}
 }
 
@@ -248,7 +250,7 @@ void ASkyDominionHUD::RemovePauseMenu()
 {
 	if (PauseMenu)
 	{
-		PauseMenu->RemoveFromViewport();
+		PauseMenu->RemoveFromParent();
 	}
 }
 
