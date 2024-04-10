@@ -9,7 +9,7 @@ void UMarkWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	SetVisibility(ESlateVisibility::Collapsed);
+	SetVisibility(ESlateVisibility::Hidden);
 
 
 }
