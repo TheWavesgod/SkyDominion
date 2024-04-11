@@ -513,21 +513,25 @@ AFighter* URadarComponent::GetLockedTarget() const
 
 void URadarComponent::ActiveTargetRWSScanedAlert_Implementation(AFighter* target)
 {
+	if (!IsValid(target)) return;
 	target->ActivateRwsBeScanedAlert();
 }
 
 void URadarComponent::ActiveTargetVTScanedAlert_Implementation(AFighter* target)
 {
+	if (!IsValid(target)) return;
 	target->ActivateVTBeScanedAlert();
 }
 
 void URadarComponent::ActiveTargetSTTLockedAlert_Implementation(AFighter* target)
 {
+	if (!IsValid(target)) return;
 	target->ActivateSTTBeLockedAlert();
 }
 
 void URadarComponent::DeactiveTargetSTTLockedAlert_Implementation(AFighter* target)
 {
+	if (!IsValid(target)) return;
 	target->DeactivateSTTBeLockedAlert();
 }
 
