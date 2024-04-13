@@ -17,6 +17,7 @@ enum class EFighterJetType : uint8
 	E_Rafale UMETA(DisplayName = "Rafale"),
 	E_Mig29 UMETA(DisplayName = "Mig29"), 
 	E_F16C UMETA(DisplayName = "F16C"),
+	E_Typhoon UMETA(DisplayName = "Typhoon"),
 
 	E_Max UMETA(DisplayName = "Max")
 };
