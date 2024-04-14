@@ -92,9 +92,10 @@ void ASkyPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
-	InputComponent->BindAction(TEXT("Pause"), EInputEvent::IE_Pressed, this, &ThisClass::PauseBtnPressed);
+	InputComponent->BindAction(TEXT("Pause"), EInputEvent::IE_Pressed, this, &ThisClass::PauseBtnPressed); 
 	InputComponent->BindAction(TEXT("ShowRoundState"), EInputEvent::IE_Pressed, this, &ThisClass::ShowRoundStateBtnPressed);
 	InputComponent->BindAction(TEXT("ShowRoundState"), EInputEvent::IE_Released, this, &ThisClass::ShowRoundStateBtnReleased);
+	InputComponent->BindAction(TEXT("ToggleHUD"), EInputEvent::IE_Pressed, this, &ThisClass::ToggleHUDBttnPressed);
 }
 
 void ASkyPlayerController::RequestRespawn()
@@ -170,4 +171,12 @@ void ASkyPlayerController::ShowRoundStateBtnReleased()
 	if (!SkyDominionHUD) return;
 
 	SkyDominionHUD->RemoveRoundStateOverlay();
+}
+
+void ASkyPlayerController::ToggleHUDBttnPressed()
+{
+	ASkyDominionHUD* SkyDominionHUD = GetHUD<ASkyDominionHUD>();
+	if (!SkyDominionHUD) return;
+
+	SkyDominionHUD->SetPlayerOverlayVisibility(!SkyDominionHUD->bIsPlayerOverlayVisible);
 }

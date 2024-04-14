@@ -24,19 +24,35 @@ void ADisplayAirplane::SetDisplayPlaneByIndex(const int Index)
 	switch (static_cast<EFighterJetType>(Index))
 	{
 	case EFighterJetType::E_F15E:
-		AssetPath = TEXT("SkeletalMesh'/Game/VigilanteContent/Vehicles/West_Fighter_F15E/SK_West_Fighter_F15E.SK_West_Fighter_F15E'"); 
+		AssetPath = TEXT("SkeletalMesh'/Game/Assets/VigilanteContent/Vehicles/West_Fighter_F15E/SK_West_Fighter_F15E.SK_West_Fighter_F15E'"); 
 		break;
 
 	case EFighterJetType::E_Su33:
-		AssetPath = TEXT("SkeletalMesh'/Game/VigilanteContent/Vehicles/East_Fighter_Su33/SK_East_Fighter_Su33.SK_East_Fighter_Su33'"); 
+		AssetPath = TEXT("SkeletalMesh'/Game/Assets/VigilanteContent/Vehicles/East_Fighter_Su33/SK_East_Fighter_Su33.SK_East_Fighter_Su33'"); 
 		break;
 
 	case EFighterJetType::E_F18C:
-		AssetPath = TEXT("SkeletalMesh'/Game/VigilanteContent/Vehicles/West_Fighter_F18C/SK_West_Fighter_F18C.SK_West_Fighter_F18C'"); 
+		AssetPath = TEXT("SkeletalMesh'/Game/Assets/VigilanteContent/Vehicles/West_Fighter_F18C/SK_West_Fighter_F18C.SK_West_Fighter_F18C'"); 
 		break;
 
 	case EFighterJetType::E_Su24:
-		AssetPath = TEXT("SkeletalMesh'/Game/VigilanteContent/Vehicles/East_Bomber_SU24/SK_East_Bomber_SU24.SK_East_Bomber_SU24'"); 
+		AssetPath = TEXT("SkeletalMesh'/Game/Assets/VigilanteContent/Vehicles/East_Bomber_SU24/SK_East_Bomber_SU24.SK_East_Bomber_SU24'"); 
+		break;
+
+	case EFighterJetType::E_Rafale:
+		AssetPath = TEXT("SkeletalMesh'/Game/VigilanteMovement/Vehicles/West_Fighter_Rafale/SK_West_Fighter_Rafale.SK_West_Fighter_Rafale'");
+		break; 
+
+	case EFighterJetType::E_Mig29:
+		AssetPath = TEXT("SkeletalMesh'/Game/VigilanteMovement/Vehicles/East_Fighter_MiG29/SK_East_Fighter_MiG29.SK_East_Fighter_MiG29'"); 
+		break;
+
+	case EFighterJetType::E_F16C:
+		AssetPath = TEXT("SkeletalMesh'/Game/VigilanteMovement/Vehicles/West_Fighter_F16C/SK_West_Fighter_F16C.SK_West_Fighter_F16C'"); 
+		break;
+
+	case EFighterJetType::E_Typhoon:
+		AssetPath = TEXT("SkeletalMesh'/Game/VigilanteMovement/Vehicles/West_Fighter_Typhoon/SK_West_Fighter_Typhoon.SK_West_Fighter_Typhoon'"); 
 		break;
 	}
 	USkeletalMesh* SkeletalMesh = LoadObject<USkeletalMesh>(nullptr, *AssetPath);
